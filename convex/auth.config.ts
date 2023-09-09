@@ -1,7 +1,7 @@
 const clerkAuthConfig = {
   providers: [
     {
-      domain: "https://climbing-feline-30.clerk.accounts.dev",
+      domain: process.env.CLERK_JWT_ISSUER_URL,
       applicationId: "convex",
     },
   ],

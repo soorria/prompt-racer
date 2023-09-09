@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider publishableKey={"pk_test_Y2xpbWJpbmctZmVsaW5lLTMwLmNsZXJrLmFjY291bnRzLmRldiQ"}>
       <html lang="en">
         <body className={cx(Fugaz.variable, inter.variable, "font-sans")}>
           <ConvexClientProvider>
