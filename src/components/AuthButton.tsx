@@ -11,7 +11,7 @@ export default function AuthButton({}: Props) {
   const user = useUser()
 
   return (
-    <button>
+    <div className="">
       {isAuthenticated ? (
         <UserButton afterSignOutUrl="/" />
       ) : (
@@ -19,6 +19,6 @@ export default function AuthButton({}: Props) {
           <Button>Sign In</Button>
         </SignInButton>
       )}
-    </button>
+    </div>
   )
 }
