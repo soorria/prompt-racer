@@ -20,7 +20,9 @@
     ],
     "paths": {
       "~/*": ["./src/*"]
-    }
+    },
+    "noUncheckedIndexedAccess": true,
+    "useUnknownInCatchVariables": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "convex/auth.config.js"],
   "exclude": ["node_modules"]
