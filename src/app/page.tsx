@@ -1,12 +1,19 @@
 import NavBar from "~/components/NavBar"
-import TestingContent from "./testing-content"
+import PanelSkeleton from "~/components/PanelSkeleton"
+import { cookies } from "next/headers"
 
 export default function Home() {
-  return (
-    <>
-      <NavBar />
+  const layout = cookies().get("react-resizable-panels:layout")
 
-      <TestingContent />
-    </>
+  let defaultLayout
+  if (layout) {
+    defaultLayout = JSON.parse(layout.value)
+  }
+
+  return (
+    <main className="min-h-screen flex flex-col">
+      <NavBar />
+      <PanelSkeleton defaultLayout={defaultLayout} />
+    </main>
   )
 }
