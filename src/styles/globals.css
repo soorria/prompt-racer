@@ -27,7 +27,7 @@
   } */
 
   :root {
-    --background: 20 14.3% 4.1%;
+    --background: 20 14.3% 6.1%;
     --foreground: 0 0% 95%;
     --card: 24 9.8% 10%;
     --card-foreground: 0 0% 95%;
@@ -46,6 +46,7 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 142.4 71.8% 29.2%;
+    --radius: 0.5rem;
   }
 }
 

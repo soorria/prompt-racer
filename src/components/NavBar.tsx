@@ -2,6 +2,8 @@ import React from "react"
 import { Button } from "./ui/button"
 import { ModeToggle } from "./ModeToggle"
 import { Fugaz_One } from "next/font/google"
+import { SignInButton } from "@clerk/nextjs"
+import AuthButton from "./AuthButton"
 
 const Fugaz = Fugaz_One({ weight: "400", subsets: ["latin"] })
 
@@ -9,13 +11,14 @@ type Props = {}
 
 export default function NavBar({}: Props) {
   return (
-    <div className="flex-row justify-between flex px-5 py-5 bg-card items-center">
+    <div className="flex-row justify-between flex px-5 py-5 bg-card items-center rounded-xl">
       <div className={"font-display"}>
         <div className="text-xl flex flex-row">
           PROMPT<div className="text-primary">RACER</div>
         </div>
       </div>
       {/* <ModeToggle /> */}
+      <AuthButton />
     </div>
   )
 }
