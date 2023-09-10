@@ -4,6 +4,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 import DescriptionPanel from "./DescriptionPanel"
 import CodePanel from "./CodePanel"
 import ChatPanel from "./ChatPanel"
+import { cx } from "class-variance-authority"
 
 type LayoutType = {
   left?: number
@@ -18,69 +19,69 @@ interface PanelSkeletonProps {
   defaultLayout?: LayoutType
 }
 
+const ResizeHandle = ({
+  orientation = "horizontal",
+}: {
+  orientation?: "horizontal" | "vertical"
+}) => (
+  <PanelResizeHandle
+    className={cx(
+      orientation === "vertical" ? "w-1" : "h-1",
+      "flex flex-col justify-center items-center"
+    )}
+  >
+    <div
+      className={cx(
+        orientation === "vertical" ? "h-1/6 w-1" : "h-1 w-1/6",
+        "bg-white/10 rounded-full"
+      )}
+    />
+  </PanelResizeHandle>
+)
+
 export default function PanelSkeleton({
-  defaultLayout = {
-    left: 50,
-    right: 50,
-    tl: 70,
-    bl: 30,
-    tr: 35,
-    br: 65,
-  },
+  defaultLayout = { left: 50, right: 50, tl: 70, bl: 30, tr: 35, br: 65 },
 }: PanelSkeletonProps) {
   const [panelSizes, setPanelSizes] = useState<LayoutType>(defaultLayout)
+  const { left, right, tl, bl, tr, br } = panelSizes
 
   useEffect(() => {
     document.cookie = `react-resizable-panels:layout=${JSON.stringify(panelSizes)}`
   }, [panelSizes])
 
-  const updatePanelSizes = (updatedSizes: Partial<LayoutType>) => {
+  const updatePanelSizes = (updatedSizes: Partial<LayoutType>) =>
     setPanelSizes((prevSizes) => ({ ...prevSizes, ...updatedSizes }))
-  }
 
-  const handleLeftRightLayout = (sizes: number[]) => {
-    updatePanelSizes({ left: sizes[0], right: sizes[1] })
-  }
-
-  const handleLeftLayout = (sizes: number[]) => {
-    updatePanelSizes({ tl: sizes[0], bl: sizes[1] })
-  }
-
-  const handleRightLayout = (sizes: number[]) => {
-    updatePanelSizes({ tr: sizes[0], br: sizes[1] })
+  const handleLayout = (keys: string[]) => (sizes: number[]) => {
+    const newSizes = Object.fromEntries(keys.map((key, idx) => [key, sizes[idx]]))
+    updatePanelSizes(newSizes)
   }
 
   return (
     <PanelGroup
       direction="horizontal"
-      onLayout={handleLeftRightLayout}
+      onLayout={handleLayout(["left", "right"])}
       className="mt-4 flex-1 gap-1"
     >
-      <Panel defaultSize={panelSizes.left}>
-        <PanelGroup direction="vertical" onLayout={handleLeftLayout} className="gap-1">
-          <Panel defaultSize={panelSizes.tl}>
+      <Panel defaultSize={left}>
+        <PanelGroup direction="vertical" onLayout={handleLayout(["tl", "bl"])} className="gap-1">
+          <Panel defaultSize={tl}>
             <DescriptionPanel />
           </Panel>
-          <PanelResizeHandle className="h-2 flex flex-col justify-center items-center">
-            <div className="h-1 w-1/6 bg-white/10 rounded-full" />
-          </PanelResizeHandle>
-          <Panel defaultSize={panelSizes.bl}>
+          <ResizeHandle orientation="horizontal" />
+          <Panel defaultSize={bl}>
             <CodePanel />
           </Panel>
         </PanelGroup>
       </Panel>
-      <PanelResizeHandle className="w-1 flex flex-col justify-center items-center">
-        <div className="h-1/6 w-1 bg-white/10 rounded-full" />
-      </PanelResizeHandle>
-      <Panel defaultSize={panelSizes.right}>
-        <PanelGroup direction="vertical" onLayout={handleRightLayout} className="gap-1">
-          <Panel defaultSize={panelSizes.tr}>
-            <ChatPanel />
+      <ResizeHandle orientation="vertical" />
+      <Panel defaultSize={right}>
+        <PanelGroup direction="vertical" onLayout={handleLayout(["tr", "br"])} className="gap-1">
+          <Panel defaultSize={tr}>
+            <CodePanel />
           </Panel>
-          <PanelResizeHandle className="h-2 flex flex-col justify-center items-center">
-            <div className="h-1 w-1/6 bg-white/10 rounded-full" />
-          </PanelResizeHandle>{" "}
-          <Panel defaultSize={panelSizes.br}>
+          <ResizeHandle orientation="horizontal" />
+          <Panel defaultSize={br} className="relative">
             <ChatPanel />
           </Panel>
         </PanelGroup>
