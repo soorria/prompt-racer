@@ -97,7 +97,10 @@ export default function ChatPanel({}: Props) {
 
       <div className="absolute -bottom-4 rounded-b-xl left-0 right-0 mb-4 bg-gradient-to-b to-black/20 from-transparent">
         <div className="flex px-2 py-4">
-          <form className="flex w-full items-center space-x-2">
+          <form
+            className="flex w-full items-center space-x-2"
+            onSubmit={(evt) => evt.preventDefault()}
+          >
             <input
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1"
               id="message"
