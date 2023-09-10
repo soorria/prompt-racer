@@ -5,6 +5,8 @@ import { ModeToggle } from "./ModeToggle"
 import { Fugaz_One } from "next/font/google"
 import { SignInButton } from "@clerk/nextjs"
 import AuthButton from "./AuthButton"
+import { useAction, useMutation } from "convex/react"
+import { api } from "../../convex/_generated/api"
 
 const Fugaz = Fugaz_One({ weight: "400", subsets: ["latin"] })
 

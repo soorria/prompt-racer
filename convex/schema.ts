@@ -15,8 +15,6 @@ export default defineSchema({
 
     mode: v.literal("fastest-player"),
 
-    createdTime: v.string(),
-
     gameStartTime: v.string(),
     gameEndTime: v.string(),
   }),
