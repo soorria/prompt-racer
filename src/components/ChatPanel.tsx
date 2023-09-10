@@ -16,77 +16,77 @@ type MessageType = {
 const messages: MessageType[] = [
   {
     id: 1,
-    text: "Hi, how can I help you today?",
+    text: "Hi, how can I assist you today?",
     sender: "bot",
   },
   {
     id: 2,
-    text: "Hey, I'm having trouble with my account.",
+    text: "Hello! I'm having issues accessing my account.",
     sender: "user",
   },
   {
     id: 3,
-    text: "What seems to be the problem?",
+    text: "I'm sorry to hear that. Can you provide me with your username so I can look into it?",
     sender: "bot",
   },
   {
     id: 4,
-    text: "I can't log in.",
+    text: "Yes, it's user1234.",
     sender: "user",
   },
   {
-    id: 3,
-    text: "What seems to be the problem?",
+    id: 5,
+    text: "Thank you. Give me a moment to check.",
     sender: "bot",
   },
   {
-    id: 4,
-    text: "I can't log in.",
+    id: 6,
+    text: "Alright. While you're at it, I also forgot the answer to my security question.",
     sender: "user",
   },
   {
-    id: 3,
-    text: "What seems to be the problem?",
+    id: 7,
+    text: "No worries! We can help with that. What's your registered email address?",
     sender: "bot",
   },
   {
-    id: 4,
-    text: "I can't log in.",
+    id: 8,
+    text: "It's user1234@email.com.",
     sender: "user",
   },
   {
-    id: 3,
-    text: "What seems to be the problem?",
+    id: 9,
+    text: "Got it. I've sent a link to reset your security question. Please check your inbox.",
     sender: "bot",
   },
   {
-    id: 4,
-    text: "I can't log in.",
+    id: 10,
+    text: "Received it! Thanks a lot for your quick assistance.",
     sender: "user",
   },
   {
-    id: 3,
-    text: "What seems to be the problem?",
+    id: 11,
+    text: "You're welcome! If you need further assistance, just let me know. Stay safe!",
     sender: "bot",
   },
   {
-    id: 4,
-    text: "I can't log in.",
+    id: 12,
+    text: "Will do. Have a great day!",
     sender: "user",
   },
 ]
 
 export default function ChatPanel({}: Props) {
   return (
-    <div className="bg-card h-full rounded-xl px-3 overflow-scroll">
+    <div className="bg-card h-full rounded-xl px-3 overflow-scroll overflow-x-hidden">
       <div className="absolute top-0 left-2 right-2 mb-4">
         <ChatbotToggle />
       </div>
-      <div className="space-y-4 y-full mt-24 mb-20">
+      <div className="space-y-4 mt-24 mb-20">
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex w-max flex-col gap-2 rounded-lg px-3 py-2 text-sm ${
+            className={`flex max-w-xs flex-col gap-2 rounded-lg px-3 py-2 text-sm break-words ${
               message.sender === "bot" ? "bg-muted" : "ml-auto bg-primary text-primary-foreground"
             }`}
           >
@@ -94,6 +94,7 @@ export default function ChatPanel({}: Props) {
           </div>
         ))}
       </div>
+
       <div className="absolute -bottom-4 rounded-b-xl left-0 right-0 mb-4 bg-gradient-to-b to-black/20 from-transparent">
         <div className="flex px-2 py-4">
           <form className="flex w-full items-center space-x-2">
