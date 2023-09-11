@@ -10,9 +10,11 @@ export default function Home() {
     defaultLayout = JSON.parse(layout.value)
   }
   return (
-    <main className="h-full flex flex-col">
+    <>
       <NavBar />
-      <PanelSkeleton defaultLayout={defaultLayout} />
-    </main>
+      <main className="mt-4">
+        <PanelSkeleton defaultLayout={defaultLayout} />
+      </main>
+    </>
   )
 }

@@ -5,6 +5,7 @@ import DescriptionPanel from "./DescriptionPanel"
 import CodePanel from "./CodePanel"
 import ChatPanel from "./ChatPanel"
 import { cx } from "class-variance-authority"
+import LeaderboardPanel from "./LeaderboardPanel"
 
 type LayoutType = {
   left?: number
@@ -61,7 +62,7 @@ export default function PanelSkeleton({
     <PanelGroup
       direction="horizontal"
       onLayout={handleLayout(["left", "right"])}
-      className="mt-4 flex-1 gap-1"
+      className="flex-1 gap-1"
     >
       <Panel defaultSize={left}>
         <PanelGroup direction="vertical" onLayout={handleLayout(["tl", "bl"])} className="gap-1">
@@ -70,7 +71,7 @@ export default function PanelSkeleton({
           </Panel>
           <ResizeHandle orientation="horizontal" />
           <Panel defaultSize={bl}>
-            <CodePanel />
+            <LeaderboardPanel />
           </Panel>
         </PanelGroup>
       </Panel>
