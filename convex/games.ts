@@ -1,5 +1,6 @@
 import "@total-typescript/ts-reset"
 import {
+  QueryCtx,
   action,
   internalAction,
   internalMutation,
@@ -31,42 +32,37 @@ export const getMyGames = query({
   },
 })
 
+const _getLatestRunningGameForUser = async (ctx: QueryCtx, userId: string) => {
+  const [latestGameInfoForUser] = await ctx.db
+    .query("playerGameInfo")
+    .filter((q) => q.eq(q.field("userId"), userId))
+    .order("desc")
+    .take(1)
+
+  if (!latestGameInfoForUser) {
+    return null
+  }
+
+  const game = await ctx.db.get(latestGameInfoForUser.gameId)
+
+  if (!game || game.state === "finished" || game.state === "cancelled") {
+    return null
+  }
+
+  return game
+}
+
 export const getLatestGameForUser = internalQuery({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
-    const [latestGameInfoForUser] = await ctx.db
-      .query("playerGameInfo")
-      .filter((q) => q.eq(q.field("userId"), args.userId))
-      .order("desc")
-      .take(1)
-
-    if (!latestGameInfoForUser) {
-      return null
-    }
-
-    const game = await ctx.db.get(latestGameInfoForUser.gameId)
-
-    return game
+    return _getLatestRunningGameForUser(ctx, args.userId)
   },
 })
 
 export const getLatestGameForAuthedUser = query({
   handler: async (ctx) => {
     const { userId } = await requireUser(ctx)
-
-    const [latestGameInfoForUser] = await ctx.db
-      .query("playerGameInfo")
-      .filter((q) => q.eq(q.field("userId"), userId))
-      .order("desc")
-      .take(1)
-
-    if (!latestGameInfoForUser) {
-      return null
-    }
-
-    const game = await ctx.db.get(latestGameInfoForUser.gameId)
-
-    return game
+    return _getLatestRunningGameForUser(ctx, userId)
   },
 })
 
