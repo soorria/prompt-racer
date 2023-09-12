@@ -1,4 +1,3 @@
-import NavBar from "~/components/NavBar"
 import PanelSkeleton from "~/components/PanelSkeleton"
 import { cookies } from "next/headers"
 
@@ -17,7 +16,6 @@ export default function Home() {
 
   return (
     <main className="h-full flex flex-col">
-      <NavBar />
       <PanelSkeleton defaultLayout={defaultLayout} defaultTopLayout={defaultTopLayout} />
     </main>
   )

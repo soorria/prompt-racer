@@ -6,11 +6,11 @@ export default defineSchema({
     question: v.any(),
     creatorId: v.string(),
 
-    // TODO: add a "game state" enum
     state: v.union(
       v.literal("waiting-for-players"),
       v.literal("in-progress"),
-      v.literal("finished")
+      v.literal("finished"),
+      v.literal("cancelled")
     ),
 
     mode: v.literal("fastest-player"),
@@ -26,8 +26,8 @@ export default defineSchema({
     code: v.string(),
     chatHistory: v.array(v.any()),
 
-    lastPromptedAt: v.string(),
-    lastRanCodeAt: v.string(),
+    lastPromptedAt: v.optional(v.string()),
+    lastRanCodeAt: v.optional(v.string()),
 
     state: v.union(v.literal("playing"), v.literal("submitted")),
   }),

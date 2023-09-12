@@ -1,13 +1,23 @@
 import { UserIdentity } from "convex/server"
-import { ActionCtx, MutationCtx, QueryCtx } from "../_generated/server"
+import { AnyCtx } from "./types"
 
 export const getUserId = (identity: UserIdentity) => identity.tokenIdentifier
 
-export const requireUser = async (ctx: QueryCtx | ActionCtx | MutationCtx) => {
+export const requireUser = async (ctx: AnyCtx) => {
+  const user = await getUser(ctx)
+
+  if (!user) {
+    throw new Error("Not logged in")
+  }
+
+  return user
+}
+
+export const getUser = async (ctx: AnyCtx) => {
   const identity = await ctx.auth.getUserIdentity()
 
   if (!identity) {
-    throw new Error("Not logged in")
+    return null
   }
 
   return {

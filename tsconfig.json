@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "~convex/*": ["./convex/_generated/*"]
     },
     "noUncheckedIndexedAccess": true,
     "useUnknownInCatchVariables": true,

@@ -16,6 +16,7 @@ import type {
 } from "convex/server";
 import type * as games from "../games";
 import type * as utils_auth from "../utils/auth";
+import type * as utils_types from "../utils/types";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -28,6 +29,7 @@ import type * as utils_auth from "../utils/auth";
 declare const fullApi: ApiFromModules<{
   games: typeof games;
   "utils/auth": typeof utils_auth;
+  "utils/types": typeof utils_types;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

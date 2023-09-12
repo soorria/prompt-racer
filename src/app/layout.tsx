@@ -4,7 +4,6 @@ import "~/styles/globals.css"
 import type { Metadata } from "next"
 import { Inter, Fugaz_One } from "next/font/google"
 import ConvexClientProvider from "~/lib/convex"
-import { ThemeProvider } from "~/components/theme-provider"
 import { cx } from "class-variance-authority"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -20,11 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider publishableKey={"pk_test_Y2xpbWJpbmctZmVsaW5lLTMwLmNsZXJrLmFjY291bnRzLmRldiQ"}>
       <html lang="en">
         <body className={cx(Fugaz.variable, inter.variable, "font-sans", "p-4 min-h-screen")}>
-          <ConvexClientProvider>
-            {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
-            {children}
-            {/* </ThemeProvider> */}
-          </ConvexClientProvider>
+          <ConvexClientProvider>{children}</ConvexClientProvider>
         </body>
       </html>
     </ClerkProvider>

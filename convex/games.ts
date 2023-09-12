@@ -10,9 +10,10 @@ import {
 import { api, internal } from "./_generated/api"
 
 import { v } from "convex/values"
-import { getUserId, requireUser } from "./utils/auth"
+import { getUser, requireUser } from "./utils/auth"
 import ms from "ms"
 import { addMilliseconds } from "date-fns"
+import { Id } from "./_generated/dataModel"
 
 export const getMyGames = query({
   handler: async (ctx) => {
@@ -38,6 +39,31 @@ export const getLatestGameForUser = internalQuery({
       .filter((q) => q.eq(q.field("userId"), args.userId))
       .order("desc")
       .take(1)
+
+    if (!latestGameInfoForUser) {
+      return null
+    }
+
+    const game = await ctx.db.get(latestGameInfoForUser.gameId)
+
+    return game
+  },
+})
+
+export const getLatestGameForAuthedUser = query({
+  handler: async (ctx) => {
+    const { userId } = await requireUser(ctx)
+
+    const [latestGameInfoForUser] = await ctx.db
+      .query("playerGameInfo")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .order("desc")
+      .take(1)
+
+    if (!latestGameInfoForUser) {
+      return null
+    }
+
     const game = await ctx.db.get(latestGameInfoForUser.gameId)
 
     return game
@@ -69,7 +95,8 @@ export const getGame = query({
   args: { gameId: v.id("game") },
   handler: async (ctx, args) => {
     const game = await ctx.db.get(args.gameId)
-    return { game }
+
+    return game
   },
 })
 
@@ -92,7 +119,7 @@ export const patchGameState = internalMutation({
 export const advanceGameState = internalAction({
   args: { gameId: v.id("game") },
   handler: async (ctx, args) => {
-    const { game } = await ctx.runQuery(api.games.getGame, { gameId: args.gameId })
+    const game = await ctx.runQuery(api.games.getGame, { gameId: args.gameId })
 
     if (!game) {
       return
@@ -118,7 +145,7 @@ const GAME_TIMINGS = {
   playTime: ms("10m"),
 }
 
-export const createGame = action({
+export const createGame = internalAction({
   args: {},
   handler: async (ctx, args) => {
     const { userId } = await requireUser(ctx)
@@ -153,8 +180,84 @@ export const cancelGame = mutation({
       throw new Error("Game not found")
     }
 
-    if (game.state !== "waiting-for-players") {
-      throw new Error("Game is not waiting for players")
+    if (game.creatorId !== userId) {
+      throw new Error("Only the creator can cancel the game")
     }
+
+    if (game.state !== "waiting-for-players") {
+      throw new Error("Game cannot be cancelled in this state")
+    }
+
+    await ctx.db.patch(args.gameId, {
+      state: "cancelled",
+    })
+  },
+})
+
+export const getWaitingGames = query({
+  handler: async (ctx) => {
+    const games = await ctx.db
+      .query("game")
+      .filter((q) => q.eq(q.field("state"), "waiting-for-players"))
+      .order("desc")
+      .take(20)
+
+    return games
+  },
+})
+
+export const joinGame = action({
+  handler: async (ctx) => {
+    const { userId } = await requireUser(ctx)
+
+    const currentGame = await ctx.runQuery(internal.games.getLatestGameForUser, { userId })
+    if (
+      currentGame &&
+      (currentGame.state === "in-progress" || currentGame?.state === "waiting-for-players")
+    ) {
+      throw new Error("You're already in an active game")
+    }
+
+    const games = await ctx.runQuery(api.games.getWaitingGames)
+    let gameToJoin = games[Math.floor(Math.random() * games.length)]
+
+    if (!gameToJoin) {
+      const { gameId } = await ctx.runMutation(internal.games.createNewGame, {
+        creatorUserId: userId,
+      })
+      const newGame = await ctx.runQuery(api.games.getGame, { gameId })
+      if (!newGame) {
+        throw new Error("Failed to create game")
+      }
+      gameToJoin = newGame
+    }
+
+    // this is to get around the types being a little dumb :(
+    const gameId = gameToJoin._id as Id<"game">
+
+    await ctx.runMutation(internal.games.createPlayerInfoForGame, {
+      gameId,
+      userId,
+      startingCode: "",
+    })
+
+    return { gameId }
+  },
+})
+
+export const createPlayerInfoForGame = internalMutation({
+  args: {
+    gameId: v.id("game"),
+    userId: v.string(),
+    startingCode: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("playerGameInfo", {
+      gameId: args.gameId,
+      userId: args.userId,
+      state: "playing",
+      code: args.startingCode,
+      chatHistory: [],
+    })
   },
 })
