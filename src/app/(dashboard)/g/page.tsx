@@ -6,6 +6,14 @@ import { Button } from "~/components/ui/button"
 import { useConvexUser } from "~/lib/convex"
 import { api } from "~convex/api"
 import invariant from "tiny-invariant"
+import LobbyPlayerCard from "~/components/LobbyPlayerCard"
+import PanelSkeleton from "~/components/PanelSkeleton"
+
+const Spinner = () => {
+  return (
+    <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
+  )
+}
 
 const GameDashboard = () => {
   const currentUser = useConvexUser()
@@ -33,16 +41,11 @@ const GameDashboard = () => {
     invariant(currentUser, "currentUser should exist")
     // leaveGame({ gameId: currentGame._id })
   }
+  const isLoading = !activeGame // Example condition, you can modify this based on your game logic
 
   return (
-    <div>
+    <div className="h-full">
       <div className="flex gap-6">
-        <Button onClick={handleJoinGame}>
-          {activeGame?.state === "in-progress" || activeGame?.state === "waiting-for-players"
-            ? "Continue game"
-            : "Join a game"}
-        </Button>
-
         {activeGame ? (
           <>
             {activeGame.creatorId === currentUser?.userId ? (
@@ -61,6 +64,14 @@ const GameDashboard = () => {
           </>
         ) : null}
       </div>
+      {activeGame && activeGame.state === "in-progress" && <PanelSkeleton />}
+
+      {activeGame?.state === "waiting-for-players" && (
+        <div className="flex flex-col items-center mt-8">
+          <LobbyPlayerCard players={[currentUser]} />
+          <p className="mt-4 text-gray-600 animate-pulse">Waiting for players...</p>
+        </div>
+      )}
 
       <div className="mt-8">
         <Debug activeGame={activeGame} $title="Game user is currently in" />

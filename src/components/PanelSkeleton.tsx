@@ -7,7 +7,7 @@ import ChatPanel from "./ChatPanel"
 import { cx } from "class-variance-authority"
 import LeaderboardPanel from "./LeaderboardPanel"
 
-type LayoutType = {
+export type LayoutType = {
   left?: number
   right?: number
   tl?: number

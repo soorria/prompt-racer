@@ -5,6 +5,7 @@ import type { Metadata } from "next"
 import { Inter, Fugaz_One } from "next/font/google"
 import ConvexClientProvider from "~/lib/convex"
 import { cx } from "class-variance-authority"
+import NavBar from "~/components/NavBar"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const Fugaz = Fugaz_One({ weight: "400", variable: "--font-fugaz", subsets: ["latin"] })
@@ -28,7 +29,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           <ConvexClientProvider>
             {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
-            {children}
+            <NavBar />
+            <main className="mt-4 h-full">{children}</main>
             {/* </ThemeProvider> */}
           </ConvexClientProvider>
         </body>

@@ -142,8 +142,8 @@ export const advanceGameState = internalAction({
 })
 
 const GAME_TIMINGS = {
-  waitingForPlayers: ms("1m"),
-  playTime: ms("10m"),
+  waitingForPlayers: ms("10s"),
+  playTime: ms("10s"),
 }
 
 export const createGame = internalAction({
