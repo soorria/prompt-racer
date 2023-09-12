@@ -46,7 +46,11 @@ const GameDashboard = () => {
         {activeGame ? (
           <>
             {activeGame.creatorId === currentUser?.userId ? (
-              <Button variant={"destructive"} onClick={handleCancelGame} disabled>
+              <Button
+                variant={"destructive"}
+                onClick={handleCancelGame}
+                disabled={activeGame.state === "in-progress"}
+              >
                 Cancel game{activeGame.state === "in-progress" ? " (game in progress)" : ""}
               </Button>
             ) : (
