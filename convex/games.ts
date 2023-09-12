@@ -7,16 +7,15 @@ import {
   mutation,
   query,
 } from "./_generated/server"
-import { api, internal, fullApi } from "./_generated/api"
+import { api, internal } from "./_generated/api"
 
 import { v } from "convex/values"
 import { getUserId, requireUser } from "./utils/auth"
 import ms from "ms"
 import { addMilliseconds } from "date-fns"
-import { t } from "./utils/handler"
 
 export const getMyGames = query({
-  handler: t(async (ctx) => {
+  handler: async (ctx) => {
     const { userId } = await requireUser(ctx)
 
     const gameInfos = await ctx.db
@@ -28,12 +27,12 @@ export const getMyGames = query({
     const games = await Promise.all(gameInfos.map((info) => ctx.db.get(info.gameId)))
 
     return { games: games.filter(Boolean) }
-  }),
+  },
 })
 
 export const getLatestGameForUser = internalQuery({
   args: { userId: v.string() },
-  handler: t(async (ctx, args) => {
+  handler: async (ctx, args) => {
     const [latestGameInfoForUser] = await ctx.db
       .query("playerGameInfo")
       .filter((q) => q.eq(q.field("userId"), args.userId))
@@ -42,12 +41,12 @@ export const getLatestGameForUser = internalQuery({
     const game = await ctx.db.get(latestGameInfoForUser.gameId)
 
     return game
-  }),
+  },
 })
 
 export const createNewGame = internalMutation({
   args: { creatorUserId: v.string() },
-  handler: t(async (ctx, args) => {
+  handler: async (ctx, args) => {
     const gameId = await ctx.db.insert("game", {
       creatorId: args.creatorUserId,
       mode: "fastest-player",
@@ -63,15 +62,15 @@ export const createNewGame = internalMutation({
     })
 
     return { gameId }
-  }),
+  },
 })
 
 export const getGame = query({
   args: { gameId: v.id("game") },
-  handler: t(async (ctx, args) => {
+  handler: async (ctx, args) => {
     const game = await ctx.db.get(args.gameId)
     return { game }
-  }),
+  },
 })
 
 export const patchGameState = internalMutation({
@@ -83,23 +82,21 @@ export const patchGameState = internalMutation({
       v.literal("finished")
     ),
   },
-  handler: t(async (ctx, args) => {
+  handler: async (ctx, args) => {
     await ctx.db.patch(args.gameId, {
       state: args.state,
     })
-  }),
+  },
 })
 
 export const advanceGameState = internalAction({
   args: { gameId: v.id("game") },
   handler: async (ctx, args) => {
-    const gameResult = await ctx.runQuery(api.games.getGame, { gameId: args.gameId })
+    const { game } = await ctx.runQuery(api.games.getGame, { gameId: args.gameId })
 
-    if (!gameResult.success || !gameResult.data.game) {
+    if (!game) {
       return
     }
-
-    const game = gameResult.data.game
 
     if (game.state === "waiting-for-players") {
       await ctx.runMutation(internal.games.patchGameState, {
@@ -126,9 +123,9 @@ export const createGame = action({
   handler: async (ctx, args) => {
     const { userId } = await requireUser(ctx)
 
-    const gameResult = await ctx.runQuery(internal.games.getLatestGameForUser, { userId })
+    const game = await ctx.runQuery(internal.games.getLatestGameForUser, { userId })
 
-    if (!gameResult.success || !gameResult.data) {
+    if (game) {
       throw new Error("You're already in an active game")
     }
 
@@ -136,13 +133,9 @@ export const createGame = action({
       creatorUserId: userId,
     })
 
-    // if (!newGameResult.success) {
-    //   return newGameResult
-    // }
-
     // schedule advancing
     await ctx.scheduler.runAfter(GAME_TIMINGS.waitingForPlayers, internal.games.advanceGameState, {
-      gameId: gameResult.data._id,
+      gameId: newGameResult.gameId,
     })
   },
 })
