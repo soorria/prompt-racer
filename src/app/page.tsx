@@ -1,5 +1,6 @@
 import PanelSkeleton from "~/components/PanelSkeleton"
 import { cookies } from "next/headers"
+import NavBar from "~/components/NavBar"
 
 export default function Home() {
   const layout = cookies().get("react-resizable-panels:layout")
@@ -15,8 +16,11 @@ export default function Home() {
   }
 
   return (
-    <main className="h-full flex flex-col">
-      <PanelSkeleton defaultLayout={defaultLayout} defaultTopLayout={defaultTopLayout} />
-    </main>
+    <>
+      <NavBar />
+      <main className="h-full flex flex-col">
+        <PanelSkeleton defaultLayout={defaultLayout} defaultTopLayout={defaultTopLayout} />
+      </main>
+    </>
   )
 }
