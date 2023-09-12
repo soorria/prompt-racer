@@ -18,8 +18,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider publishableKey={"pk_test_Y2xpbWJpbmctZmVsaW5lLTMwLmNsZXJrLmFjY291bnRzLmRldiQ"}>
       <html lang="en">
-        <body className={cx(Fugaz.variable, inter.variable, "font-sans", "p-4 min-h-screen")}>
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+        <body
+          className={cx(
+            Fugaz.variable,
+            inter.variable,
+            "font-sans",
+            "p-4 min-h-screen flex flex-col"
+          )}
+        >
+          <ConvexClientProvider>
+            {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
+            {children}
+            {/* </ThemeProvider> */}
+          </ConvexClientProvider>
         </body>
       </html>
     </ClerkProvider>
