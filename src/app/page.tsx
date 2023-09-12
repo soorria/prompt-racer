@@ -4,17 +4,21 @@ import { cookies } from "next/headers"
 
 export default function Home() {
   const layout = cookies().get("react-resizable-panels:layout")
+  const topLayout = cookies().get("react-resizable-panels:top-layout")
 
   let defaultLayout
   if (layout) {
     defaultLayout = JSON.parse(layout.value)
   }
+  let defaultTopLayout
+  if (topLayout) {
+    defaultTopLayout = JSON.parse(topLayout.value)
+  }
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="h-full flex flex-col">
       <NavBar />
-      {/* @ts-expect-error */}
-      <PanelSkeleton defaultLayout={defaultLayout} />
+      <PanelSkeleton defaultLayout={defaultLayout} defaultTopLayout={defaultTopLayout} />
     </main>
   )
 }

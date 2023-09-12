@@ -14,7 +14,7 @@ type Props = {}
 
 export default function NavBar({}: Props) {
   return (
-    <div className="flex-row justify-between flex px-5 py-5 bg-card items-center rounded-xl">
+    <div className="flex-row justify-between flex px-5 py-5 bg-card items-center rounded-xl h-20">
       <div className={"font-display"}>
         <div className="text-xl flex flex-row">
           PROMPT<div className="text-primary">RACER</div>
