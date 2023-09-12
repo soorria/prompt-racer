@@ -63,7 +63,7 @@ const GameDashboard = () => {
       </div>
 
       <div className="mt-8">
-        <Debug currentGame={activeGame} />
+        <Debug activeGame={activeGame} $title="Game user is currently in" />
       </div>
     </div>
   )
