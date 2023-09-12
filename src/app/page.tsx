@@ -14,7 +14,7 @@ export default function Home() {
     <main className="min-h-screen flex flex-col">
       <NavBar />
       {/* @ts-expect-error */}
-      <PanelSkeleton defaultLayout={defaultLayout} defaultTopLayout={defaultTopLayout} />
+      <PanelSkeleton defaultLayout={defaultLayout} />
     </main>
   )
 }
