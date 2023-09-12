@@ -32,7 +32,7 @@ export const getMyGames = query({
   },
 })
 
-const _getLatestRunningGameForUser = async (ctx: QueryCtx, userId: string) => {
+const _getLatestActiveGameForUser = async (ctx: QueryCtx, userId: string) => {
   const [latestGameInfoForUser] = await ctx.db
     .query("playerGameInfo")
     .filter((q) => q.eq(q.field("userId"), userId))
@@ -45,24 +45,29 @@ const _getLatestRunningGameForUser = async (ctx: QueryCtx, userId: string) => {
 
   const game = await ctx.db.get(latestGameInfoForUser.gameId)
 
-  if (!game || game.state === "finished" || game.state === "cancelled") {
+  const state = game?.state
+
+  if (!game || state === "finished" || state === "cancelled") {
     return null
   }
 
-  return game
+  return {
+    ...game,
+    state: state!,
+  }
 }
 
-export const getLatestGameForUser = internalQuery({
+export const getLatestActiveGameForUser = internalQuery({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
-    return _getLatestRunningGameForUser(ctx, args.userId)
+    return _getLatestActiveGameForUser(ctx, args.userId)
   },
 })
 
-export const getLatestGameForAuthedUser = query({
+export const getLatestActiveGameForAuthedUser = query({
   handler: async (ctx) => {
     const { userId } = await requireUser(ctx)
-    return _getLatestRunningGameForUser(ctx, userId)
+    return _getLatestActiveGameForUser(ctx, userId)
   },
 })
 
@@ -142,24 +147,22 @@ const GAME_TIMINGS = {
 }
 
 export const createGame = internalAction({
-  args: {},
+  args: {
+    userId: v.string(),
+  },
   handler: async (ctx, args) => {
-    const { userId } = await requireUser(ctx)
-
-    const game = await ctx.runQuery(internal.games.getLatestGameForUser, { userId })
-
-    if (game) {
-      throw new Error("You're already in an active game")
-    }
-
     const newGameResult = await ctx.runMutation(internal.games.createNewGame, {
-      creatorUserId: userId,
+      creatorUserId: args.userId,
     })
 
     // schedule advancing
     await ctx.scheduler.runAfter(GAME_TIMINGS.waitingForPlayers, internal.games.advanceGameState, {
       gameId: newGameResult.gameId,
     })
+
+    const gameId = newGameResult.gameId as Id<"game">
+
+    return { gameId }
   },
 })
 
@@ -206,11 +209,8 @@ export const joinGame = action({
   handler: async (ctx) => {
     const { userId } = await requireUser(ctx)
 
-    const currentGame = await ctx.runQuery(internal.games.getLatestGameForUser, { userId })
-    if (
-      currentGame &&
-      (currentGame.state === "in-progress" || currentGame?.state === "waiting-for-players")
-    ) {
+    const currentGame = await ctx.runQuery(internal.games.getLatestActiveGameForUser, { userId })
+    if (currentGame) {
       throw new Error("You're already in an active game")
     }
 
@@ -218,8 +218,8 @@ export const joinGame = action({
     let gameToJoin = games[Math.floor(Math.random() * games.length)]
 
     if (!gameToJoin) {
-      const { gameId } = await ctx.runMutation(internal.games.createNewGame, {
-        creatorUserId: userId,
+      const { gameId } = await ctx.runAction(internal.games.createGame, {
+        userId,
       })
       const newGame = await ctx.runQuery(api.games.getGame, { gameId })
       if (!newGame) {

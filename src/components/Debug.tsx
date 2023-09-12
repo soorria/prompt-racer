@@ -3,7 +3,7 @@ export const Debug = (props: Record<string, any>) => {
 
   return (
     <>
-      <details>
+      <details open>
         <summary>Debug information</summary>
         <pre className="w-full overflow-x-auto">{JSON.stringify(props, null, 2)}</pre>
       </details>

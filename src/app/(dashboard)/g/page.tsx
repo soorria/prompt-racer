@@ -5,49 +5,62 @@ import { Debug } from "~/components/Debug"
 import { Button } from "~/components/ui/button"
 import { useConvexUser } from "~/lib/convex"
 import { api } from "~convex/api"
+import invariant from "tiny-invariant"
 
 const GameDashboard = () => {
   const currentUser = useConvexUser()
-  const currentGame = useQuery(api.games.getLatestGameForAuthedUser)
+  const activeGame = useQuery(api.games.getLatestActiveGameForAuthedUser)
   const joinGame = useAction(api.games.joinGame)
   const cancelGame = useMutation(api.games.cancelGame)
+  // const leaveGame = useMutation(api.games.leaveGame)
 
   const handleJoinGame = () => {
-    if (currentGame) {
-      console.log(currentGame)
+    if (activeGame) {
+      console.log(activeGame)
     } else {
       joinGame()
     }
   }
 
-  const handleCancelOrLeaveGame = () => {
-    console.log("cancel or leave game")
-    if (currentGame && currentUser && currentGame.creatorId === currentUser.userId) {
-      cancelGame({ gameId: currentGame._id })
-    } else {
-      console.log("leave game")
-    }
+  const handleCancelGame = () => {
+    invariant(activeGame, "activeGame should exist")
+    invariant(currentUser, "currentUser should exist")
+    cancelGame({ gameId: activeGame._id })
+  }
+
+  const handleLeaveGame = () => {
+    invariant(activeGame, "activeGame should exist")
+    invariant(currentUser, "currentUser should exist")
+    // leaveGame({ gameId: currentGame._id })
   }
 
   return (
     <div>
       <div className="flex gap-6">
         <Button onClick={handleJoinGame}>
-          {currentGame?.state === "in-progress" || currentGame?.state === "waiting-for-players"
+          {activeGame?.state === "in-progress" || activeGame?.state === "waiting-for-players"
             ? "Continue game"
             : "Join a game"}
         </Button>
 
-        {currentGame ? (
+        {activeGame ? (
           <>
-            <Button variant={"destructive"} onClick={handleCancelOrLeaveGame}>
-              {currentGame.creatorId === currentUser?.userId ? "Cancel game" : "Leave game"}
-            </Button>
+            {activeGame.creatorId === currentUser?.userId ? (
+              <Button variant={"destructive"} onClick={handleCancelGame} disabled>
+                Cancel game{activeGame.state === "in-progress" ? " (game in progress)" : ""}
+              </Button>
+            ) : (
+              <Button variant={"destructive"} onClick={handleLeaveGame}>
+                Leave game
+              </Button>
+            )}
           </>
         ) : null}
       </div>
 
-      <Debug currentGame={currentGame} />
+      <div className="mt-8">
+        <Debug currentGame={activeGame} />
+      </div>
     </div>
   )
 }
