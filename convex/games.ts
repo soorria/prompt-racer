@@ -93,9 +93,11 @@ export const createNewGame = internalMutation({
 })
 
 export const getGame = query({
-  args: { gameId: v.id("game") },
+  args: { gameId: v.string() },
   handler: async (ctx, args) => {
-    const game = await ctx.db.get(args.gameId)
+    const gameId = ctx.db.normalizeId("game", args.gameId)
+    if (!gameId) return null
+    const game = await ctx.db.get(gameId)
 
     return game
   },

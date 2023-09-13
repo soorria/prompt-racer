@@ -1,14 +1,6 @@
 import { cx } from "class-variance-authority"
-import {
-  CheckIcon,
-  GalleryHorizontal,
-  GalleryHorizontalEnd,
-  Play,
-  Timer,
-  Trophy,
-} from "lucide-react"
+import { CheckIcon, GalleryHorizontalEnd, Play, Timer, Trophy } from "lucide-react"
 import React from "react"
-import { Button } from "./ui/button"
 import GameModeSelectionButton from "./GameModeSelectionButton"
 
 type Props = {}
@@ -48,7 +40,7 @@ export default function GameSelector({}: Props) {
           <div
             key={tier.id}
             className={cx(
-              "flex relative flex-col justify-between rounded-3xl bg-card p-8 ring-1 ring-gray-200/20 "
+              "flex relative flex-col justify-between rounded-3xl bg-card p-8 ring-1 ring-gray-200/20 gap-4"
             )}
           >
             <div className="">
@@ -76,7 +68,7 @@ export default function GameSelector({}: Props) {
               </h3>
               <p className="text-sm leading-6 text-zinc-500">{tier.description}</p>
             </div>
-            <GameModeSelectionButton route="g" />
+            <GameModeSelectionButton />
           </div>
         ))}
       </div>

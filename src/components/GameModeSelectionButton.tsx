@@ -3,27 +3,22 @@ import React from "react"
 import { Button } from "./ui/button"
 import { useRouter } from "next/navigation"
 import { api } from "~convex/api"
-import { useAction, useQuery } from "convex/react"
+import { useAction } from "convex/react"
 
-type Props = {
-  route: string
-}
-
-export default function GameModeSelectionButton({ route }: Props) {
+export default function GameModeSelectionButton() {
   const router = useRouter()
   const joinGame = useAction(api.games.joinGame)
 
-  const handleJoinGame = () => {
-    joinGame()
+  const handleJoinGame = async () => {
+    const { gameId } = await joinGame()
+    router.push(`/g/play/${gameId}`)
   }
 
   return (
     <>
       <Button
-        className="mt-4"
         variant={"outline"}
         onClick={() => {
-          router.push(`/${route}`)
           handleJoinGame()
         }}
       >
