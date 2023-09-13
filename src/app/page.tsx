@@ -1,24 +1,24 @@
 import NavBar from "~/components/NavBar"
-import PanelSkeleton from "~/components/PanelSkeleton"
+import PanelSkeleton, { LayoutType } from "~/components/PanelSkeleton"
 import { cookies } from "next/headers"
+import GameSelector from "~/components/GameSelector"
 
 export default function Home() {
-  const layout = cookies().get("react-resizable-panels:layout")
-  const topLayout = cookies().get("react-resizable-panels:top-layout")
-
+  const layoutCookie = cookies().get("react-resizable-panels:layout")
   let defaultLayout
-  if (layout) {
-    defaultLayout = JSON.parse(layout.value)
-  }
-  let defaultTopLayout
-  if (topLayout) {
-    defaultTopLayout = JSON.parse(topLayout.value)
+
+  if (layoutCookie) {
+    try {
+      defaultLayout = JSON.parse(layoutCookie.value) as LayoutType
+    } catch (error) {
+      throw new Error("Failed to parse layout from cookie.")
+    }
   }
 
   return (
-    <main className="h-full flex flex-col">
-      <NavBar />
-      <PanelSkeleton defaultLayout={defaultLayout} defaultTopLayout={defaultTopLayout} />
-    </main>
+    <>
+      {/* <PanelSkeleton defaultLayout={defaultLayout} /> */}
+      <GameSelector />
+    </>
   )
 }

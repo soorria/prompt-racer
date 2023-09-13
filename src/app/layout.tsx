@@ -1,10 +1,11 @@
+import "@total-typescript/ts-reset"
 import { ClerkProvider } from "@clerk/nextjs"
 import "~/styles/globals.css"
 import type { Metadata } from "next"
 import { Inter, Fugaz_One } from "next/font/google"
 import ConvexClientProvider from "~/lib/convex"
-import { ThemeProvider } from "~/components/theme-provider"
 import { cx } from "class-variance-authority"
+import NavBar from "~/components/NavBar"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const Fugaz = Fugaz_One({ weight: "400", variable: "--font-fugaz", subsets: ["latin"] })
@@ -18,10 +19,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider publishableKey={"pk_test_Y2xpbWJpbmctZmVsaW5lLTMwLmNsZXJrLmFjY291bnRzLmRldiQ"}>
       <html lang="en">
-        <body className={cx(Fugaz.variable, inter.variable, "font-sans", "p-4 min-h-screen")}>
+        <body
+          className={cx(
+            Fugaz.variable,
+            inter.variable,
+            "font-sans",
+            "p-4 min-h-screen flex flex-col"
+          )}
+        >
           <ConvexClientProvider>
             {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
-            {children}
+            <NavBar />
+            <main className="mt-4 h-full">{children}</main>
             {/* </ThemeProvider> */}
           </ConvexClientProvider>
         </body>

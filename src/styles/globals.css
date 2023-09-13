@@ -3,8 +3,7 @@
 @tailwind utilities;
 
 html,
-body,
-main {
+body {
   height: 100%;
 }
 
@@ -63,4 +62,26 @@ main {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes loading-slide {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  35%,
+  65% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-loading {
+  animation: loading-slide 2s infinite linear; /* cubic-bezier(1, 1, 0, 0);*/
 }
