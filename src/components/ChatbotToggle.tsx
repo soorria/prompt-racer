@@ -38,7 +38,7 @@ export function ChatbotToggle() {
   }
 
   return (
-    <Popover open={isPopoverOpen} onClose={() => setIsPopoverOpen(false)}>
+    <Popover open={isPopoverOpen} onOpenChange={(open) => setIsPopoverOpen(open)}>
       <PopoverTrigger asChild>
         <Button
           ref={menuSize}
