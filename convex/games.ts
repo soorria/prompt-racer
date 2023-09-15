@@ -13,8 +13,17 @@ import { api, internal } from "./_generated/api"
 import { v } from "convex/values"
 import { getUser, requireUser } from "./utils/auth"
 import ms from "ms"
-import { addMilliseconds } from "date-fns"
+import {
+  addMilliseconds,
+  addSeconds,
+  formatDuration,
+  intervalToDuration,
+  isAfter,
+  isBefore,
+  isEqual,
+} from "date-fns"
 import { Id } from "./_generated/dataModel"
+import { chatHistoryItem, chatHistorySingleItem } from "./utils/schema"
 
 export const getMyGames = query({
   handler: async (ctx) => {
@@ -81,11 +90,11 @@ export const createNewGame = internalMutation({
       question: {
         description: "Do le two sum",
       },
-      gameStartTime: addMilliseconds(new Date(), GAME_TIMINGS.waitingForPlayers).toISOString(),
+      gameStartTime: addMilliseconds(new Date(), GAME_TIMINGS_MS.waitingForPlayers).getTime(),
       gameEndTime: addMilliseconds(
         new Date(),
-        GAME_TIMINGS.waitingForPlayers + GAME_TIMINGS.playTime
-      ).toISOString(),
+        GAME_TIMINGS_MS.waitingForPlayers + GAME_TIMINGS_MS.playTime
+      ).getTime(),
     })
 
     return { gameId }
@@ -133,7 +142,7 @@ export const advanceGameState = internalAction({
         gameId: args.gameId,
         state: "in-progress",
       })
-      await ctx.scheduler.runAfter(GAME_TIMINGS.playTime, internal.games.advanceGameState, args)
+      await ctx.scheduler.runAfter(GAME_TIMINGS_MS.playTime, internal.games.advanceGameState, args)
     } else if (game.state === "in-progress") {
       await ctx.runMutation(internal.games.patchGameState, {
         gameId: args.gameId,
@@ -143,9 +152,10 @@ export const advanceGameState = internalAction({
   },
 })
 
-const GAME_TIMINGS = {
-  waitingForPlayers: ms("10s"),
-  playTime: ms("10s"),
+const GAME_TIMINGS_MS = {
+  waitingForPlayers: ms("1m"),
+  playTime: ms("5m"),
+  promptRateLimitTime: ms("10s"),
 }
 
 export const createGame = internalAction({
@@ -158,9 +168,13 @@ export const createGame = internalAction({
     })
 
     // schedule advancing
-    await ctx.scheduler.runAfter(GAME_TIMINGS.waitingForPlayers, internal.games.advanceGameState, {
-      gameId: newGameResult.gameId,
-    })
+    await ctx.scheduler.runAfter(
+      GAME_TIMINGS_MS.waitingForPlayers,
+      internal.games.advanceGameState,
+      {
+        gameId: newGameResult.gameId,
+      }
+    )
 
     const gameId = newGameResult.gameId as Id<"game">
 
@@ -236,7 +250,10 @@ export const joinGame = action({
     await ctx.runMutation(internal.games.createPlayerInfoForGame, {
       gameId,
       userId,
-      startingCode: "",
+      startingCode: `
+def solution(numbers, target):
+    ...
+`.trim(),
     })
 
     return { gameId }
@@ -256,6 +273,250 @@ export const createPlayerInfoForGame = internalMutation({
       state: "playing",
       code: args.startingCode,
       chatHistory: [],
+    })
+  },
+})
+
+export const getPlayerGameInfo = internalQuery({
+  args: {
+    gameId: v.id("game"),
+    userId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const gamePlayerInfo = await ctx.db
+      .query("playerGameInfo")
+      .filter((q) =>
+        q.and(q.eq(q.field("gameId"), args.gameId), q.eq(q.field("userId"), args.userId))
+      )
+      .unique()
+
+    return gamePlayerInfo
+  },
+})
+
+export const sendMessageForPlayerInGame = action({
+  args: {
+    gameId: v.id("game"),
+    message: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { userId } = await requireUser(ctx)
+    const [game, playerGameInfo] = await Promise.all([
+      ctx.runQuery(api.games.getGame, { gameId: args.gameId }),
+      ctx.runQuery(internal.games.getPlayerGameInfo, {
+        gameId: args.gameId,
+        userId,
+      }),
+    ])
+
+    if (!game) {
+      throw new Error("Game not found")
+    }
+    if (!playerGameInfo) {
+      throw new Error("Player not found in game")
+    }
+
+    // if (game.state !== "in-progress") {
+    //   throw new Error("Game is not in progress")
+    // }
+
+    const history = playerGameInfo.chatHistory || []
+    const lastMessage = history.at(-1)
+    if (lastMessage?.role === "user" || lastMessage?.parsed.state === "generating") {
+      throw new Error("You can't send a message until the AI responds")
+    }
+
+    const now = new Date()
+    const lastPromptedAt = playerGameInfo.lastPromptedAt
+      ? new Date(playerGameInfo.lastPromptedAt)
+      : null
+    const nextPromptableAt = lastPromptedAt
+      ? addMilliseconds(lastPromptedAt, GAME_TIMINGS_MS.promptRateLimitTime)
+      : null
+
+    const canPrompt =
+      // no lastPromptedAt means we can prompt
+      !nextPromptableAt || isAfter(now, nextPromptableAt) || isEqual(now, nextPromptableAt)
+
+    if (!canPrompt) {
+      throw new Error(
+        `You can't prompt the AI yet. Please wait ${formatDuration(
+          intervalToDuration({
+            start: now,
+            end: nextPromptableAt,
+          }),
+          { format: ["seconds"] }
+        )}`
+      )
+    }
+
+    await Promise.all([
+      ctx.runMutation(internal.games.pushNewAIMessage, {
+        playerGameInfoId: playerGameInfo._id,
+      }),
+      ctx.runMutation(internal.games.setPlayerGameInfoLastPrompedAt, {
+        playerGameInfoId: playerGameInfo._id,
+        lastPromptedAt: now.getTime(),
+      }),
+    ])
+
+    await ctx.scheduler.runAfter(0, internal.openai.codeGeneration, {
+      currentCode: playerGameInfo.code,
+      playerGameInfoId: playerGameInfo._id,
+      message: args.message,
+    })
+  },
+})
+
+export const setPlayerGameInfoLastPrompedAt = internalMutation({
+  args: {
+    playerGameInfoId: v.id("playerGameInfo"),
+    lastPromptedAt: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.playerGameInfoId, {
+      lastPromptedAt: args.lastPromptedAt,
+    })
+  },
+})
+
+export const pushNewAIMessage = internalMutation({
+  args: {
+    playerGameInfoId: v.id("playerGameInfo"),
+  },
+  handler: async (ctx, args) => {
+    const playerGameInfo = await ctx.db.get(args.playerGameInfoId)
+    if (!playerGameInfo) {
+      throw new Error("Player not found in game")
+    }
+
+    playerGameInfo.chatHistory.push({
+      role: "ai",
+      content: "",
+      parsed: {
+        state: "generating",
+      },
+    })
+
+    await ctx.db.patch(args.playerGameInfoId, {
+      chatHistory: playerGameInfo.chatHistory,
+    })
+  },
+})
+
+export const getGameInfoForUser = query({
+  args: {
+    gameId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const [user, game] = await Promise.all([
+      getUser(ctx),
+      (async () => {
+        const gameId = ctx.db.normalizeId("game", args.gameId)
+        const game = gameId && (await ctx.db.get(gameId))
+        return game
+      })(),
+    ])
+
+    const allPlayerGameInfos =
+      game?.state === "finished"
+        ? await ctx.db
+            .query("playerGameInfo")
+            .filter((q) => q.eq(q.field("gameId"), args.gameId))
+            .collect()
+        : null
+
+    const currentPlayerInfo =
+      allPlayerGameInfos && user
+        ? allPlayerGameInfos?.find((info) => info.userId === user?.userId)
+        : await ctx.db
+            .query("playerGameInfo")
+            .filter((q) =>
+              q.and(q.eq(q.field("gameId"), args.gameId), q.eq(q.field("userId"), user?.userId))
+            )
+            .unique()
+
+    return {
+      game,
+      currentPlayerInfo,
+      allPlayerGameInfos,
+    }
+  },
+})
+
+export const setAgentMessageForPlayerInGame = internalMutation({
+  args: {
+    playerGameInfoId: v.id("playerGameInfo"),
+    data: v.union(
+      v.object({
+        type: v.literal("partial"),
+        message: v.string(),
+      }),
+      v.object({
+        type: v.literal("success"),
+        message: v.string(),
+      }),
+      v.object({
+        type: v.literal("error"),
+        message: v.string(),
+        raw: v.any(),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const playerGameInfo = await ctx.db.get(args.playerGameInfoId)
+    if (!playerGameInfo) {
+      throw new Error("Player not found in game")
+    }
+
+    const history = playerGameInfo.chatHistory
+    const lastMessage = history.at(-1)
+
+    if (!lastMessage || lastMessage.role !== "ai") {
+      return
+    }
+
+    if (args.data.type === "partial") {
+      lastMessage.content = args.data.message
+    } else if (args.data.type === "success") {
+      lastMessage.content = args.data.message
+
+      const openingTagIndex = lastMessage.content.indexOf("<code>")
+      // TODO: should we do lastIndexOf?
+      const closingTagIndex = lastMessage.content.indexOf("</code>")
+
+      if (openingTagIndex === -1) {
+        lastMessage.parsed = {
+          state: "error",
+          error: "Could not find code in AI response",
+          raw: null,
+        }
+      } else {
+        const code = lastMessage.content.slice(
+          openingTagIndex + "<code>".length,
+          closingTagIndex === -1 ? undefined : closingTagIndex
+        )
+        lastMessage.parsed = {
+          state: "success",
+          code,
+        }
+      }
+    } else if (args.data.type === "error") {
+      lastMessage.content = args.data.message
+      lastMessage.parsed = {
+        state: "error",
+        error: args.data.message,
+        raw: args.data.raw,
+      }
+    }
+
+    if (lastMessage.parsed.state === "success") {
+      playerGameInfo.code = lastMessage.parsed.code
+    }
+
+    await ctx.db.patch(args.playerGameInfoId, {
+      chatHistory: history,
+      code: playerGameInfo.code,
     })
   },
 })
