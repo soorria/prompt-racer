@@ -1,6 +1,9 @@
 "use client"
 import { useAction, useMutation, useQuery } from "convex/react"
+import { useSearchParams } from "next/navigation"
+import { useState } from "react"
 import invariant from "tiny-invariant"
+import ChatPanel from "~/components/ChatPanel"
 import { Debug } from "~/components/Debug"
 import LobbyPlayerCard from "~/components/LobbyPlayerCard"
 import PanelSkeleton from "~/components/PanelSkeleton"
@@ -23,6 +26,8 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
   const sendMessage = useAction(api.games.sendMessageForPlayerInGame)
   const cancelGame = useMutation(api.games.cancelGame)
   const currentUser = useConvexUser()
+
+  const [sending, setSending] = useState(false)
 
   const handleCancelGame = () => {
     invariant(game, "activeGame should exist")
@@ -66,30 +71,26 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
       )} */}
 
       <div>
-        {currentPlayerInfo?.chatHistory.map((item, index) => (
-          <div key={index} className="whitespace-pre">
-            <div>
-              {item.role.toUpperCase()}: {item.content}
-            </div>
+        <div className="h-96 max-w-screen-sm mx-auto">
+          {currentPlayerInfo && (
+            <ChatPanel
+              messages={currentPlayerInfo.chatHistory}
+              onMessageSend={async (message) => {
+                try {
+                  setSending(true)
 
-            {item.role === "ai" && <div>{JSON.stringify(item.parsed)}</div>}
-          </div>
-        ))}
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            const message = new FormData(e.currentTarget).get("message") as string
-
-            sendMessage({
-              gameId: game!._id,
-              message,
-            })
-          }}
-        >
-          <Input type="text" name="message"></Input>
-          <Button>Send</Button>
-        </form>
+                  sendMessage({
+                    gameId: game!._id,
+                    message,
+                  })
+                } finally {
+                  setSending(false)
+                }
+              }}
+              sending={sending}
+            />
+          )}
+        </div>
       </div>
 
       <div className="mt-8">

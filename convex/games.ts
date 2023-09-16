@@ -351,8 +351,21 @@ export const sendMessageForPlayerInGame = action({
     }
 
     await Promise.all([
-      ctx.runMutation(internal.games.pushNewAIMessage, {
+      ctx.runMutation(internal.games.pushNewMessages, {
         playerGameInfoId: playerGameInfo._id,
+        messages: [
+          {
+            role: "user",
+            content: args.message,
+          },
+          {
+            role: "ai",
+            content: "Generating...",
+            parsed: {
+              state: "generating",
+            },
+          },
+        ],
       }),
       ctx.runMutation(internal.games.setPlayerGameInfoLastPrompedAt, {
         playerGameInfoId: playerGameInfo._id,
@@ -380,9 +393,10 @@ export const setPlayerGameInfoLastPrompedAt = internalMutation({
   },
 })
 
-export const pushNewAIMessage = internalMutation({
+export const pushNewMessages = internalMutation({
   args: {
     playerGameInfoId: v.id("playerGameInfo"),
+    messages: v.array(chatHistoryItem),
   },
   handler: async (ctx, args) => {
     const playerGameInfo = await ctx.db.get(args.playerGameInfoId)
@@ -390,13 +404,7 @@ export const pushNewAIMessage = internalMutation({
       throw new Error("Player not found in game")
     }
 
-    playerGameInfo.chatHistory.push({
-      role: "ai",
-      content: "",
-      parsed: {
-        state: "generating",
-      },
-    })
+    playerGameInfo.chatHistory.push(...args.messages)
 
     await ctx.db.patch(args.playerGameInfoId, {
       chatHistory: playerGameInfo.chatHistory,
@@ -492,10 +500,12 @@ export const setAgentMessageForPlayerInGame = internalMutation({
           raw: null,
         }
       } else {
-        const code = lastMessage.content.slice(
-          openingTagIndex + "<code>".length,
-          closingTagIndex === -1 ? undefined : closingTagIndex
-        )
+        const code = lastMessage.content
+          .slice(
+            openingTagIndex + "<code>".length,
+            closingTagIndex === -1 ? undefined : closingTagIndex
+          )
+          .trim()
         lastMessage.parsed = {
           state: "success",
           code,
