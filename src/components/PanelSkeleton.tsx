@@ -83,7 +83,7 @@ export default function PanelSkeleton({
           </Panel>
           <ResizeHandle orientation="horizontal" />
           <Panel defaultSize={br} className="relative">
-            <ChatPanel />
+            {/* <ChatPanel /> */}
           </Panel>
         </PanelGroup>
       </Panel>

@@ -21,29 +21,15 @@ function ChatPanelMessage({ message }: { message: MessageType }) {
   const [animateRef] = useAutoAnimate()
 
   const aiMessageParsed = message.role === "ai" ? message.parsed : null
-
   const generating = aiMessageParsed?.state === "generating"
   const previousGenerating = useRef<boolean>(false)
 
   useEffect(() => {
-    console.log({
-      previousGenerating: previousGenerating.current,
-      generating,
-    })
     if (generating || (previousGenerating.current && !generating)) {
       contentRef.current?.scrollIntoView()
     }
     previousGenerating.current = generating
   }, [generating])
-
-  // useEffect(() => {
-  //   if (
-  //     lastAiMessageParsed.current?.state === "generating" &&
-  //     aiMessageParsed?.state !== "generating"
-  //   ) {
-  //     contentRef.current?.scrollIntoView()
-  //   }
-  // }, [aiMessageParsed])
 
   return (
     <div
@@ -80,6 +66,12 @@ function ChatPanelMessage({ message }: { message: MessageType }) {
 
 export default function ChatPanel(props: ChatPanelProps) {
   const form = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    if (!props.sending) {
+      form.current?.reset()
+    }
+  }, [props.sending])
 
   return (
     <div className="h-full overflow-scroll relative scroll-smooth">
