@@ -79,7 +79,7 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
                 try {
                   setSending(true)
 
-                  sendMessage({
+                  await sendMessage({
                     gameId: game!._id,
                     message,
                   })

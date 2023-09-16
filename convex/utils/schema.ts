@@ -11,6 +11,7 @@ export const chatHistorySingleItem = {
     parsed: v.union(
       v.object({
         state: v.literal("generating"),
+        maybeCode: v.string(),
       }),
       v.object({
         state: v.literal("success"),

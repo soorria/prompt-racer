@@ -363,6 +363,7 @@ export const sendMessageForPlayerInGame = action({
             content: "Generating...",
             parsed: {
               state: "generating",
+              maybeCode: "",
             },
           },
         ],
@@ -484,28 +485,41 @@ export const setAgentMessageForPlayerInGame = internalMutation({
       return
     }
 
+    const extractCode = (content: string) => {
+      const openingTagIndex = content.indexOf("<code>")
+      // TODO: should we do lastIndexOf?
+      const closingTagIndex = content.indexOf("</code>")
+
+      if (openingTagIndex === -1) {
+        return null
+      }
+
+      return content
+        .slice(
+          openingTagIndex + "<code>".length,
+          closingTagIndex === -1 ? undefined : closingTagIndex
+        )
+        .trim()
+    }
+
     if (args.data.type === "partial") {
       lastMessage.content = args.data.message
+      lastMessage.parsed = {
+        state: "generating",
+        maybeCode: extractCode(args.data.message) || args.data.message,
+      }
     } else if (args.data.type === "success") {
       lastMessage.content = args.data.message
 
-      const openingTagIndex = lastMessage.content.indexOf("<code>")
-      // TODO: should we do lastIndexOf?
-      const closingTagIndex = lastMessage.content.indexOf("</code>")
+      const code = extractCode(lastMessage.content)
 
-      if (openingTagIndex === -1) {
+      if (code === null) {
         lastMessage.parsed = {
           state: "error",
           error: "Could not find code in AI response",
           raw: null,
         }
       } else {
-        const code = lastMessage.content
-          .slice(
-            openingTagIndex + "<code>".length,
-            closingTagIndex === -1 ? undefined : closingTagIndex
-          )
-          .trim()
         lastMessage.parsed = {
           state: "success",
           code,

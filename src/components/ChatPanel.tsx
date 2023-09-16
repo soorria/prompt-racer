@@ -1,12 +1,9 @@
 import { useEffect, useRef } from "react"
-import { ChatbotToggle } from "./ChatbotToggle"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { Input } from "./ui/input"
-import { Button } from "./ui/button"
 import { Send } from "lucide-react"
 import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { Doc } from "~convex/dataModel"
 import clsx from "clsx"
+import CodeDisplay from "./CodeDisplay"
 
 type ChatPanelProps = {
   messages: Doc<"playerGameInfo">["chatHistory"]
@@ -17,7 +14,7 @@ type ChatPanelProps = {
 type MessageType = ChatPanelProps["messages"][number]
 
 function ChatPanelMessage({ message }: { message: MessageType }) {
-  const contentRef = useRef<HTMLPreElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
   const [animateRef] = useAutoAnimate()
 
   const aiMessageParsed = message.role === "ai" ? message.parsed : null
@@ -34,13 +31,13 @@ function ChatPanelMessage({ message }: { message: MessageType }) {
   return (
     <div
       className={clsx(
-        "flex max-w-xs w-full flex-col gap-2 rounded-lg px-3 py-2 text-sm break-words transition",
+        "flex max-w-xs w-full flex-col gap-2 rounded-lg px-3 py-2 text-sm break-words transition overflow-hidden",
         {
           "ml-auto bg-primary text-primary-foreground": message.role !== "ai",
         },
         message.role === "ai" && {
-          "text-foreground/50": message.parsed.state === "generating",
-          "text-foreground": message.parsed.state === "success",
+          "text-foreground":
+            message.parsed.state === "success" || message.parsed.state === "generating",
           "text-destructive-foreground bg-destructive": message.parsed.state === "error",
           "bg-muted": message.parsed.state !== "error",
         }
@@ -48,15 +45,29 @@ function ChatPanelMessage({ message }: { message: MessageType }) {
       ref={animateRef}
     >
       {message.role === "ai" ? (
-        <pre key={message.parsed.state} ref={contentRef}>
-          {message.parsed.state === "generating"
-            ? message.content.replace("<code>", "").replace("</code>", "")
-            : message.parsed.state === "success"
-            ? message.parsed.code
-            : message.parsed.state === "error"
-            ? message.parsed.error
-            : null}
-        </pre>
+        <div
+          key={message.parsed.state}
+          ref={contentRef}
+          className={clsx("overflow-auto", {
+            "-mx-3 -my-2": message.parsed.state === "success",
+          })}
+        >
+          {message.parsed.state === "generating" ? (
+            <pre className="px-3 py-2 opacity-50">
+              <code>
+                <CodeDisplay code={message.parsed.maybeCode} language="python" />
+              </code>
+            </pre>
+          ) : message.parsed.state === "success" ? (
+            <pre className="px-3 py-2">
+              <code>
+                <CodeDisplay code={message.parsed.code} language="python" />
+              </code>
+            </pre>
+          ) : message.parsed.state === "error" ? (
+            message.parsed.error
+          ) : null}
+        </div>
       ) : (
         message.content
       )}
@@ -72,6 +83,8 @@ export default function ChatPanel(props: ChatPanelProps) {
       form.current?.reset()
     }
   }, [props.sending])
+
+  console.log(props)
 
   return (
     <div className="h-full overflow-scroll relative scroll-smooth">
