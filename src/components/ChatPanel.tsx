@@ -13,6 +13,16 @@ type ChatPanelProps = {
 
 type MessageType = ChatPanelProps["messages"][number]
 
+function ChatPanelMessageCode(props: { code: string; generating?: boolean }) {
+  return (
+    <pre className={clsx("py-2", { "opacity-50": props.generating })}>
+      <code className="px-3 block w-max">
+        <CodeDisplay code={props.code} language="python" />
+      </code>
+    </pre>
+  )
+}
+
 function ChatPanelMessage({ message }: { message: MessageType }) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [animateRef] = useAutoAnimate()
@@ -53,17 +63,9 @@ function ChatPanelMessage({ message }: { message: MessageType }) {
           })}
         >
           {message.parsed.state === "generating" ? (
-            <pre className="px-3 py-2 opacity-50">
-              <code>
-                <CodeDisplay code={message.parsed.maybeCode} language="python" />
-              </code>
-            </pre>
+            <ChatPanelMessageCode code={message.parsed.maybeCode} generating />
           ) : message.parsed.state === "success" ? (
-            <pre className="px-3 py-2">
-              <code>
-                <CodeDisplay code={message.parsed.code} language="python" />
-              </code>
-            </pre>
+            <ChatPanelMessageCode code={message.parsed.code} />
           ) : message.parsed.state === "error" ? (
             message.parsed.error
           ) : null}
