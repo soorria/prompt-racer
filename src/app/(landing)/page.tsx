@@ -51,9 +51,6 @@ export default function Home() {
                   <Button>Play now</Button>
                 </SignInButton>
               )}
-              <a href="#" className="text-sm font-semibold leading-6 text-white">
-                Learn more <span aria-hidden="true">→</span>
-              </a>
             </div>
           </div>
           <div className="mt-16 flex-1 flex w-full max-w-2xl sm:mt-24 lg:mr-0 lg:mt-0 lg:max-w-none">

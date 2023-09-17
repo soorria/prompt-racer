@@ -65,11 +65,11 @@ export default function HeroAnimation({}: Props) {
   }, [currentInputChunkIndex, currentCodeChunkIndex, showLoader])
 
   return (
-    <div>
-      <div className="bg-dracula w-full rounded-xl overflow-y-scroll h-full ">
+    <div className="flex flex-col justify-center items-center">
+      <div className="bg-dracula w-full rounded-xl overflow-y-scroll h-full">
         <CodeMirror value={codeToShow} extensions={[python()]} theme={dracula} editable={false} />
       </div>
-      <div className="mt-4 flex">
+      <div className="mt-4 flex w-80 max-w-md">
         <input
           value={inputToShow}
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1"
@@ -78,7 +78,7 @@ export default function HeroAnimation({}: Props) {
           placeholder="Type your instructions..."
           autoComplete="off"
           required
-          disabled={false}
+          disabled={showLoader}
         />
         <Button type="submit" disabled={false}>
           {showLoader ? <Loader2 className="animate-spin h-5 w-5" /> : <Send className="w-5 h-5" />}

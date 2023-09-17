@@ -99,7 +99,11 @@ export default function PanelSkeleton({
       <Panel defaultSize={right}>
         <PanelGroup direction="vertical" onLayout={handleLayout(["tr", "br"])} className="gap-1">
           <Panel defaultSize={tr}>
-            <CodePanel code={getLastAiCode(chatPanelProps.messages)} />
+            <CodePanel
+              code={getLastAiCode(chatPanelProps.messages)}
+              onMessageSend={chatPanelProps.onMessageSend}
+              sending={chatPanelProps.sending}
+            />
           </Panel>
           <ResizeHandle orientation="horizontal" />
           <Panel defaultSize={br} className="relative">
