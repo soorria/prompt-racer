@@ -32,7 +32,7 @@ export default function NavBar({}: Props) {
   return (
     <nav
       className={clsx(
-        "flex-row justify-between flex px-5 py-5 items-center rounded-xl h-20 bg-card"
+        "flex-row justify-between flex px-5 py-5 items-center rounded-xl h-20 bg-card z-10"
       )}
     >
       <div className="font-display">

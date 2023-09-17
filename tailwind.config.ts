@@ -20,6 +20,7 @@ const config: Config = {
         sans: ["var(--font-inter)", ...defaultTheme.fontFamily.sans],
       },
       colors: {
+        dracula: "#282a36",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

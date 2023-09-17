@@ -22,9 +22,6 @@ export default function CodePanel({ code }: Props) {
   const previousGenerating = useRef<boolean>(false)
 
   useEffect(() => {
-    if (generating || (previousGenerating.current && !generating)) {
-      // contentRef.current?.scrollIntoView()
-    }
     previousGenerating.current = generating
   }, [generating])
 
