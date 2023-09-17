@@ -5,7 +5,7 @@ import { Doc } from "~convex/dataModel"
 import clsx from "clsx"
 import CodeDisplay from "./CodeDisplay"
 
-type ChatPanelProps = {
+export type ChatPanelProps = {
   messages: Doc<"playerGameInfo">["chatHistory"]
   onMessageSend: (message: string) => void
   sending?: boolean
@@ -13,7 +13,7 @@ type ChatPanelProps = {
 
 type MessageType = ChatPanelProps["messages"][number]
 
-function ChatPanelMessageCode(props: { code: string; generating?: boolean }) {
+export function ChatPanelMessageCode(props: { code: string; generating?: boolean }) {
   return (
     <pre className={clsx("py-2", { "opacity-50": props.generating })}>
       <code className="px-3 block w-max">
@@ -33,7 +33,7 @@ function ChatPanelMessage({ message }: { message: MessageType }) {
 
   useEffect(() => {
     if (generating || (previousGenerating.current && !generating)) {
-      contentRef.current?.scrollIntoView()
+      // contentRef.current?.scrollIntoView()
     }
     previousGenerating.current = generating
   }, [generating])
@@ -86,11 +86,9 @@ export default function ChatPanel(props: ChatPanelProps) {
     }
   }, [props.sending])
 
-  console.log(props)
-
   return (
-    <div className="h-full overflow-scroll relative scroll-smooth">
-      <div className="bg-card rounded-xl px-3 overflow-x-hidden flex flex-col-reverse scroll-smooth">
+    <div className="bg-card h-full overflow-scroll rounded-xl border-2 border-white/5 relative scroll-smooth">
+      <div className=" rounded-xl px-3 overflow-x-hidden flex flex-col-reverse scroll-smooth">
         <div className="flex flex-col flex-grow gap-4 py-4">
           {props.messages.map((message, idx) => (
             <ChatPanelMessage key={idx} message={message} />

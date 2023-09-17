@@ -3,9 +3,12 @@ import React, { useEffect, useState } from "react"
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 import DescriptionPanel from "./DescriptionPanel"
 import CodePanel from "./CodePanel"
-import ChatPanel from "./ChatPanel"
+import ChatPanel, { ChatPanelMessageCode, ChatPanelProps } from "./ChatPanel"
 import { cx } from "class-variance-authority"
 import LeaderboardPanel from "./LeaderboardPanel"
+import CodeDisplay from "./CodeDisplay"
+import clsx from "clsx"
+import { Doc } from "~convex/dataModel"
 
 export type LayoutType = {
   left?: number
@@ -18,6 +21,8 @@ export type LayoutType = {
 
 interface PanelSkeletonProps {
   defaultLayout?: LayoutType
+  chatPanelProps: ChatPanelProps
+  question: QuestionType
 }
 
 const ResizeHandle = ({
@@ -40,8 +45,23 @@ const ResizeHandle = ({
   </PanelResizeHandle>
 )
 
+// export type QuestionType = Extract<Doc<"game">["question"], { description: string }>
+export type QuestionType = { description: string }
+export type AiMessageType = Extract<Doc<"playerGameInfo">["chatHistory"][number], { role: "ai" }>
+const getLastAiCode = (
+  messages: Doc<"playerGameInfo">["chatHistory"]
+): AiMessageType | undefined => {
+  const lastAiMessage = messages
+    .slice()
+    .reverse()
+    .find((msg): msg is AiMessageType => msg.role === "ai")
+  return lastAiMessage
+}
+
 export default function PanelSkeleton({
   defaultLayout = { left: 50, right: 50, tl: 70, bl: 30, tr: 35, br: 65 },
+  chatPanelProps,
+  question,
 }: PanelSkeletonProps) {
   const [panelSizes, setPanelSizes] = useState<LayoutType>(defaultLayout)
   const { left, right, tl, bl, tr, br } = panelSizes
@@ -67,7 +87,7 @@ export default function PanelSkeleton({
       <Panel defaultSize={left}>
         <PanelGroup direction="vertical" onLayout={handleLayout(["tl", "bl"])} className="gap-1">
           <Panel defaultSize={tl}>
-            <DescriptionPanel />
+            <DescriptionPanel question={question} />
           </Panel>
           <ResizeHandle orientation="horizontal" />
           <Panel defaultSize={bl}>
@@ -79,11 +99,16 @@ export default function PanelSkeleton({
       <Panel defaultSize={right}>
         <PanelGroup direction="vertical" onLayout={handleLayout(["tr", "br"])} className="gap-1">
           <Panel defaultSize={tr}>
-            <CodePanel />
+            <CodePanel code={getLastAiCode(chatPanelProps.messages)} />
           </Panel>
           <ResizeHandle orientation="horizontal" />
           <Panel defaultSize={br} className="relative">
             {/* <ChatPanel /> */}
+            <ChatPanel
+              messages={chatPanelProps.messages}
+              onMessageSend={chatPanelProps.onMessageSend}
+              sending={chatPanelProps.sending}
+            />
           </Panel>
         </PanelGroup>
       </Panel>

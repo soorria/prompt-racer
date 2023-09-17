@@ -40,28 +40,30 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
     invariant(currentUser, "currentUser should exist")
     // leaveGame({ gameId: currentGame._id })
   }
+
   return (
-    <div className="h-full">
-      <div className="flex gap-6">
-        {game ? (
-          <>
-            {game.creatorId === currentUser?.userId ? (
-              <Button
-                variant={"destructive"}
-                onClick={handleCancelGame}
-                disabled={game.state === "in-progress"}
-              >
-                Cancel game{game.state === "in-progress" ? " (game in progress)" : ""}
-              </Button>
-            ) : (
-              <Button variant={"destructive"} onClick={handleLeaveGame}>
-                Leave game
-              </Button>
-            )}
-          </>
-        ) : null}
-      </div>
-      {/* {game && game.state === "in-progress" && <PanelSkeleton />} */}
+    <div className="h-full pt-4">
+      {game && currentPlayerInfo && (
+        <PanelSkeleton
+          question={game.question}
+          chatPanelProps={{
+            messages: currentPlayerInfo.chatHistory,
+            onMessageSend: async (message) => {
+              try {
+                setSending(true)
+
+                await sendMessage({
+                  gameId: game!._id,
+                  message,
+                })
+              } finally {
+                setSending(false)
+              }
+            },
+            sending: sending,
+          }}
+        />
+      )}
 
       {/* {game?.state === "waiting-for-players" && (
         <div className="flex flex-col items-center mt-8">
@@ -70,7 +72,7 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
         </div>
       )} */}
 
-      <div>
+      {/* <div>
         <div className="h-96 max-w-screen-sm mx-auto">
           {currentPlayerInfo && (
             <ChatPanel
@@ -91,11 +93,11 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
             />
           )}
         </div>
-      </div>
-
+      </div> */}
+      {/* 
       <div className="mt-8">
         <Debug activeGame={game} $title="Game user is currently in" />d
-      </div>
+      </div> */}
     </div>
   )
 }
