@@ -96,7 +96,7 @@ export default function ChatPanel(props: ChatPanelProps) {
         </div>
       </div>
 
-      <div className="sticky bottom-0 rounded-b-xl left-0 right-0 bg-gradient-to-b to-black/20 from-transparent">
+      <div className="absolute bottom-0 rounded-b-xl left-0 right-0 bg-gradient-to-b to-black/20 from-transparent">
         <div className="flex px-2 py-4">
           <form
             ref={form}
