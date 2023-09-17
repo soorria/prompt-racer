@@ -42,9 +42,10 @@ export default function CodePanel({ code }: Props) {
   }
   return (
     <div
-      className={clsx("bg-card rounded-xl overflow-y-scroll h-full bg-[#282a37]", {
+      className={clsx("bg-card rounded-xl overflow-y-scroll h-full ", {
         "animate-pulse": code?.parsed.state === "generating",
       })}
+      style={{ backgroundColor: "var(--d-background)" }}
       ref={animateRef}
     >
       <CodeMirror

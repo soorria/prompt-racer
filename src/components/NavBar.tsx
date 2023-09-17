@@ -8,24 +8,20 @@ import { useConvexUser } from "~/lib/convex"
 import clsx from "clsx"
 import { Button } from "./ui/button"
 import invariant from "tiny-invariant"
+import { useRouter } from "next/navigation"
 
 type Props = {}
 
 export default function NavBar({}: Props) {
   const game = useQuery(api.games.getLatestActiveGameForAuthedUser)
-  const cancelGame = useMutation(api.games.cancelGame)
+  const leaveGame = useMutation(api.games.leaveGame)
   const currentUser = useConvexUser()
-
-  const handleCancelGame = () => {
-    invariant(game, "activeGame should exist")
-    invariant(currentUser, "currentUser should exist")
-    cancelGame({ gameId: game._id })
-  }
+  const router = useRouter()
 
   const handleLeaveGame = () => {
     invariant(game, "activeGame should exist")
     invariant(currentUser, "currentUser should exist")
-    // leaveGame({ gameId: currentGame._id })
+    leaveGame({ gameId: game._id }).then((success) => success && router.push("/g"))
   }
 
   return (
@@ -38,12 +34,20 @@ export default function NavBar({}: Props) {
         {game ? (
           <>
             {game?.state === "in-progress" ? (
-              <div className="text-xl flex flex-row">
+              <Link href={`/g/play/${game._id}`} className="text-xl flex flex-row">
                 GAME <div className="ml-2 text-red-400 animate-pulse">IN-PROGRESS</div>
-              </div>
+              </Link>
             ) : (
-              <div className="text-xl flex flex-row">
+              <div className="text-xl flex flex-row items-center">
                 FINDING <div className="ml-2 text-orange-400 animate-pulse">PLAYERS</div>
+                <div className="mx-4 w-1 h-12 bg-white/50 rounded-full"></div>
+                <Button
+                  className="font-sans border-white/30"
+                  variant={"outline"}
+                  onClick={handleLeaveGame}
+                >
+                  Leave game
+                </Button>
               </div>
             )}
           </>
@@ -53,23 +57,6 @@ export default function NavBar({}: Props) {
           </Link>
         )}
       </div>
-      {game?.state === "in-progress" && (
-        <>
-          {currentUser?.userId === game?.creatorId ? (
-            <Button
-              variant={"destructive"}
-              onClick={handleCancelGame}
-              disabled={game.state === "in-progress"}
-            >
-              Cancel Game
-            </Button>
-          ) : (
-            <Button variant={"destructive"} onClick={handleLeaveGame}>
-              Leave game
-            </Button>
-          )}
-        </>
-      )}
       <AuthButton />
     </nav>
   )

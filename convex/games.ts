@@ -153,7 +153,7 @@ export const advanceGameState = internalAction({
 })
 
 const GAME_TIMINGS_MS = {
-  waitingForPlayers: ms("1m"),
+  waitingForPlayers: ms("5m"),
   playTime: ms("5m"),
   promptRateLimitTime: ms("10s"),
 }
@@ -291,6 +291,36 @@ export const getPlayerGameInfo = internalQuery({
       .unique()
 
     return gamePlayerInfo
+  },
+})
+
+export const leaveGame = mutation({
+  args: {
+    gameId: v.id("game"),
+  },
+  handler: async (ctx, args) => {
+    const { userId } = await requireUser(ctx)
+
+    const playerGameInfoRecord = await ctx.db
+      .query("playerGameInfo")
+      .filter((q) => q.and(q.eq(q.field("gameId"), args.gameId), q.eq(q.field("userId"), userId)))
+      .unique()
+
+    if (!playerGameInfoRecord) {
+      throw new Error("You're not part of this game or the game doesn't exist.")
+    }
+
+    await ctx.db.delete(playerGameInfoRecord._id)
+    const otherPlayerRecords = await ctx.db
+      .query("playerGameInfo")
+      .filter((q) => q.and(q.eq(q.field("gameId"), args.gameId)))
+      .take(1)
+
+    if (otherPlayerRecords.length === 0) {
+      await ctx.db.delete(args.gameId)
+    }
+
+    return { success: true }
   },
 })
 
