@@ -2,7 +2,7 @@
 import React from "react"
 import AuthButton from "./AuthButton"
 import Link from "next/link"
-import { useMutation, useQuery } from "convex/react"
+import { Authenticated, useConvexAuth, useMutation, useQuery } from "convex/react"
 import { api } from "~convex/api"
 import { useConvexUser } from "~/lib/convex"
 import clsx from "clsx"
@@ -13,7 +13,12 @@ import { useRouter } from "next/navigation"
 type Props = {}
 
 export default function NavBar({}: Props) {
-  const game = useQuery(api.games.getLatestActiveGameForAuthedUser)
+  const { isAuthenticated } = useConvexAuth()
+  const skip = "skip"
+  const game = useQuery(
+    api.games.getLatestActiveGameForAuthedUser,
+    !isAuthenticated ? "skip" : undefined
+  )
   const leaveGame = useMutation(api.games.leaveGame)
   const currentUser = useConvexUser()
   const router = useRouter()
@@ -31,27 +36,37 @@ export default function NavBar({}: Props) {
       )}
     >
       <div className="font-display">
-        {game ? (
+        {isAuthenticated ? (
           <>
-            {game?.state === "in-progress" ? (
-              <Link href={`/g/play/${game._id}`} className="text-xl flex flex-row">
-                GAME <div className="ml-2 text-red-400 animate-pulse">IN-PROGRESS</div>
-              </Link>
+            {game ? (
+              <>
+                {game?.state === "in-progress" ? (
+                  <Link href={`/g/play/${game._id}`} className="text-xl flex flex-row">
+                    GAME <div className="ml-2 text-red-400 animate-pulse">IN-PROGRESS</div>
+                  </Link>
+                ) : (
+                  <div className="text-xl flex flex-row items-center">
+                    FINDING <div className="ml-2 text-orange-400 animate-pulse">PLAYERS</div>
+                    <div className="mx-4 w-1 h-12 bg-white/50 rounded-full"></div>
+                    <Button
+                      className="font-sans border-white/30"
+                      variant={"outline"}
+                      onClick={handleLeaveGame}
+                    >
+                      Leave game
+                    </Button>
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="text-xl flex flex-row items-center">
-                FINDING <div className="ml-2 text-orange-400 animate-pulse">PLAYERS</div>
-                <div className="mx-4 w-1 h-12 bg-white/50 rounded-full"></div>
-                <Button
-                  className="font-sans border-white/30"
-                  variant={"outline"}
-                  onClick={handleLeaveGame}
-                >
-                  Leave game
-                </Button>
-              </div>
+              // Show this if there's no active game but user is authenticated
+              <Link className="text-xl flex flex-row" href="/">
+                PROMPT<div className="text-primary">RACER</div>
+              </Link>
             )}
           </>
         ) : (
+          // Default navbar content for unauthenticated users
           <Link className="text-xl flex flex-row" href="/">
             PROMPT<div className="text-primary">RACER</div>
           </Link>

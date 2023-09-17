@@ -1,7 +1,7 @@
 "use client"
 
 import { SignInButton } from "@clerk/nextjs"
-import { useConvexAuth } from "convex/react"
+import { Authenticated, useConvexAuth } from "convex/react"
 import Link from "next/link"
 import AuthButton from "~/components/AuthButton"
 import { Button } from "~/components/ui/button"
