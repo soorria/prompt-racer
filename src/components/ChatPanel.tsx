@@ -104,6 +104,7 @@ function ChatPanelMessage({
 
 export default function ChatPanel(props: ChatPanelProps) {
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
+  const [animateRef] = useAutoAnimate()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -123,7 +124,7 @@ export default function ChatPanel(props: ChatPanelProps) {
         </Button>
       </div>
 
-      <ul role="list" className="space-y-6 px-3 pb-8">
+      <ul ref={animateRef} role="list" className="space-y-6 px-3 pb-8">
         {props.messages.map((message, idx) => (
           <ChatPanelMessage key={idx} index={idx} message={message} len={props.messages.length} />
         ))}
