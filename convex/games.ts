@@ -102,12 +102,14 @@ export const createNewGame = internalMutation({
 
     const nTestsForExample = Math.floor(0.4 * dbQuestion.test_cases.length)
 
+    const { _id, _creationTime, ...questionPartsForGame } = dbQuestion
+
     const gameId = await ctx.db.insert("game", {
       creatorId: args.creatorUserId,
       mode: "fastest-player",
       state: "waiting-for-players",
       question: {
-        ...dbQuestion,
+        ...questionPartsForGame,
         examples: dbQuestion.test_cases.slice(0, nTestsForExample),
       },
       gameStartTime: addMilliseconds(new Date(), GAME_TIMINGS_MS.waitingForPlayers).getTime(),
