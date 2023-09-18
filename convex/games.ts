@@ -22,7 +22,7 @@ import {
   isBefore,
   isEqual,
 } from "date-fns"
-import { Id } from "./_generated/dataModel"
+import { Doc, Id } from "./_generated/dataModel"
 import { chatHistoryItem, chatHistorySingleItem } from "./utils/schema"
 
 export const getMyGames = query({
@@ -40,6 +40,17 @@ export const getMyGames = query({
     return { games: games.filter(Boolean) }
   },
 })
+
+const removeGameDetailsBasedOnState = (game: Doc<"game">) => {
+  if (game.state !== "finished") {
+    const { test_cases: _, ...rest } = game.question
+    return {
+      ...game,
+      question: rest,
+    }
+  }
+  return game
+}
 
 const _getLatestActiveGameForUser = async (ctx: QueryCtx, userId: string) => {
   const [latestGameInfoForUser] = await ctx.db
@@ -81,14 +92,23 @@ export const getLatestActiveGameForAuthedUser = query({
 })
 
 export const createNewGame = internalMutation({
-  args: { creatorUserId: v.string() },
+  args: { creatorUserId: v.string(), questionId: v.id("question") },
   handler: async (ctx, args) => {
+    const dbQuestion = await ctx.db.get(args.questionId)
+
+    if (!dbQuestion) {
+      throw new Error("Question not found")
+    }
+
+    const nTestsForExample = Math.floor(0.4 * dbQuestion.test_cases.length)
+
     const gameId = await ctx.db.insert("game", {
       creatorId: args.creatorUserId,
       mode: "fastest-player",
       state: "waiting-for-players",
       question: {
-        description: "Do le two sum",
+        ...dbQuestion,
+        examples: dbQuestion.test_cases.slice(0, nTestsForExample),
       },
       gameStartTime: addMilliseconds(new Date(), GAME_TIMINGS_MS.waitingForPlayers).getTime(),
       gameEndTime: addMilliseconds(
@@ -163,8 +183,13 @@ export const createGame = internalAction({
     userId: v.string(),
   },
   handler: async (ctx, args) => {
+    const questionIds = await ctx.runQuery(internal.questions.getQuestionIds)
+
+    const questionId = questionIds[Math.floor(Math.random() * questionIds.length)]
+
     const newGameResult = await ctx.runMutation(internal.games.createNewGame, {
       creatorUserId: args.userId,
+      questionId,
     })
 
     // schedule advancing
