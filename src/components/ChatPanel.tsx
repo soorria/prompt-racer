@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react"
-import { Bot, CheckCircle, ChevronsDown, Loader, Send } from "lucide-react"
+import { Bot, ChevronsDown, Loader } from "lucide-react"
 import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { Doc } from "~convex/dataModel"
 import clsx from "clsx"
@@ -17,11 +17,13 @@ type MessageType = ChatPanelProps["messages"][number]
 
 export function ChatPanelMessageCode(props: { code: string; generating?: boolean }) {
   return (
-    <pre className={clsx("py-2", { "opacity-50": props.generating })}>
-      <code className="px-3 block w-max">
-        <CodeDisplay code={props.code} language="python" />
-      </code>
-    </pre>
+    <CodeDisplay
+      code={props.code}
+      language="python"
+      preProps={{
+        className: clsx({ "opacity-50": props.generating }),
+      }}
+    />
   )
 }
 

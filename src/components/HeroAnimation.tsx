@@ -1,23 +1,56 @@
 "use client"
-import React, { useState, useEffect } from "react"
-import CodeMirror from "@uiw/react-codemirror"
-import { python } from "@codemirror/lang-python"
-import { dracula } from "@uiw/codemirror-theme-dracula"
+import React, { useState, useEffect, useMemo } from "react"
 import { Loader2, Send } from "lucide-react"
 import { Button } from "./ui/button"
+import CodeDisplay from "./CodeDisplay"
+import { Input } from "./ui/input"
+import { useAutoAnimate } from "@formkit/auto-animate/react"
+import clsx from "clsx"
 
 type Props = {}
 
-const entireCode = `
-class Solution(object):
-    def twoSum(self, nums, target):
-        dict={}
-        for i,n in enumerate(nums):
-            if n in dict:
-                return dict[n],i
-            else:
-                dict[target-n]=i
-`
+const noop = () => {}
+
+const examples = [
+  {
+    // two sum
+    code: `
+def solution(nums, target):
+    indexes = {}
+    for i, n in enumerate(nums):
+        if n in indexes:
+            return indexes[n], i
+        else:
+            indexes[target - n] = i
+`,
+    input: "return the indices of two numbers that add up to the target",
+  },
+  {
+    // reverse linked list
+    code: `
+def solution(head):
+    prev = None
+    curr = head
+    while curr:
+        next = curr.next
+        curr.next = prev
+        prev = curr
+        curr = next
+    return prev
+`,
+    input: "reverse the linked list in place and return the new head",
+  },
+].map((example) => {
+  const code = example.code.trim()
+  return {
+    ...example,
+    code,
+    codeChunks: extractChunks(code, 5),
+    inputChunks: extractChunks(example.input, 1),
+  }
+})
+
+export const numExamples = examples.length
 
 function extractChunks(code: string, chunkSize: number = 5): string[] {
   const chunks = []
@@ -27,64 +60,144 @@ function extractChunks(code: string, chunkSize: number = 5): string[] {
   return chunks
 }
 
-const codeChunks = extractChunks(entireCode.trim())
-const inputText = "write up how to do two sum"
-const inputChunks = extractChunks(inputText, 1)
+const CHUNK_DELAY_MS = 50
+const STEP_BUFFERS = {
+  waitingForLLM: 10,
+  waitBeforeSubmit: 10,
+  submittingCode: 50,
+}
 
 export default function HeroAnimation({}: Props) {
-  const [currentCodeChunkIndex, setCurrentCodeChunkIndex] = useState(0)
-  const [currentInputChunkIndex, setCurrentInputChunkIndex] = useState(0)
-  const [showLoader, setShowLoader] = useState(false)
+  const [animateContainerRef] = useAutoAnimate()
+  const [submittingContainerRef, enable] = useAutoAnimate({})
 
-  const codeToShow = codeChunks.slice(0, currentCodeChunkIndex + 1).join("")
-  const inputToShow = inputChunks.slice(0, currentInputChunkIndex + 1).join("")
+  const [exampleIndex, setExampleIndex] = useState(0)
+  const example = examples[exampleIndex]!
+
+  const [step, setStep] = useState(0)
+
+  const stepMilestones = useMemo(() => {
+    const endInput = example.inputChunks.length
+    const startGeneratingCode = endInput + STEP_BUFFERS.waitingForLLM
+    const startSubmitting =
+      startGeneratingCode + example.codeChunks.length + STEP_BUFFERS.waitBeforeSubmit
+    const total = startSubmitting + STEP_BUFFERS.submittingCode
+
+    return {
+      input: endInput,
+      startGeneratingCode,
+      startSubmitting,
+      total,
+    }
+  }, [example])
+
+  const currentInputChunkIndex = Math.min(step, stepMilestones.input)
+  const currentCodeChunkIndex = Math.max(
+    0,
+    step - example.inputChunks.length - STEP_BUFFERS.waitingForLLM
+  )
+  const showLoader =
+    step > stepMilestones.startGeneratingCode && step < stepMilestones.startSubmitting
+  const showSubmittingFakeModal = step > stepMilestones.startSubmitting
+  const complete = step === stepMilestones.total
+
+  const inputToShow = example.inputChunks.slice(0, currentInputChunkIndex).join("")
+  const codeToShow = example.codeChunks.slice(0, currentCodeChunkIndex).join("")
 
   useEffect(() => {
-    let inputInterval: NodeJS.Timeout
-    let codeInterval: NodeJS.Timeout
+    let nextExampleTimeout: ReturnType<typeof setTimeout>
+    const stepInterval = setInterval(() => {
+      let complete = false
+      setStep((step) => {
+        if (step === stepMilestones.total) {
+          complete = true
+        }
+        return Math.min(step + 1, stepMilestones.total)
+      })
 
-    if (currentInputChunkIndex < inputChunks.length - 1) {
-      inputInterval = setInterval(() => {
-        setCurrentInputChunkIndex((prev) => prev + 1)
-      }, 100)
-    } else if (currentCodeChunkIndex < codeChunks.length - 1) {
-      if (!showLoader) setShowLoader(true) // This ensures that the loader only sets to true once
+      if (complete) {
+        nextExampleTimeout = setTimeout(() => {
+          setExampleIndex((exampleIndex) => (exampleIndex + 1) % numExamples)
+          setStep(0)
+        }, 5_000)
+        clearInterval(stepInterval)
+      }
+    }, CHUNK_DELAY_MS)
 
-      codeInterval = setInterval(() => {
-        setCurrentCodeChunkIndex((prev) => prev + 1)
-      }, 250)
-    } else if (showLoader) {
-      setShowLoader(false) // Ensure that the loader only sets to false once after code animation
-    }
-
-    // Cleanup intervals
     return () => {
-      if (inputInterval) clearInterval(inputInterval)
-      if (codeInterval) clearInterval(codeInterval)
+      clearInterval(stepInterval)
+      if (nextExampleTimeout) {
+        clearTimeout(nextExampleTimeout)
+      }
     }
-  }, [currentInputChunkIndex, currentCodeChunkIndex, showLoader])
+  }, [example, stepMilestones])
+
+  // For testing
+  // const showSubmittingFakeModal = true
+  // const complete = true
+  // const inputToShow = example.input
+  // const codeToShow = example.code
+
+  const showSubmittingOpacityClass = showSubmittingFakeModal && "opacity-40"
 
   return (
-    <div className="flex flex-col justify-center items-center">
-      <div className="bg-dracula w-full rounded-xl overflow-y-scroll h-full">
-        <CodeMirror value={codeToShow} extensions={[python()]} theme={dracula} editable={false} />
-      </div>
-      <div className="mt-4 flex w-80 max-w-md">
-        <input
+    <div
+      className="flex flex-col justify-center items-center relative rounded-t-xl rounded-b overflow-hidden"
+      ref={animateContainerRef}
+    >
+      {codeToShow ? (
+        <div
+          className={clsx(
+            "bg-dracula w-full rounded-xl overflow-y-scroll h-full transition-all",
+            showSubmittingOpacityClass
+          )}
+        >
+          <CodeDisplay code={codeToShow} language="python" />
+        </div>
+      ) : null}
+      <div
+        className={clsx(
+          "mt-4 flex w-full pointer-events-none transition-all",
+          showSubmittingOpacityClass
+        )}
+      >
+        <Input
           value={inputToShow}
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1"
           id="message"
           name="message"
           placeholder="Type your instructions..."
           autoComplete="off"
           required
           disabled={showLoader}
+          // this is to stop React's warning about controlled inputs
+          onChange={noop}
         />
         <Button type="submit" disabled={false}>
           {showLoader ? <Loader2 className="animate-spin h-5 w-5" /> : <Send className="w-5 h-5" />}
 
           <span className="sr-only">Send</span>
         </Button>
+      </div>
+
+      <div>
+        {showSubmittingFakeModal && (
+          <div className="absolute inset-0 grid place-items-center animate-fade-in">
+            <div className="bg-zinc-600 py-4 px-6 rounded">
+              {complete ? (
+                <div className="flex flex-col items-center gap-4">
+                  <p className="font-display text-xl text-primary">🥇 1ST PLACE 🥇</p>
+                  <p className="text-7xl">🏆</p>
+                  <p className="text-zinc-400">5/5 tests passing</p>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4">
+                  Submitting your code
+                  <Loader2 size={16} className="animate-spin text-primary" />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
