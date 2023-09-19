@@ -22,7 +22,6 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
     useQuery(api.games.getGameInfoForUser, { gameId: props.params.gameId }) ?? fallbackGameInfo
   const { game, allPlayerGameInfos, currentPlayerInfo } = gameInfo
 
-  const joinGame = useAction(api.games.joinGame)
   const sendMessage = useAction(api.games.sendMessageForPlayerInGame)
 
   const currentUser = useConvexUser()

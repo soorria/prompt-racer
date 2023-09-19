@@ -13,17 +13,9 @@ import { api, internal } from "./_generated/api"
 import { v } from "convex/values"
 import { getUser, requireUser } from "./utils/auth"
 import ms from "ms"
-import {
-  addMilliseconds,
-  addSeconds,
-  formatDuration,
-  intervalToDuration,
-  isAfter,
-  isBefore,
-  isEqual,
-} from "date-fns"
+import { addMilliseconds, formatDuration, intervalToDuration, isAfter, isEqual } from "date-fns"
 import { Doc, Id } from "./_generated/dataModel"
-import { chatHistoryItem, chatHistorySingleItem } from "./utils/schema"
+import { CodeRunResult, chatHistoryItem, playerGameInfoTestState } from "./utils/schema"
 
 export const getMyGames = query({
   handler: async (ctx) => {
@@ -37,7 +29,7 @@ export const getMyGames = query({
 
     const games = await Promise.all(gameInfos.map((info) => ctx.db.get(info.gameId)))
 
-    return { games: games.filter(Boolean) }
+    return { games: games.filter(Boolean).map((g) => removeGameDetailsBasedOnState(g)) }
   },
 })
 
@@ -72,7 +64,7 @@ const _getLatestActiveGameForUser = async (ctx: QueryCtx, userId: string) => {
   }
 
   return {
-    ...game,
+    ...removeGameDetailsBasedOnState(game),
     state: state!,
   }
 }
@@ -123,6 +115,16 @@ export const createNewGame = internalMutation({
   },
 })
 
+export const getFullGame = internalQuery({
+  args: { gameId: v.id("game") },
+  handler: async (ctx, args) => {
+    const gameId = ctx.db.normalizeId("game", args.gameId)
+    if (!gameId) return null
+    const game = await ctx.db.get(gameId)
+    return game
+  },
+})
+
 export const getGame = query({
   args: { gameId: v.string() },
   handler: async (ctx, args) => {
@@ -130,7 +132,7 @@ export const getGame = query({
     if (!gameId) return null
     const game = await ctx.db.get(gameId)
 
-    return game
+    return game && removeGameDetailsBasedOnState(game)
   },
 })
 
@@ -268,7 +270,7 @@ export const joinGame = action({
       if (!newGame) {
         throw new Error("Failed to create game")
       }
-      gameToJoin = newGame
+      gameToJoin = newGame as Doc<"game">
     }
 
     // this is to get around the types being a little dumb :(
@@ -391,20 +393,26 @@ export const sendMessageForPlayerInGame = action({
       ? addMilliseconds(lastPromptedAt, GAME_TIMINGS_MS.promptRateLimitTime)
       : null
 
-    const canPrompt =
+    const canPromptBasedOnRateLimit =
       // no lastPromptedAt means we can prompt
       !nextPromptableAt || isAfter(now, nextPromptableAt) || isEqual(now, nextPromptableAt)
+    const canPromptBasedOnState = game.state === "in-progress"
+    const canPrompt = canPromptBasedOnRateLimit && canPromptBasedOnState
 
     if (!canPrompt) {
-      throw new Error(
-        `You can't prompt the AI yet. Please wait ${formatDuration(
-          intervalToDuration({
-            start: now,
-            end: nextPromptableAt,
-          }),
-          { format: ["seconds"] }
-        )}`
-      )
+      if (!canPromptBasedOnRateLimit) {
+        throw new Error(
+          `You can't prompt the AI yet. Please wait ${formatDuration(
+            intervalToDuration({
+              start: now,
+              end: nextPromptableAt,
+            }),
+            { format: ["seconds"] }
+          )}`
+        )
+      }
+
+      throw new Error("The game is not in progress.")
     }
 
     await Promise.all([
@@ -598,6 +606,118 @@ export const setAgentMessageForPlayerInGame = internalMutation({
     await ctx.db.patch(args.playerGameInfoId, {
       chatHistory: history,
       code: playerGameInfo.code,
+    })
+  },
+})
+
+export const patchPlayerGameInfo = internalMutation({
+  args: {
+    playerGameInfoId: v.id("playerGameInfo"),
+    updates: v.object({
+      lastTestedAt: v.optional(v.number()),
+      testState: v.optional(playerGameInfoTestState),
+    }),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.playerGameInfoId, args.updates)
+  },
+})
+
+export const runTests = action({
+  args: {
+    gameId: v.id("game"),
+  },
+  handler: async (ctx, args) => {
+    const { userId } = await requireUser(ctx)
+
+    const [playerGameInfo, game] = await Promise.all([
+      ctx.runQuery(internal.games.getPlayerGameInfo, {
+        gameId: args.gameId,
+        userId,
+      }),
+      ctx.runQuery(internal.games.getFullGame, { gameId: args.gameId }),
+    ])
+
+    if (!game) {
+      throw new Error("Game not found")
+    }
+
+    if (!playerGameInfo) {
+      throw new Error("Player not found in game")
+    }
+
+    if (game.state !== "in-progress") {
+      throw new Error("Game is not in progress")
+    }
+
+    const now = new Date()
+    const lastTestedAt = playerGameInfo.lastTestedAt ? new Date(playerGameInfo.lastTestedAt) : null
+    const nextTestableAt = lastTestedAt
+      ? addMilliseconds(lastTestedAt, GAME_TIMINGS_MS.promptRateLimitTime)
+      : null
+
+    const canTestBasedOnRateLimit =
+      // no lastTestedAt means we can test
+      !nextTestableAt || isAfter(now, nextTestableAt) || isEqual(now, nextTestableAt)
+
+    if (!canTestBasedOnRateLimit) {
+      throw new Error(
+        `You can't test your code yet. Please wait ${formatDuration(
+          intervalToDuration({
+            start: now,
+            end: nextTestableAt,
+          }),
+          { format: ["seconds"] }
+        )}`
+      )
+    }
+
+    await ctx.runMutation(internal.games.patchPlayerGameInfo, {
+      playerGameInfoId: playerGameInfo._id,
+      updates: {
+        lastTestedAt: now.getTime(),
+        testState: {
+          type: "running",
+        },
+      },
+    })
+
+    const rawResults = await ctx.runAction(internal["code-execution"].runPythonCode, {
+      code: playerGameInfo.code,
+      args_list: game.question.test_cases.map((tc) => tc.args),
+    })
+    const resultsAfterChecking = rawResults.map((result, i): CodeRunResult => {
+      if (result.status === "success") {
+        // check expected
+        const expected = game.question.test_cases[i].expected
+        if (result.result === expected) {
+          return {
+            status: "success",
+            result: result.result,
+          }
+        } else {
+          return {
+            status: "error",
+            reason: {
+              name: "AssertionError",
+              message: `Expected ${JSON.stringify(expected)} but got ${JSON.stringify(
+                result.result
+              )}`,
+            },
+          }
+        }
+      } else {
+        return result
+      }
+    })
+    await ctx.runMutation(internal.games.patchPlayerGameInfo, {
+      playerGameInfoId: playerGameInfo._id,
+      updates: {
+        testState: {
+          type: "complete",
+          results: resultsAfterChecking,
+        },
+      },
     })
   },
 })

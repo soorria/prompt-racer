@@ -14,6 +14,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as code_execution from "../code-execution";
 import type * as games from "../games";
 import type * as openai from "../openai";
 import type * as questions from "../questions";
@@ -30,6 +31,7 @@ import type * as utils_types from "../utils/types";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "code-execution": typeof code_execution;
   games: typeof games;
   openai: typeof openai;
   questions: typeof questions;

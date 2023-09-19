@@ -1,4 +1,4 @@
-import { v } from "convex/values"
+import { Infer, v } from "convex/values"
 
 export const chatHistorySingleItem = {
   user: v.object({
@@ -27,3 +27,29 @@ export const chatHistorySingleItem = {
 }
 
 export const chatHistoryItem = v.union(chatHistorySingleItem.user, chatHistorySingleItem.ai)
+
+export const codeRunResult = v.union(
+  v.object({
+    status: v.literal("success"),
+    result: v.any(),
+  }),
+  v.object({
+    status: v.literal("error"),
+    reason: v.object({
+      name: v.string(),
+      message: v.string(),
+    }),
+  })
+)
+
+export type CodeRunResult = Infer<typeof codeRunResult>
+
+export const playerGameInfoTestState = v.union(
+  v.object({
+    type: v.literal("running"),
+  }),
+  v.object({
+    type: v.literal("complete"),
+    results: v.array(codeRunResult),
+  })
+)

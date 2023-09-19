@@ -22,7 +22,7 @@ export type LayoutType = {
 interface PanelSkeletonProps {
   defaultLayout?: LayoutType
   chatPanelProps: ChatPanelProps
-  question: QuestionType
+  question: Doc<"game">["question"]
 }
 
 const ResizeHandle = ({
@@ -45,8 +45,6 @@ const ResizeHandle = ({
   </PanelResizeHandle>
 )
 
-// export type QuestionType = Extract<Doc<"game">["question"], { description: string }>
-export type QuestionType = { description: string }
 export type AiMessageType = Extract<Doc<"playerGameInfo">["chatHistory"][number], { role: "ai" }>
 const getLastAiCode = (
   messages: Doc<"playerGameInfo">["chatHistory"]
@@ -107,7 +105,6 @@ export default function PanelSkeleton({
           </Panel>
           <ResizeHandle orientation="horizontal" />
           <Panel defaultSize={br} className="relative">
-            {/* <ChatPanel /> */}
             <ChatPanel
               messages={chatPanelProps.messages}
               onMessageSend={chatPanelProps.onMessageSend}

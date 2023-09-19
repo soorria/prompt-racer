@@ -1,6 +1,6 @@
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
-import { chatHistoryItem } from "./utils/schema"
+import { chatHistoryItem, codeRunResult, playerGameInfoTestState } from "./utils/schema"
 
 const questionSchema = {
   title: v.string(),
@@ -52,10 +52,15 @@ export default defineSchema({
     gameId: v.id("game"),
 
     code: v.string(),
-    chatHistory: v.array(chatHistoryItem),
 
     lastPromptedAt: v.optional(v.number()),
-    lastRanCodeAt: v.optional(v.number()),
+    chatHistory: v.array(chatHistoryItem),
+
+    lastTestedAt: v.optional(v.number()),
+    testState: v.optional(playerGameInfoTestState),
+
+    lastSubmittedAt: v.optional(v.number()),
+    submissionState: v.optional(playerGameInfoTestState),
 
     state: v.union(v.literal("playing"), v.literal("submitted")),
   })

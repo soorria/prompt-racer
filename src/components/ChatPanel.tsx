@@ -21,7 +21,7 @@ export function ChatPanelMessageCode(props: { code: string; generating?: boolean
       code={props.code}
       language="python"
       preProps={{
-        className: clsx({ "opacity-50": props.generating }),
+        className: clsx("w-full", { "opacity-50": props.generating }),
       }}
     />
   )
@@ -75,9 +75,7 @@ function ChatPanelMessage({
           <div
             key={message.parsed.state}
             ref={contentRef}
-            className={clsx("text-xs overflow-auto bg-dracula ml-0.5 rounded-xl", {
-              "-mx-3": message.parsed.state === "success",
-            })}
+            className={clsx("text-xs overflow-auto bg-dracula rounded-xl")}
           >
             {message.parsed.state === "generating" ? (
               <ChatPanelMessageCode code={message.parsed.maybeCode} generating />
@@ -91,12 +89,10 @@ function ChatPanelMessage({
       ) : (
         <>
           <div className="relative flex h-6 w-6 flex-none items-center justify-center mt-8">
-            <div className="h-1.5 w-1.5 rounded-full ring-1 ring-gray-300 bg-card" />
+            <div className="h-1.5 w-1.5 rounded-full ring-1 ring-gray-300" />
           </div>
-          <p className="flex-auto py-0.5 text-xs leading-5 text-zinc-300 mt-8">
-            <span className="font-medium bg-primary p-2 text-black rounded-lg">
-              {message.content}
-            </span>
+          <p className="bg-primary flex-auto text-xs leading-5 mt-8 rounded-lg py-2 px-3 text-primary-foreground w-full">
+            {message.content}
           </p>
         </>
       )}
@@ -119,14 +115,19 @@ export default function ChatPanel(props: ChatPanelProps) {
 
   return (
     <div className="bg-card h-full overflow-scroll rounded-xl border-2 border-white/5 relative scroll-smooth">
-      <div className="bg-zinc-900 p-4 text-white font-bold border-b border-white/10 flex justify-between items-center">
-        Change Log
-        <Button variant={"outline"} onClick={scrollToBottom}>
-          <ChevronsDown className="w-6 h-6" />
+      <div className="bg-zinc-900 px-4 py-2 text-white border-b border-white/10 flex justify-between items-center">
+        <p className="font-medium">Change Log</p>
+        <Button
+          variant={"outline"}
+          // className="aspect-square p-0"
+          size="icon"
+          onClick={scrollToBottom}
+        >
+          <ChevronsDown className="w-4 h-4" />
         </Button>
       </div>
 
-      <ul ref={animateRef} role="list" className="space-y-6 px-3 pb-8">
+      <ul ref={animateRef} role="list" className="space-y-6 pb-8 px-3">
         {props.messages.map((message, idx) => (
           <ChatPanelMessage key={idx} index={idx} message={message} len={props.messages.length} />
         ))}
