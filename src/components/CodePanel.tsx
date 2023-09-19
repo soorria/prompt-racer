@@ -64,7 +64,7 @@ export default function CodePanel({ code, onMessageSend, sending }: Props) {
           data-gramm_editor="false"
           data-enable-grammarly="false"
           editable={false}
-          value={codeToDisplay + "\n" + codeToDisplay}
+          value={codeToDisplay}
           extensions={[python()]}
           theme={dracula}
         />
