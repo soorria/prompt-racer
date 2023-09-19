@@ -8,7 +8,7 @@ import { useConvexUser } from "~/lib/convex"
 import clsx from "clsx"
 import { Button } from "./ui/button"
 import invariant from "tiny-invariant"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 type Props = {}
 
@@ -29,10 +29,16 @@ export default function NavBar({}: Props) {
     leaveGame({ gameId: game._id }).then((success) => success && router.push("/g"))
   }
 
+  const pathname = usePathname()
+  const onHomePage = pathname === "/"
+
+  console.log({ pathname, onHomePage })
+
   return (
     <nav
       className={clsx(
-        "flex-row justify-between flex px-5 py-5 items-center rounded-xl h-20 bg-card z-10"
+        "flex-row justify-between flex px-5 py-5 items-center rounded-xl h-20 z-10",
+        onHomePage ? "bg-card/50" : "bg-card"
       )}
     >
       <div className="font-display">
