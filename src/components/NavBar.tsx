@@ -32,8 +32,6 @@ export default function NavBar({}: Props) {
   const pathname = usePathname()
   const onHomePage = pathname === "/"
 
-  console.log({ pathname, onHomePage })
-
   return (
     <nav
       className={clsx(

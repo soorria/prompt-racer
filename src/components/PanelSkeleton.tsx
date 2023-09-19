@@ -3,14 +3,13 @@ import React, { useEffect, useState } from "react"
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 import DescriptionPanel from "./DescriptionPanel"
 import CodePanel from "./CodePanel"
-import ChatPanel, { ChatPanelMessageCode, ChatPanelProps } from "./ChatPanel"
+import ChatPanel, { ChatPanelProps } from "./ChatPanel"
 import { cx } from "class-variance-authority"
 import LeaderboardPanel from "./LeaderboardPanel"
-import CodeDisplay from "./CodeDisplay"
-import clsx from "clsx"
 import { Doc } from "~convex/dataModel"
 import { api } from "~convex/api"
 import { InferQueryOutput } from "~/lib/convex"
+import { useAction } from "convex/react"
 
 export type LayoutType = {
   left?: number
@@ -26,6 +25,7 @@ interface PanelSkeletonProps {
   chatPanelProps: ChatPanelProps
   question: Doc<"game">["question"]
   game: NonNullable<InferQueryOutput<typeof api.games.getGameInfoForUser>["game"]>
+  playerGameInfo: InferQueryOutput<typeof api.games.getGameInfoForUser>["currentPlayerInfo"]
 }
 
 const ResizeHandle = ({
@@ -64,6 +64,7 @@ export default function PanelSkeleton({
   chatPanelProps,
   question,
   game,
+  playerGameInfo,
 }: PanelSkeletonProps) {
   const [panelSizes, setPanelSizes] = useState<LayoutType>(defaultLayout)
   const { left, right, tl, bl, tr, br } = panelSizes
@@ -80,6 +81,8 @@ export default function PanelSkeleton({
     updatePanelSizes(newSizes)
   }
 
+  const runTests = useAction(api.games.runTests)
+
   return (
     <PanelGroup
       direction="horizontal"
@@ -89,7 +92,12 @@ export default function PanelSkeleton({
       <Panel defaultSize={left}>
         <PanelGroup direction="vertical" onLayout={handleLayout(["tl", "bl"])} className="gap-1">
           <Panel defaultSize={tl}>
-            <DescriptionPanel question={question} gameMode={game!.mode} />
+            <DescriptionPanel
+              question={question}
+              gameMode={game.mode}
+              playerGameInfo={playerGameInfo}
+              onRunTests={() => runTests({ gameId: game._id })}
+            />
           </Panel>
           <ResizeHandle orientation="horizontal" />
           <Panel defaultSize={bl}>

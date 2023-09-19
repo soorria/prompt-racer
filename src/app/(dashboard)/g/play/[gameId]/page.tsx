@@ -52,6 +52,7 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
                 },
                 sending: sending,
               }}
+              playerGameInfo={currentPlayerInfo}
             />
           )}
         </>
