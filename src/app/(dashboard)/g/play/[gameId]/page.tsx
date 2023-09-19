@@ -34,6 +34,7 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
         <>
           {game && currentPlayerInfo && (
             <PanelSkeleton
+              game={game}
               question={game.question}
               chatPanelProps={{
                 messages: currentPlayerInfo.chatHistory,
@@ -62,11 +63,6 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
           <p className="mt-4 text-gray-600 animate-pulse">Waiting for players...</p>
         </div>
       )}
-
-      {/* 
-      <div className="mt-8">
-        <Debug activeGame={game} $title="Game user is currently in" />d
-      </div> */}
     </div>
   )
 }

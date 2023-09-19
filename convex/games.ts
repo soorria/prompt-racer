@@ -189,7 +189,7 @@ export const createGame = internalAction({
   handler: async (ctx, args) => {
     const questionIds = await ctx.runQuery(internal.questions.getQuestionIds)
 
-    const questionId = questionIds[Math.floor(Math.random() * questionIds.length)]
+    const questionId = questionIds[Math.floor(Math.random() * questionIds.length)]!
 
     const newGameResult = await ctx.runMutation(internal.games.createNewGame, {
       creatorUserId: args.userId,
@@ -682,14 +682,14 @@ export const runTests = action({
       },
     })
 
-    const rawResults = await ctx.runAction(internal["code-execution"].runPythonCode, {
+    const rawResults = await ctx.runAction(internal.codeExecution.runPythonCode, {
       code: playerGameInfo.code,
       args_list: game.question.test_cases.map((tc) => tc.args),
     })
     const resultsAfterChecking = rawResults.map((result, i): CodeRunResult => {
       if (result.status === "success") {
         // check expected
-        const expected = game.question.test_cases[i].expected
+        const expected = game.question.test_cases[i]!.expected
         if (result.result === expected) {
           return {
             status: "success",

@@ -115,7 +115,7 @@ export default function ChatPanel(props: ChatPanelProps) {
 
   return (
     <div className="bg-card h-full overflow-scroll rounded-xl border-2 border-white/5 relative scroll-smooth">
-      <div className="bg-zinc-900 px-4 py-2 text-white border-b border-white/10 flex justify-between items-center">
+      <div className="bg-zinc-900 py-2 px-3 text-white border-b border-white/10 flex justify-between items-center">
         <p className="font-medium">Change Log</p>
         <Button
           variant={"outline"}

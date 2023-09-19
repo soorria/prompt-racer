@@ -9,6 +9,8 @@ import LeaderboardPanel from "./LeaderboardPanel"
 import CodeDisplay from "./CodeDisplay"
 import clsx from "clsx"
 import { Doc } from "~convex/dataModel"
+import { api } from "~convex/api"
+import { InferQueryOutput } from "~/lib/convex"
 
 export type LayoutType = {
   left?: number
@@ -23,6 +25,7 @@ interface PanelSkeletonProps {
   defaultLayout?: LayoutType
   chatPanelProps: ChatPanelProps
   question: Doc<"game">["question"]
+  game: NonNullable<InferQueryOutput<typeof api.games.getGameInfoForUser>["game"]>
 }
 
 const ResizeHandle = ({
@@ -60,6 +63,7 @@ export default function PanelSkeleton({
   defaultLayout = { left: 50, right: 50, tl: 70, bl: 30, tr: 35, br: 65 },
   chatPanelProps,
   question,
+  game,
 }: PanelSkeletonProps) {
   const [panelSizes, setPanelSizes] = useState<LayoutType>(defaultLayout)
   const { left, right, tl, bl, tr, br } = panelSizes
@@ -85,7 +89,7 @@ export default function PanelSkeleton({
       <Panel defaultSize={left}>
         <PanelGroup direction="vertical" onLayout={handleLayout(["tl", "bl"])} className="gap-1">
           <Panel defaultSize={tl}>
-            <DescriptionPanel question={question} />
+            <DescriptionPanel question={question} gameMode={game!.mode} />
           </Panel>
           <ResizeHandle orientation="horizontal" />
           <Panel defaultSize={bl}>
