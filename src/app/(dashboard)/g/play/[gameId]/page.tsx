@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import invariant from "tiny-invariant"
 import ChatPanel from "~/components/ChatPanel"
 import { Debug } from "~/components/Debug"
+import FinishGameScreen from "~/components/FinishGameScreen"
 import LobbyPlayerCard from "~/components/LobbyPlayerCard"
 import PanelSkeleton from "~/components/PanelSkeleton"
 import { Button } from "~/components/ui/button"
@@ -35,7 +36,12 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
 
   return (
     <div className="h-full pt-4">
-      {(game?.state === "in-progress" || game?.state === "finished") && (
+      {game?.state === "finished" && (
+        <>
+          <FinishGameScreen players={game.players} />
+        </>
+      )}
+      {game?.state === "in-progress" && (
         <>
           {game && currentPlayerInfo && (
             <PanelSkeleton

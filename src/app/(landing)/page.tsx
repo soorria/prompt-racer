@@ -2,43 +2,10 @@ import FinishGameScreen from "~/components/FinishGameScreen"
 import HeroAnimation from "~/components/HeroAnimation"
 import PlayNowButton from "~/components/PlayNowButton"
 
-const generateRandomName = () => {
-  const firstNames = ["John", "Jane", "Mike", "Anna", "Chris"]
-  const lastNames = ["Smith", "Doe", "Johnson", "Brown", "Williams"]
-  const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)]
-  const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)]
-  return `${randomFirstName} ${randomLastName}`
-}
-
-const generateRandomUserId = () => Math.floor(Math.random() * 1000000).toString()
-
-const generateRandomAvatarUrl = () => {
-  const avatars = [
-    "https://example.com/avatar1.jpg",
-    "https://example.com/avatar2.jpg",
-    "https://example.com/avatar3.jpg",
-    "https://example.com/avatar4.jpg",
-    "https://example.com/avatar5.jpg",
-  ]
-  return avatars[Math.floor(Math.random() * avatars.length)]
-}
-
-const generateRandomPlayer = (position: number) => ({
-  position: position,
-  name: generateRandomName(),
-  userId: generateRandomUserId(),
-  profilePictureUrl: generateRandomAvatarUrl(),
-})
-
-const players = Array.from({ length: 10 }, (_, i) => generateRandomPlayer(i + 1))
-
-console.log(players)
-
 export default function Home() {
   return (
     <div className="h-full">
-      <FinishGameScreen players={players} />
-      {/* <div className="isolate overflow-hidden">
+      <div className="isolate overflow-hidden">
         <div
           className="absolute left-[calc(50%-4rem)] top-10 -z-50 transform-gpu blur-3xl sm:left-[calc(50%-18rem)] lg:left-48 lg:top-[calc(50%-30rem)] xl:left-[calc(50%-24rem)]"
           aria-hidden="true"
@@ -69,7 +36,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
     </div>
   )
 }

@@ -8,6 +8,7 @@ import {
   mutation,
   query,
 } from "./_generated/server"
+import { dequal } from "dequal"
 import { api, internal } from "./_generated/api"
 
 import { v } from "convex/values"
@@ -842,7 +843,7 @@ export const submitCode = action({
       if (result.status === "success") {
         // check expected
         const expected = game.question.test_cases[i]!.expected
-        if (result.result === expected) {
+        if (dequal(result.result, expected)) {
           return {
             status: "success",
             result: result.result,
@@ -941,7 +942,7 @@ export const runTests = action({
       if (result.status === "success") {
         // check expected
         const expected = game.question.examples[i]!.expected
-        if (result.result === expected) {
+        if (dequal(result.result, expected)) {
           return {
             status: "success",
             result: result.result,

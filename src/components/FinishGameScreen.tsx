@@ -8,7 +8,6 @@ type Props = {
 }
 
 export default function FinishGameScreen({ players = [] }: Props) {
-  // Sort players based on their positions. Players with position "nah" will be moved to the end.
   const sortedPlayers = [...players].sort((a, b) => {
     if (a.position === "nah") return 1
     if (b.position === "nah") return -1
@@ -35,24 +34,32 @@ export default function FinishGameScreen({ players = [] }: Props) {
       </h1>
       <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mx-auto">
         {sortedPlayers.slice(0, 3).map((player, index) => (
-          <div
-            key={player.userId}
-            className="relative overflow-hidden rounded-lg bg-card shadow flex justify-center items-center"
-          >
-            <dd className="flex flex-1 items-center px-4 py-5">
-              <Avatar>
-                <AvatarImage src={player.profilePictureUrl} />
-                <AvatarFallback>{player.name[0]}</AvatarFallback>
-              </Avatar>
-              <p className="text-2xl ml-5 font-semibold">{player.name}</p>
-            </dd>
-            <dt className={clsx("w-24 h-full grid place-content-center", getColour(index)[0])}>
-              <span className="text-5xl font-display text-white" aria-hidden="true">
-                {index + 1}
-                <sup>{getColour(index)[1]}</sup>
-              </span>
-            </dt>
-          </div>
+          <>
+            {player.position !== "nah" && (
+              <>
+                <div
+                  key={player.userId}
+                  className="relative overflow-hidden rounded-lg bg-card shadow flex justify-center items-center"
+                >
+                  <dd className="flex flex-1 items-center px-4 py-5">
+                    <Avatar>
+                      <AvatarImage src={player.profilePictureUrl} />
+                      <AvatarFallback>{player.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <p className="text-2xl ml-5 font-semibold">{player.name}</p>
+                  </dd>
+                  <dt
+                    className={clsx("w-24 h-full grid place-content-center", getColour(index)[0])}
+                  >
+                    <span className="text-5xl font-display text-white" aria-hidden="true">
+                      {index + 1}
+                      <sup>{getColour(index)[1]}</sup>
+                    </span>
+                  </dt>
+                </div>
+              </>
+            )}
+          </>
         ))}
       </dl>
       <ul className="mt-5 max-w-5xl mx-auto">
@@ -63,7 +70,7 @@ export default function FinishGameScreen({ players = [] }: Props) {
                 key={player.userId}
                 className="flex items-center py-2 border-b border-gray-300/50"
               >
-                <span className="opacity-50 mr-3">#{player.position}</span>
+                <span className="opacity-50 w-8 mr-3">#{player.position}</span>
                 <Avatar className="mr-4">
                   <AvatarImage src={player.profilePictureUrl} />
                   <AvatarFallback>{player.name[0]}</AvatarFallback>
@@ -73,6 +80,7 @@ export default function FinishGameScreen({ players = [] }: Props) {
             )
         )}
       </ul>
+      <h3 className="text-lg font-bold mt-8 mb-2">Could not Finish 😭</h3>
       <ul className="mt-5 max-w-5xl mx-auto">
         {sortedPlayers.map(
           (player) =>
