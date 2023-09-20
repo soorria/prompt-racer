@@ -13,7 +13,8 @@ export const codeGeneration = internalAction({
     currentCode: v.string(),
   },
   handler: async (ctx, args) => {
-    const apiKey = process.env.OPENAI_API_KEY
+    const keys = process.env.OPENAI_API_KEY!.split(",")
+    const apiKey = keys[Math.floor(Math.random() * keys.length)]!
     const openai = new OpenAI({ apiKey })
 
     const stream = await openai.chat.completions.create({
