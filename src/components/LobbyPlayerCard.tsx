@@ -4,6 +4,8 @@ import { useConvexAuth } from "convex/react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { UserIdentity } from "convex/server"
 import { Doc } from "~convex/dataModel"
+import { useConvexUser } from "~/lib/convex"
+import { Button } from "./ui/button"
 
 type Player =
   | {
@@ -15,15 +17,22 @@ type Player =
 
 type Props = {
   players: NonNullable<Doc<"game">["players"]>
+  onLeaveGame: () => void
 }
 
-export default function LobbyPlayerCard({ players }: Props) {
+export default function LobbyPlayerCard({ players, onLeaveGame }: Props) {
+  const currentUser = useConvexUser()
+
+  const me = players.find((p) => p.userId === currentUser?.userId)
+  const otherPlayers = players.filter((p) => p.userId !== currentUser?.userId)
+  const ordered = [me, ...otherPlayers].filter(Boolean)
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {players.map((person, idx) => (
+      {ordered.map((person, idx) => (
         <div
           key={idx}
-          className="relative flex items-center space-x-3 rounded-lg border border-gray-700 bg-card px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400"
+          className="relative flex items-center gap-3 rounded-lg border border-gray-700 bg-card px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400"
         >
           <div className="flex-shrink-0">
             <Avatar>
@@ -32,11 +41,6 @@ export default function LobbyPlayerCard({ players }: Props) {
                 {person.name.startsWith("Anonymous #") ? "A" : person.name[0]}
               </AvatarFallback>
             </Avatar>
-            {/* {isAuthenticated ? (
-              <UserButton afterSignOutUrl="/" />
-            ) : (
-              <AvatarFallback>AA</AvatarFallback>
-            )} */}
           </div>
           <div className="min-w-0 flex-1">
             <a href="#" className="focus:outline-none">
@@ -44,6 +48,11 @@ export default function LobbyPlayerCard({ players }: Props) {
               <p className="text-sm font-medium">{person?.name}</p>
             </a>
           </div>
+          {currentUser?.userId === person.userId && (
+            <Button variant={"destructive"} size="sm" onClick={onLeaveGame}>
+              Leave
+            </Button>
+          )}
         </div>
       ))}
       {/* Skeleton card */}

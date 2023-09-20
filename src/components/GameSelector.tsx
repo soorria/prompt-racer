@@ -15,21 +15,13 @@ const tiers = [
   //   timesWon: 3,
   // },
   {
-    name: "Fastest Player!",
+    name: "Random Game Mode",
     id: "tier-fastest-player",
-    description: "This game mode is timed, solve the problem first to win!",
-    icon: <Timer size={120} />,
+    description: "Start the game, and see what mode you get!",
+    icon: <Trophy size={120} />,
     gamesPlayed: 10,
     timesWon: 5,
   },
-  // {
-  //   name: "Optimal Solution",
-  //   id: "tier-optimal-solution",
-  //   description: "Find the most efficient solution to the problem.",
-  //   icon: <Play size={120} />,
-  //   gamesPlayed: 12,
-  //   timesWon: 4,
-  // },
 ]
 
 export default function GameSelector({}: Props) {
@@ -44,25 +36,7 @@ export default function GameSelector({}: Props) {
             )}
           >
             <div className="">
-              <div className="flex items-center justify-between gap-x-4 w-full">
-                <>
-                  <p
-                    className="text-zinc-400 hover:text-zinc-100 flex absolute left-4 items-center justify-center space-x-1 rounded-full bg-zinc-500/10 hover:bg-zinc-500/20 transition-colors duration-200 ease-in-out px-2.5 py-1 text-xs font-semibold leading-5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500/50"
-                    aria-label="Played 5 times"
-                  >
-                    <GalleryHorizontalEnd />
-                    <span>{tier.gamesPlayed}</span>
-                  </p>
-                  <p
-                    className="text-zinc-400 hover:text-zinc-100 flex absolute right-4 items-center justify-center space-x-1 rounded-full bg-zinc-500/10 hover:bg-zinc-500/20 transition-colors duration-200 ease-in-out px-2.5 py-1 text-xs font-semibold leading-5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500/50"
-                    aria-label="Played 5 times"
-                  >
-                    <Trophy />
-                    <span>{tier.timesWon}</span>
-                  </p>
-                </>
-              </div>
-              <div className="flex justify-center mt-6">{tier.icon}</div>
+              <div className="flex justify-center mb-6">{tier.icon}</div>
               <h3 id={tier.id} className={cx("mt-6 first-letter:text-lg font-semibold")}>
                 {tier.name}
               </h3>

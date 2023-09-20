@@ -32,8 +32,6 @@ export default function NavBar({}: Props) {
   const pathname = usePathname()
   const onHomePage = pathname === "/"
 
-  console.log(game)
-
   return (
     <nav
       className={clsx(
@@ -44,17 +42,9 @@ export default function NavBar({}: Props) {
       <div className="font-display">
         {game?.state === "waiting-for-players" && (
           <div className="text-xl flex flex-row items-center">
-            <Link href={`/g/play/${game._id}`} className="block w-auto">
-              FINDING <div className="ml-2 text-orange-400 animate-pulse">PLAYERS</div>
+            <Link href={`/g/play/asdf`} className="block flex-shrink-0 w-auto">
+              FINDING <span className="ml-1 text-orange-400 animate-pulse">PLAYERS</span>
             </Link>
-            <div className="mx-4 w-1 h-12 bg-white/50 rounded-full"></div>
-            <Button
-              className="font-sans border-white/30"
-              variant={"outline"}
-              onClick={handleLeaveGame}
-            >
-              Leave game
-            </Button>
           </div>
         )}
         {game?.state === "in-progress" && (
@@ -62,12 +52,12 @@ export default function NavBar({}: Props) {
             GAME <div className="ml-2 text-red-400 animate-pulse">IN-PROGRESS</div>
           </Link>
         )}
-        {!game && (
+        {/* {!game && (
           // Show this if there's no active game but user is authenticated
           <Link className="text-xl flex flex-row" href="/">
             PROMPT<div className="text-primary">RACER</div>
           </Link>
-        )}
+        )} */}
       </div>
       <AuthButton />
     </nav>
