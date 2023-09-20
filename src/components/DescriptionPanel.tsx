@@ -7,6 +7,7 @@ type Props = {
   question: Doc<"game">["question"]
   playerGameInfo: Doc<"playerGameInfo"> | null | undefined
   onRunTests: () => void
+  onSubmitCode: () => void
 }
 
 export default function DescriptionPanel({
@@ -14,12 +15,11 @@ export default function DescriptionPanel({
   gameMode,
   playerGameInfo,
   onRunTests,
+  onSubmitCode,
 }: Props) {
   const testsRunning = playerGameInfo?.testState?.type === "running"
   const testResults =
     playerGameInfo?.testState?.type === "complete" ? playerGameInfo.testState.results : []
-
-  const errors = testResults.flatMap((result) => (result.status === "error" ? result.reason : []))
 
   return (
     <div className="bg-card h-full rounded-xl p-4 overflow-y-auto">
@@ -81,7 +81,7 @@ export default function DescriptionPanel({
               Run tests
             </Button>
 
-            <Button size="sm" onClick={onRunTests} disabled={testsRunning}>
+            <Button size="sm" onClick={onSubmitCode} disabled={testsRunning}>
               Submit code
             </Button>
           </div>

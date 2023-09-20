@@ -47,11 +47,12 @@ export default defineSchema({
           name: v.string(),
           profilePictureUrl: v.string(),
           userId: v.string(),
+          position: v.optional(v.union(v.number(), v.literal("nah"))),
         })
       )
     ),
 
-    mode: v.literal("fastest-player"),
+    mode: v.union(v.literal("fastest-player"), v.literal("fastest-code")),
 
     gameStartTime: v.number(),
     gameEndTime: v.number(),
