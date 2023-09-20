@@ -1,6 +1,6 @@
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
-import { chatHistoryItem, codeRunResult, playerGameInfoTestState } from "./utils/schema"
+import { chatHistoryItem, codeRunResult, gamePlayer, playerGameInfoTestState } from "./utils/schema"
 
 const questionSchema = {
   title: v.string(),
