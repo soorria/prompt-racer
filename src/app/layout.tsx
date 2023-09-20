@@ -39,10 +39,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <html lang="en">
         <head>
-          <PlausibleProvider
-            domain="prompt-racer.soorria.com"
-            selfHosted
-            customDomain="https://soorria.com"
+          <script
+            async
+            defer
+            data-domain="jjs.mooth.tech"
+            data-api="https://mooth.tech/proxy/api/event"
+            src="https://mooth.tech/js/potato.js"
           />
         </head>
         <body
