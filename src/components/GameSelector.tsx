@@ -6,14 +6,14 @@ import GameModeSelectionButton from "./GameModeSelectionButton"
 type Props = {}
 
 const tiers = [
-  {
-    name: "Least Tokens",
-    id: "tier-least-tokens",
-    description: "Use the fewest tokens possible to solve the problem.",
-    icon: <CheckIcon size={120} />,
-    gamesPlayed: 7,
-    timesWon: 3,
-  },
+  // {
+  //   name: "Least Tokens",
+  //   id: "tier-least-tokens",
+  //   description: "Use the fewest tokens possible to solve the problem.",
+  //   icon: <CheckIcon size={120} />,
+  //   gamesPlayed: 7,
+  //   timesWon: 3,
+  // },
   {
     name: "Fastest Player!",
     id: "tier-fastest-player",
@@ -22,20 +22,20 @@ const tiers = [
     gamesPlayed: 10,
     timesWon: 5,
   },
-  {
-    name: "Optimal Solution",
-    id: "tier-optimal-solution",
-    description: "Find the most efficient solution to the problem.",
-    icon: <Play size={120} />,
-    gamesPlayed: 12,
-    timesWon: 4,
-  },
+  // {
+  //   name: "Optimal Solution",
+  //   id: "tier-optimal-solution",
+  //   description: "Find the most efficient solution to the problem.",
+  //   icon: <Play size={120} />,
+  //   gamesPlayed: 12,
+  //   timesWon: 4,
+  // },
 ]
 
 export default function GameSelector({}: Props) {
   return (
-    <div className="max-w-md lg:max-w-4xl mx-auto">
-      <div className="isolate mx-auto mt-16 grid gap-4 grid-cols-1 gap-y-8 sm:mt-20 lg:mx-0 lg:grid-cols-3">
+    <div className="max-w-md mx-auto">
+      <div className="isolate mx-auto mt-16 grid gap-4 grid-cols-1 gap-y-8 sm:mt-20 lg:mx-0 lg:grid-cols-1">
         {tiers.map((tier, tierIdx) => (
           <div
             key={tier.id}

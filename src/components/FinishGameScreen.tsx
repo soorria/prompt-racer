@@ -11,6 +11,10 @@ export default function FinishGameScreen({ players = [] }: Props) {
   const sortedPlayers = [...players].sort((a, b) => {
     if (a.position === "nah") return 1
     if (b.position === "nah") return -1
+
+    if (typeof a.position === "undefined") return 1
+    if (typeof b.position === "undefined") return -1
+
     return a.position - b.position
   })
 
@@ -80,7 +84,9 @@ export default function FinishGameScreen({ players = [] }: Props) {
             )
         )}
       </ul>
-      <h3 className="text-lg font-bold mt-8 mb-2">Could not Finish 😭</h3>
+      {sortedPlayers.filter((p) => p.position === "nah").length !== 0 && (
+        <h3 className="text-lg font-bold mt-8 mb-2">Could not Finish 😭</h3>
+      )}
       <ul className="mt-5 max-w-5xl mx-auto">
         {sortedPlayers.map(
           (player) =>
