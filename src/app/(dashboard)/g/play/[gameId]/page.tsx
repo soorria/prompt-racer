@@ -71,6 +71,10 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
         </>
       )}
 
+      {game?.state === "finalising" && (
+        <div className="h-full grid place-items-center">Finalising game...</div>
+      )}
+
       {game?.state === "waiting-for-players" && (
         <div className="flex flex-col items-center mt-8">
           <LobbyPlayerCard
