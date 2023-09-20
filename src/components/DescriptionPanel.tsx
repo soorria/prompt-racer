@@ -1,4 +1,5 @@
-import React, { ReactNode } from "react"
+import { Loader2 } from "lucide-react"
+import React, { ReactNode, useState } from "react"
 import { Button } from "~/components/ui/button"
 import { Doc } from "~convex/dataModel"
 
@@ -22,9 +23,16 @@ export default function DescriptionPanel({
   onRunTests,
   onSubmitCode,
 }: Props) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const testsRunning = playerGameInfo?.testState?.type === "running"
   const testResults =
     playerGameInfo?.testState?.type === "complete" ? playerGameInfo.testState.results : []
+
+  const handleSubmission = async () => {
+    setIsSubmitting(true)
+    await onSubmitCode()
+    setIsSubmitting(false)
+  }
 
   return (
     <div className="bg-card h-full rounded-xl p-4 overflow-y-auto select-none">
@@ -45,7 +53,11 @@ export default function DescriptionPanel({
             if (!playerGameInfo) {
               testEmoji = null
             } else if (testsRunning) {
-              testEmoji = <span title="Running test">🏃‍♂️</span>
+              testEmoji = (
+                <span title="Running test">
+                  <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                </span>
+              )
             } else if (result) {
               testEmoji = (
                 <span title={result.status === "success" ? "Test passed" : "Test failed"}>
@@ -86,8 +98,8 @@ export default function DescriptionPanel({
               Run tests
             </Button>
 
-            <Button size="sm" onClick={onSubmitCode} disabled={testsRunning}>
-              Submit code
+            <Button size="sm" onClick={handleSubmission} disabled={testsRunning || isSubmitting}>
+              {isSubmitting ? <Loader2 className="w-6 h-6 animate-spin" /> : "Submit code"}
             </Button>
           </div>
         )}

@@ -1,17 +1,6 @@
 import React from "react"
-import { SignInButton, SignOutButton, UserButton, useUser } from "@clerk/nextjs"
-import { useConvexAuth } from "convex/react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { UserIdentity } from "convex/server"
 import { Doc } from "~convex/dataModel"
-
-type Player =
-  | {
-      userId: string
-      identity: UserIdentity
-    }
-  | null
-  | undefined
 
 type Props = {
   players: NonNullable<Doc<"game">["players"]>
@@ -32,11 +21,6 @@ export default function LobbyPlayerCard({ players }: Props) {
                 {person.name.startsWith("Anonymous #") ? "A" : person.name[0]}
               </AvatarFallback>
             </Avatar>
-            {/* {isAuthenticated ? (
-              <UserButton afterSignOutUrl="/" />
-            ) : (
-              <AvatarFallback>AA</AvatarFallback>
-            )} */}
           </div>
           <div className="min-w-0 flex-1">
             <a href="#" className="focus:outline-none">

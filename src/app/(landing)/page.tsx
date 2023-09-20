@@ -1,4 +1,3 @@
-import FinishGameScreen from "~/components/FinishGameScreen"
 import HeroAnimation from "~/components/HeroAnimation"
 import PlayNowButton from "~/components/PlayNowButton"
 
