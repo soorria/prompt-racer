@@ -1,8 +1,9 @@
 import React from "react"
 import { SignInButton, SignOutButton, UserButton, useUser } from "@clerk/nextjs"
 import { useConvexAuth } from "convex/react"
-import { AvatarFallback } from "./ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { UserIdentity } from "convex/server"
+import { Doc } from "~convex/dataModel"
 
 type Player =
   | {
@@ -13,12 +14,10 @@ type Player =
   | undefined
 
 type Props = {
-  players: Player[]
+  players: NonNullable<Doc<"game">["players"]>
 }
 
 export default function LobbyPlayerCard({ players }: Props) {
-  const { isAuthenticated } = useConvexAuth()
-
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {players.map((person, idx) => (
@@ -27,16 +26,22 @@ export default function LobbyPlayerCard({ players }: Props) {
           className="relative flex items-center space-x-3 rounded-lg border border-gray-700 bg-card px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400"
         >
           <div className="flex-shrink-0">
-            {isAuthenticated ? (
+            <Avatar>
+              <AvatarImage src={person.profilePictureUrl} />
+              <AvatarFallback>
+                {person.name.startsWith("Anonymous #") ? "A" : person.name[0]}
+              </AvatarFallback>
+            </Avatar>
+            {/* {isAuthenticated ? (
               <UserButton afterSignOutUrl="/" />
             ) : (
               <AvatarFallback>AA</AvatarFallback>
-            )}
+            )} */}
           </div>
           <div className="min-w-0 flex-1">
             <a href="#" className="focus:outline-none">
               <span className="absolute inset-0" aria-hidden="true" />
-              <p className="text-sm font-medium">{person?.identity.name}</p>
+              <p className="text-sm font-medium">{person?.name}</p>
             </a>
           </div>
         </div>

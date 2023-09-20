@@ -28,9 +28,11 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
 
   const [sending, setSending] = useState(false)
 
+  console.log(game)
+
   return (
     <div className="h-full pt-4">
-      {(game?.state === "in-progress" || game?.state === "finished") && (
+      {/* {(game?.state === "in-progress" || game?.state === "finished") && (
         <>
           {game && currentPlayerInfo && (
             <PanelSkeleton
@@ -56,11 +58,16 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
             />
           )}
         </>
-      )}
+      )} */}
+
+      <div className="flex flex-col items-center mt-8">
+        <LobbyPlayerCard players={game?.players ?? []} />
+        <p className="mt-4 text-gray-600 animate-pulse">Waiting for players...</p>
+      </div>
 
       {game?.state === "waiting-for-players" && (
         <div className="flex flex-col items-center mt-8">
-          <LobbyPlayerCard players={[currentUser]} />
+          <LobbyPlayerCard players={game.players ?? []} />
           <p className="mt-4 text-gray-600 animate-pulse">Waiting for players...</p>
         </div>
       )}

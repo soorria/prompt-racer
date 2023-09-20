@@ -22,7 +22,7 @@ export default function DescriptionPanel({
   const errors = testResults.flatMap((result) => (result.status === "error" ? result.reason : []))
 
   return (
-    <div className="bg-card h-full rounded-xl p-4">
+    <div className="bg-card h-full rounded-xl p-4 overflow-y-auto">
       <h2 className="text-lg font-semibold mb-4">{question.title}</h2>
       <p>{question.description}</p>
 
@@ -55,29 +55,37 @@ export default function DescriptionPanel({
               )
             }
             return (
-              <div key={i} className="font-mono">
-                {testEmoji} solution({testCase.args.map((a) => JSON.stringify(a)).join(", ")}) =={" "}
-                {JSON.stringify(testCase.expected)}
+              <div key={i} className="font-mono whitespace-pre-wrap">
+                <div className="grid gap-1" style={{ gridTemplateColumns: "1em 1fr" }}>
+                  <span className="justify-self-center">{testEmoji}</span>
+                  <span>
+                    solution({testCase.args.map((a) => JSON.stringify(a)).join(", ")}) =={" "}
+                    {JSON.stringify(testCase.expected)}
+                  </span>
+                </div>
+                {result && (
+                  <div className="grid gap-1" style={{ gridTemplateColumns: "1em 1fr" }}>
+                    <span className="justify-self-center">↳</span>
+                    {result.status === "error"
+                      ? `${result.reason.name}: ${result.reason.message}`
+                      : null}
+                  </div>
+                )}
               </div>
             )
           })}
-
-          {playerGameInfo && (
+        </div>
+        {playerGameInfo && (
+          <div className="mt-4 sticky bottom-0 flex justify-between">
             <Button size="sm" onClick={onRunTests} disabled={testsRunning}>
               Run tests
             </Button>
-          )}
 
-          {errors.length ? (
-            <ul>
-              {errors.map((e, i) => (
-                <li key={i}>
-                  {e.name}: {e.message}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
+            <Button size="sm" onClick={onRunTests} disabled={testsRunning}>
+              Submit code
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

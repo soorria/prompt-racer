@@ -9,7 +9,7 @@ import LeaderboardPanel from "./LeaderboardPanel"
 import { Doc } from "~convex/dataModel"
 import { api } from "~convex/api"
 import { InferQueryOutput } from "~/lib/convex"
-import { useAction } from "convex/react"
+import { useAction, useMutation } from "convex/react"
 
 export type LayoutType = {
   left?: number
@@ -49,14 +49,24 @@ const ResizeHandle = ({
 )
 
 export type AiMessageType = Extract<Doc<"playerGameInfo">["chatHistory"][number], { role: "ai" }>
-const getLastAiCode = (
+const getCodeToDisplayInfo = (args: {
+  game: PanelSkeletonProps["game"]
   messages: Doc<"playerGameInfo">["chatHistory"]
-): AiMessageType | undefined => {
-  const lastAiMessage = messages
-    .slice()
-    .reverse()
-    .find((msg): msg is AiMessageType => msg.role === "ai")
-  return lastAiMessage
+}) => {
+  const lastMessage = args.messages.at(-1)
+
+  if (lastMessage?.role === "ai") {
+    const parsed = lastMessage.parsed
+    if (parsed.state === "generating") {
+      return { code: parsed.maybeCode, generating: true }
+    } else if (parsed.state === "success") {
+      return { code: parsed.code }
+    }
+  }
+
+  return {
+    code: args.game.question.starting_code,
+  }
 }
 
 export default function PanelSkeleton({
@@ -82,6 +92,9 @@ export default function PanelSkeleton({
   }
 
   const runTests = useAction(api.games.runTests)
+  const resetCode = useMutation(api.games.resetStartingCode)
+
+  const codeInfo = getCodeToDisplayInfo({ game, messages: chatPanelProps.messages })
 
   return (
     <PanelGroup
@@ -110,8 +123,10 @@ export default function PanelSkeleton({
         <PanelGroup direction="vertical" onLayout={handleLayout(["tr", "br"])} className="gap-1">
           <Panel defaultSize={tr}>
             <CodePanel
-              code={getLastAiCode(chatPanelProps.messages)}
+              code={codeInfo.code}
+              generating={codeInfo.generating}
               onMessageSend={chatPanelProps.onMessageSend}
+              onResetCode={() => resetCode({ gameId: game._id })}
               sending={chatPanelProps.sending}
             />
           </Panel>

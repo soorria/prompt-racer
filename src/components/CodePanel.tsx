@@ -2,28 +2,29 @@ import React, { useEffect, useRef } from "react"
 import CodeMirror from "@uiw/react-codemirror"
 import { python } from "@codemirror/lang-python"
 import { dracula } from "@uiw/codemirror-theme-dracula"
-import { AiMessageType } from "./PanelSkeleton"
 import clsx from "clsx"
 import { useAutoAnimate } from "@formkit/auto-animate/react"
-import { Send } from "lucide-react"
+import { Send, RotateCcw } from "lucide-react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 
 type Props = {
-  code?: AiMessageType
+  code: string
   onMessageSend: (message: string) => void
+  onResetCode: () => void
   sending?: boolean
+  generating?: boolean
 }
 
-const defaultCode = `
-def solution(numbers, target):
-    ...
-`
-
-export default function CodePanel({ code, onMessageSend, sending }: Props) {
+export default function CodePanel({
+  code,
+  onMessageSend,
+  sending,
+  generating = false,
+  onResetCode,
+}: Props) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [animateRef] = useAutoAnimate()
-  const generating = code?.parsed?.state === "generating"
   const previousGenerating = useRef<boolean>(false)
   const form = useRef<HTMLFormElement>(null)
 
@@ -37,22 +38,10 @@ export default function CodePanel({ code, onMessageSend, sending }: Props) {
     }
   }, [sending])
 
-  let codeToDisplay = ""
-  if (code) {
-    if (code.parsed.state === "success") {
-      codeToDisplay = code.parsed.code
-    } else if (code.parsed.state === "generating") {
-      codeToDisplay = codeToDisplay = code.parsed.maybeCode
-    } else if (code.parsed.state === "error") {
-      codeToDisplay = code.parsed.error
-    } else {
-      codeToDisplay = defaultCode
-    }
-  }
   return (
     <div
       className={clsx("rounded-xl overflow-y-scroll h-full bg-dracula flex flex-col", {
-        "animate-pulse": code?.parsed.state === "generating",
+        "animate-pulse": generating,
       })}
       ref={animateRef}
     >
@@ -64,7 +53,7 @@ export default function CodePanel({ code, onMessageSend, sending }: Props) {
           data-gramm_editor="false"
           data-enable-grammarly="false"
           editable={false}
-          value={codeToDisplay}
+          value={code}
           extensions={[python()]}
           theme={dracula}
         />
@@ -87,12 +76,22 @@ export default function CodePanel({ code, onMessageSend, sending }: Props) {
             placeholder="Type your instructions..."
             autoComplete="off"
             required
-            disabled={sending}
+            disabled={sending || generating}
             maxLength={80}
           />
-          <Button type="submit" disabled={sending} size="icon" className="shrink-0">
+          <Button type="submit" disabled={sending || generating} size="icon" className="shrink-0">
             <Send className="w-5 h-5" />
             <span className="sr-only">Send</span>
+          </Button>
+          <Button
+            type="button"
+            size="icon"
+            variant="destructive"
+            className="shrink-0"
+            onClick={onResetCode}
+          >
+            <RotateCcw className="w-5 h-5" />
+            <span className="sr-only">Reset</span>
           </Button>
         </form>
       </div>

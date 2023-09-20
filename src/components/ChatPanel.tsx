@@ -61,7 +61,7 @@ function ChatPanelMessage({
       >
         <div className="w-0.5 bg-gray-400" />
       </div>
-      {message.role === "ai" ? (
+      {message.role === "ai" && (
         <>
           <Avatar className="h-6 w-6 flex-none rounded-full ring-1 ring-zinc-400">
             <AvatarFallback>
@@ -86,14 +86,30 @@ function ChatPanelMessage({
             ) : null}
           </div>
         </>
-      ) : (
+      )}
+      {message.role === "user" && (
         <>
-          <div className="relative flex h-6 w-6 flex-none items-center justify-center mt-8">
+          <div className="relative flex h-6 w-6 flex-none items-center justify-center mt-9">
             <div className="h-1.5 w-1.5 rounded-full ring-1 ring-gray-300" />
           </div>
           <p className="bg-primary flex-auto text-xs leading-5 mt-8 rounded-lg py-2 px-3 text-primary-foreground w-full">
             {message.content}
           </p>
+        </>
+      )}
+      {message.role === "reset" && (
+        <>
+          <div className="relative flex h-6 w-6 flex-none items-center justify-center mt-8">
+            <div className="h-1.5 w-1.5 rounded-full ring-1 ring-gray-300" />
+          </div>
+          <div
+            className="flex-auto text-xs leading-5 mt-4 rounded-lg py-2 px-3 w-full text-muted-foreground grid gap-1 items-center"
+            style={{ gridTemplateColumns: "1fr auto 1fr" }}
+          >
+            <div></div>
+            <div>code reset</div>
+            <div></div>
+          </div>
         </>
       )}
     </li>

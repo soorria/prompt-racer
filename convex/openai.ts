@@ -33,17 +33,18 @@ export const codeGeneration = internalAction({
         {
           role: "user",
           content: `
-<code>
+CURRENT CODE: <code>
 ${args.currentCode}
 </code>
 
-<instructions>
+INSTRUCTIONS: <instructions>
 ${args.message}
 </instructions>
 
 Follow the instructions to update the provided python code. Output only the updated code wrapped in a <code> tag.
+The update code should contain a function named solution, and the arguments should be the same as the current code.
 
-OUTPUT:
+UPDATED CODE:
 `.trim(),
         },
       ],

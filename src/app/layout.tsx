@@ -9,7 +9,6 @@ import type { Metadata } from "next"
 import { Inter, Fugaz_One } from "next/font/google"
 import ConvexClientProvider from "~/lib/convex"
 import { cx } from "class-variance-authority"
-import { Authenticated } from "convex/react"
 import NavBar from "~/components/NavBar"
 import Footer from "~/components/Footer"
 

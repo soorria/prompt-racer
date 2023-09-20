@@ -41,6 +41,16 @@ export default defineSchema({
       v.literal("cancelled")
     ),
 
+    players: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          profilePictureUrl: v.string(),
+          userId: v.string(),
+        })
+      )
+    ),
+
     mode: v.literal("fastest-player"),
 
     gameStartTime: v.number(),

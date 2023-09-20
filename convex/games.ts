@@ -15,7 +15,7 @@ import { getUser, requireUser } from "./utils/auth"
 import ms from "ms"
 import { addMilliseconds, formatDuration, intervalToDuration, isAfter, isEqual } from "date-fns"
 import { Doc, Id } from "./_generated/dataModel"
-import { CodeRunResult, chatHistoryItem, playerGameInfoTestState } from "./utils/schema"
+import { CodeRunResult, chatHistoryItem, gamePlayer, playerGameInfoTestState } from "./utils/schema"
 
 export const getMyGames = query({
   handler: async (ctx) => {
@@ -109,6 +109,7 @@ export const createNewGame = internalMutation({
         new Date(),
         GAME_TIMINGS_MS.waitingForPlayers + GAME_TIMINGS_MS.playTime
       ).getTime(),
+      players: [],
     })
 
     return { gameId }
@@ -136,19 +137,18 @@ export const getGame = query({
   },
 })
 
-export const patchGameState = internalMutation({
+export const patchGame = internalMutation({
   args: {
     gameId: v.id("game"),
-    state: v.union(
-      v.literal("waiting-for-players"),
-      v.literal("in-progress"),
-      v.literal("finished")
-    ),
+    updates: v.object({
+      state: v.optional(
+        v.union(v.literal("waiting-for-players"), v.literal("in-progress"), v.literal("finished"))
+      ),
+      players: v.optional(v.array(gamePlayer)),
+    }),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.gameId, {
-      state: args.state,
-    })
+    await ctx.db.patch(args.gameId, args.updates)
   },
 })
 
@@ -162,15 +162,15 @@ export const advanceGameState = internalAction({
     }
 
     if (game.state === "waiting-for-players") {
-      await ctx.runMutation(internal.games.patchGameState, {
+      await ctx.runMutation(internal.games.patchGame, {
         gameId: args.gameId,
-        state: "in-progress",
+        updates: { state: "in-progress" },
       })
       await ctx.scheduler.runAfter(GAME_TIMINGS_MS.playTime, internal.games.advanceGameState, args)
     } else if (game.state === "in-progress") {
-      await ctx.runMutation(internal.games.patchGameState, {
+      await ctx.runMutation(internal.games.patchGame, {
         gameId: args.gameId,
-        state: "finished",
+        updates: { state: "finished" },
       })
     }
   },
@@ -190,6 +190,8 @@ export const createGame = internalAction({
     const questionIds = await ctx.runQuery(internal.questions.getQuestionIds)
 
     const questionId = questionIds[Math.floor(Math.random() * questionIds.length)]!
+
+    console.log({ questionId })
 
     const newGameResult = await ctx.runMutation(internal.games.createNewGame, {
       creatorUserId: args.userId,
@@ -252,7 +254,7 @@ export const getWaitingGames = query({
 
 export const joinGame = action({
   handler: async (ctx) => {
-    const { userId } = await requireUser(ctx)
+    const { userId, identity } = await requireUser(ctx)
 
     const currentGame = await ctx.runQuery(internal.games.getLatestActiveGameForUser, { userId })
     if (currentGame) {
@@ -276,14 +278,34 @@ export const joinGame = action({
     // this is to get around the types being a little dumb :(
     const gameId = gameToJoin._id as Id<"game">
 
-    await ctx.runMutation(internal.games.createPlayerInfoForGame, {
-      gameId,
-      userId,
-      startingCode: `
-def solution(numbers, target):
-    ...
-`.trim(),
-    })
+    await Promise.all([
+      ctx.runMutation(internal.games.createPlayerInfoForGame, {
+        gameId,
+        userId,
+        startingCode: gameToJoin.question.starting_code,
+      }),
+      ctx.runMutation(internal.games.patchGame, {
+        gameId,
+        updates: {
+          players: [
+            ...(gameToJoin.players || []),
+            {
+              name:
+                identity.preferredUsername ||
+                identity.name ||
+                identity.givenName ||
+                `Anonymouse #${
+                  (gameToJoin.players?.filter((p) => p.name.startsWith("Anonymouse #")).length ??
+                    0) + 1
+                }`,
+              userId,
+              profilePictureUrl:
+                identity.profileUrl || identity.pictureUrl || "https://soorria.com/logo.png",
+            },
+          ],
+        },
+      }),
+    ])
 
     return { gameId }
   },
@@ -340,6 +362,7 @@ export const leaveGame = mutation({
     }
 
     await ctx.db.delete(playerGameInfoRecord._id)
+
     const otherPlayerRecords = await ctx.db
       .query("playerGameInfo")
       .filter((q) => q.and(q.eq(q.field("gameId"), args.gameId)))
@@ -347,6 +370,13 @@ export const leaveGame = mutation({
 
     if (otherPlayerRecords.length === 0) {
       await ctx.db.delete(args.gameId)
+    }
+
+    const game = await ctx.db.get(args.gameId)
+    if (game) {
+      await ctx.db.patch(args.gameId, {
+        players: game?.players?.filter((p) => p.userId !== userId) ?? [],
+      })
     }
 
     return { success: true }
@@ -381,7 +411,10 @@ export const sendMessageForPlayerInGame = action({
 
     const history = playerGameInfo.chatHistory || []
     const lastMessage = history.at(-1)
-    if (lastMessage?.role === "user" || lastMessage?.parsed.state === "generating") {
+    if (
+      lastMessage?.role === "user" ||
+      (lastMessage?.role === "ai" && lastMessage?.parsed.state === "generating")
+    ) {
       throw new Error("You can't send a message until the AI responds")
     }
 
@@ -718,6 +751,36 @@ export const runTests = action({
           results: resultsAfterChecking,
         },
       },
+    })
+  },
+})
+
+export const resetStartingCode = mutation({
+  args: {
+    gameId: v.id("game"),
+  },
+  handler: async (ctx, args) => {
+    const { userId } = await requireUser(ctx)
+
+    const [game, playerGameInfo] = await Promise.all([
+      ctx.db.get(args.gameId),
+      ctx.db
+        .query("playerGameInfo")
+        .filter((q) => q.and(q.eq(q.field("userId"), userId), q.eq(q.field("gameId"), args.gameId)))
+        .first(),
+    ])
+
+    if (!game || !playerGameInfo) {
+      throw new Error("Game or player not found")
+    }
+
+    if (playerGameInfo.code === game.question.starting_code) {
+      return
+    }
+
+    await ctx.db.patch(playerGameInfo._id, {
+      code: game.question.starting_code,
+      chatHistory: [...playerGameInfo.chatHistory, { role: "reset" }],
     })
   },
 })

@@ -24,9 +24,14 @@ export const chatHistorySingleItem = {
       })
     ),
   }),
+  reset: v.object({ role: v.literal("reset") }),
 }
 
-export const chatHistoryItem = v.union(chatHistorySingleItem.user, chatHistorySingleItem.ai)
+export const chatHistoryItem = v.union(
+  chatHistorySingleItem.user,
+  chatHistorySingleItem.ai,
+  chatHistorySingleItem.reset
+)
 
 export const codeRunResult = v.union(
   v.object({
@@ -53,3 +58,9 @@ export const playerGameInfoTestState = v.union(
     results: v.array(codeRunResult),
   })
 )
+
+export const gamePlayer = v.object({
+  name: v.string(),
+  profilePictureUrl: v.string(),
+  userId: v.string(),
+})
