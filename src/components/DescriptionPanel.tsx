@@ -63,7 +63,7 @@ export default function DescriptionPanel({
                     {JSON.stringify(testCase.expected)}
                   </span>
                 </div>
-                {result && (
+                {result?.status === "error" && (
                   <div className="grid gap-1" style={{ gridTemplateColumns: "1em 1fr" }}>
                     <span className="justify-self-center">↳</span>
                     {result.status === "error"

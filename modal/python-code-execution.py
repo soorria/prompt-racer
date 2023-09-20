@@ -8,11 +8,11 @@ image = modal.Image.debian_slim().pip_install("RestrictedPython")
 
 @stub.function(image=image, timeout=10)
 def run_code(code: str, args: list):
-    from RestrictedPython import compile_restricted
+    # from RestrictedPython import compile_restricted
 
-    byte_code = compile_restricted(code, filename="main.py", mode="exec")
+    # byte_code = compile_restricted(code, filename="main.py", mode="exec")
     scope = {}
-    exec(byte_code, {"__builtins__": globals()["__builtins__"]}, scope)
+    exec(code, None, scope)
 
     result = scope["solution"](*args)
 
