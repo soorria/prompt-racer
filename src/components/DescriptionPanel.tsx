@@ -10,6 +10,11 @@ type Props = {
   onSubmitCode: () => void
 }
 
+const winConditionDescriptions: Record<Doc<"game">["mode"], string> = {
+  "fastest-player": "The first player to submit code that passes all tests wins.",
+  "fastest-code": "The player whose code passes the most tests and runs the fastest wins.",
+}
+
 export default function DescriptionPanel({
   question,
   gameMode,
@@ -28,7 +33,7 @@ export default function DescriptionPanel({
 
       <div className="bg-primary/40 px-3 py-2 mt-6 rounded">
         <h3 className="font-medium mb-2">Win condition</h3>
-        <p className="text-sm">{gameMode}</p>
+        <p className="text-sm">{winConditionDescriptions[gameMode]}</p>
       </div>
 
       <div className="mt-12">
