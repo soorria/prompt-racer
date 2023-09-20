@@ -23,7 +23,7 @@ export default function Home() {
               AI Powered Coding Battles
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-300">
-              Put your AI prompting skills to the test in a game of speed and intelligent.
+              Put your AI prompting skills to the test in a game of speed and intelligence.
             </p>
             <div className="mt-10 flex items-center gap-x-6">
               <PlayNowButton />
