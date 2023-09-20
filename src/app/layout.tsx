@@ -2,7 +2,6 @@
 import "@total-typescript/ts-reset"
 import { ClerkProvider } from "@clerk/nextjs"
 import { dark } from "@clerk/themes"
-import PlausibleProvider from "next-plausible"
 
 import "~/styles/globals.css"
 // import "dracula-prism/dist/css/dracula-prism.css"
