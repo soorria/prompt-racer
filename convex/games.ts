@@ -144,7 +144,12 @@ export const patchGame = internalMutation({
     gameId: v.id("game"),
     updates: v.object({
       state: v.optional(
-        v.union(v.literal("waiting-for-players"), v.literal("in-progress"), v.literal("finished"))
+        v.union(
+          v.literal("waiting-for-players"),
+          v.literal("in-progress"),
+          v.literal("finalising"),
+          v.literal("finished")
+        )
       ),
       players: v.optional(v.array(gamePlayer)),
     }),
@@ -181,6 +186,14 @@ export const advanceGameState = internalAction({
       })
       await ctx.scheduler.runAfter(GAME_TIMINGS_MS.playTime, internal.games.advanceGameState, args)
     } else if (game.state === "in-progress") {
+      await ctx.runMutation(internal.games.patchGame, {
+        gameId: args.gameId,
+        updates: { state: "finalising" },
+      })
+
+      // 2s delay just to wait for any leftover code to finish
+      await new Promise((resolve) => setTimeout(resolve, 2_000))
+
       const playerInfos = await ctx.runQuery(internal.games.getPlayerInfosForGame, {
         gameId: game._id,
       })
@@ -244,7 +257,7 @@ export const advanceGameState = internalAction({
 
 const GAME_TIMINGS_MS = {
   waitingForPlayers: ms("1m"),
-  playTime: ms("5m"),
+  playTime: ms("1m"),
   promptRateLimitTime: ms("10s"),
 }
 

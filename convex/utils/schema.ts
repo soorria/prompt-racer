@@ -65,6 +65,7 @@ export const gamePlayer = v.object({
   name: v.string(),
   profilePictureUrl: v.string(),
   userId: v.string(),
+  position: v.optional(v.union(v.number(), v.literal("nah"))),
 })
 
 export const gameModes = ["fastest-player", "fastest-code"] as const

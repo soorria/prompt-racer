@@ -37,20 +37,12 @@ export default defineSchema({
     state: v.union(
       v.literal("waiting-for-players"),
       v.literal("in-progress"),
+      v.literal("finalising"),
       v.literal("finished"),
       v.literal("cancelled")
     ),
 
-    players: v.optional(
-      v.array(
-        v.object({
-          name: v.string(),
-          profilePictureUrl: v.string(),
-          userId: v.string(),
-          position: v.optional(v.union(v.number(), v.literal("nah"))),
-        })
-      )
-    ),
+    players: v.optional(v.array(gamePlayer)),
 
     mode: v.union(v.literal("fastest-player"), v.literal("fastest-code")),
 
