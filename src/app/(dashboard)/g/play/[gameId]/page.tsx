@@ -1,7 +1,7 @@
 "use client"
 import { useAction, useMutation, useQuery } from "convex/react"
-import { useSearchParams } from "next/navigation"
-import { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
 import invariant from "tiny-invariant"
 import ChatPanel from "~/components/ChatPanel"
 import { Debug } from "~/components/Debug"
@@ -16,19 +16,25 @@ const fallbackGameInfo = {
   game: null,
   allPlayerGameInfos: null,
   currentPlayerInfo: null,
+  loading: true,
 }
 const PlayGamePage = (props: { params: { gameId: string } }) => {
   const gameInfo =
     useQuery(api.games.getGameInfoForUser, { gameId: props.params.gameId }) ?? fallbackGameInfo
   const { game, allPlayerGameInfos, currentPlayerInfo } = gameInfo
 
+  const router = useRouter()
+
+  useEffect(() => {
+    if (game === null) {
+      router.replace("/g")
+    }
+  }, [game, router])
+
   const sendMessage = useAction(api.games.sendMessageForPlayerInGame)
-
-  const currentUser = useConvexUser()
-
   const [sending, setSending] = useState(false)
 
-  console.log(game)
+  const currentUser = useConvexUser()
 
   return (
     <div className="h-full pt-4">
@@ -59,11 +65,6 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
           )}
         </>
       )} */}
-
-      <div className="flex flex-col items-center mt-8">
-        <LobbyPlayerCard players={game?.players ?? []} />
-        <p className="mt-4 text-gray-600 animate-pulse">Waiting for players...</p>
-      </div>
 
       {game?.state === "waiting-for-players" && (
         <div className="flex flex-col items-center mt-8">
