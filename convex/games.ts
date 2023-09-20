@@ -199,9 +199,11 @@ export const advanceGameState = internalAction({
       })
 
       let players = [...(game.players ?? [])]
+      let positions: Record<string, number | "nah"> = {}
 
       if (game.mode === "fastest-player") {
-        const positions = Object.fromEntries(
+        // sort by num tests passed, then by submission time
+        positions = Object.fromEntries(
           playerInfos
             .filter(
               (
@@ -238,14 +240,58 @@ export const advanceGameState = internalAction({
             })
             .map((info, i) => [info.userId, i] as const)
         )
+      } else if (game.mode === "fastest-code") {
+        // sort by num tests passed, then by total runtime for passing code
 
-        players = players.map((p) => {
-          return {
-            ...p,
-            position: positions[p.userId] ?? "nah",
-          }
-        })
+        positions = Object.fromEntries(
+          playerInfos
+            .filter(
+              (
+                info
+              ): info is Doc<"playerGameInfo"> & {
+                state: "submitted"
+                submissionState: NonNullable<Doc<"playerGameInfo">["submissionState"]> & {
+                  type: "complete"
+                }
+              } =>
+                info.state === "submitted" &&
+                info.submissionState?.type === "complete" &&
+                typeof info.lastSubmittedAt === "number"
+            )
+            .sort((a, b) => {
+              const aPassing = a.submissionState.results.filter(
+                (r) => r.status === "success"
+              ).length
+              const bPassing = b.submissionState.results.filter(
+                (r) => r.status === "success"
+              ).length
+              const diffPassing = bPassing - aPassing
+
+              if (diffPassing !== 0) {
+                return diffPassing
+              }
+
+              const aTime = a.submissionState.results
+                .filter((r) => r.status === "success" && r.time)
+                .reduce((acc, r) => acc + r.time!, 0)
+              const bTime = b.submissionState.results
+                .filter((r) => r.status === "success")
+                .reduce((acc, r) => acc + (r.time ?? 0), 0)
+
+              const diffTime = aTime - bTime
+
+              return diffTime
+            })
+            .map((info, i) => [info.userId, i] as const)
+        )
       }
+
+      players = players.map((p) => {
+        return {
+          ...p,
+          position: positions[p.userId] ?? "nah",
+        }
+      })
 
       await ctx.runMutation(internal.games.patchGame, {
         gameId: args.gameId,
