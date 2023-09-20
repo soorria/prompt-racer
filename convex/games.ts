@@ -310,8 +310,8 @@ export const advanceGameState = internalAction({
 })
 
 const GAME_TIMINGS_MS = {
-  waitingForPlayers: ms("10s"),
-  playTime: ms("15m"),
+  waitingForPlayers: ms("1m"),
+  playTime: ms("2m"),
   promptRateLimitTime: ms("10s"),
 }
 
