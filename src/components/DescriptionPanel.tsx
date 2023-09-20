@@ -27,7 +27,7 @@ export default function DescriptionPanel({
     playerGameInfo?.testState?.type === "complete" ? playerGameInfo.testState.results : []
 
   return (
-    <div className="bg-card h-full rounded-xl p-4 overflow-y-auto">
+    <div className="bg-card h-full rounded-xl p-4 overflow-y-auto select-none">
       <h2 className="text-lg font-semibold mb-4">{question.title}</h2>
       <p>{question.description}</p>
 
