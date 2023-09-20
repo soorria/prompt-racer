@@ -34,6 +34,8 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
   const sendMessage = useAction(api.games.sendMessageForPlayerInGame)
   const [sending, setSending] = useState(false)
 
+  const leaveGame = useMutation(api.games.leaveGame)
+
   return (
     <div className="h-full pt-4">
       {game?.state === "finished" && (
@@ -71,7 +73,12 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
 
       {game?.state === "waiting-for-players" && (
         <div className="flex flex-col items-center mt-8">
-          <LobbyPlayerCard players={game.players ?? []} />
+          <LobbyPlayerCard
+            players={game.players ?? []}
+            onLeaveGame={() => {
+              leaveGame({ gameId: game._id })
+            }}
+          />
           <p className="mt-4 text-gray-600 animate-pulse">Waiting for players...</p>
         </div>
       )}
