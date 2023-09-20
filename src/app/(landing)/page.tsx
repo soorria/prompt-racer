@@ -30,7 +30,7 @@ export default function Home() {
               <PlayNowButton />
             </div>
           </div>
-          <div className="mt-16 flex-1 flex w-full max-w-2xl sm:mt-24 lg:mr-0 lg:mt-12 lg:max-w-none">
+          <div className="mt-16 mx-auto flex-1 flex w-full max-w-2xl sm:mt-24 lg:mr-0 lg:mt-12 lg:max-w-none">
             <div className="max-w-3xl w-full flex-none sm:max-w-5xl lg:max-w-none mx-auto">
               <HeroAnimation />
             </div>
