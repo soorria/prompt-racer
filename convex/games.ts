@@ -23,6 +23,7 @@ export const getMyGames = query({
 
     const gameInfos = await ctx.db
       .query("playerGameInfo")
+      .withIndex("by_userId")
       .filter((q) => q.eq(q.field("userId"), userId))
       .order("desc")
       .take(20)
@@ -47,6 +48,7 @@ const removeGameDetailsBasedOnState = (game: Doc<"game">) => {
 const _getLatestActiveGameForUser = async (ctx: QueryCtx, userId: string) => {
   const [latestGameInfoForUser] = await ctx.db
     .query("playerGameInfo")
+    .withIndex("by_userId")
     .filter((q) => q.eq(q.field("userId"), userId))
     .order("desc")
     .take(1)
@@ -142,7 +144,12 @@ export const patchGame = internalMutation({
     gameId: v.id("game"),
     updates: v.object({
       state: v.optional(
-        v.union(v.literal("waiting-for-players"), v.literal("in-progress"), v.literal("finished"))
+        v.union(
+          v.literal("waiting-for-players"),
+          v.literal("in-progress"),
+          v.literal("finalising"),
+          v.literal("finished")
+        )
       ),
       players: v.optional(v.array(gamePlayer)),
     }),
@@ -152,12 +159,23 @@ export const patchGame = internalMutation({
   },
 })
 
+export const getPlayerInfosForGame = internalQuery({
+  args: { gameId: v.id("game") },
+  handler: async (ctx, args) => {
+    return ctx.db
+      .query("playerGameInfo")
+      .withIndex("by_gameId")
+      .filter((q) => q.eq(q.field("gameId"), args.gameId))
+      .collect()
+  },
+})
+
 export const advanceGameState = internalAction({
   args: { gameId: v.id("game") },
   handler: async (ctx, args) => {
     const game = await ctx.runQuery(api.games.getGame, { gameId: args.gameId })
 
-    if (!game) {
+    if (!game || !game.players?.length) {
       return
     }
 
@@ -170,7 +188,68 @@ export const advanceGameState = internalAction({
     } else if (game.state === "in-progress") {
       await ctx.runMutation(internal.games.patchGame, {
         gameId: args.gameId,
-        updates: { state: "finished" },
+        updates: { state: "finalising" },
+      })
+
+      // 2s delay just to wait for any leftover code to finish
+      await new Promise((resolve) => setTimeout(resolve, 2_000))
+
+      const playerInfos = await ctx.runQuery(internal.games.getPlayerInfosForGame, {
+        gameId: game._id,
+      })
+
+      let players = [...(game.players ?? [])]
+
+      if (game.mode === "fastest-player") {
+        const positions = Object.fromEntries(
+          playerInfos
+            .filter(
+              (
+                info
+              ): info is Doc<"playerGameInfo"> & {
+                state: "submitted"
+                submissionState: NonNullable<Doc<"playerGameInfo">["submissionState"]> & {
+                  type: "complete"
+                }
+                lastSubmittedAt: number
+              } =>
+                info.state === "submitted" &&
+                info.submissionState?.type === "complete" &&
+                typeof info.lastSubmittedAt === "number"
+            )
+            .sort((a, b) => {
+              const aPassing = a.submissionState.results.filter(
+                (r) => r.status === "success"
+              ).length
+              const bPassing = b.submissionState.results.filter(
+                (r) => r.status === "success"
+              ).length
+              const diffPassing = bPassing - aPassing
+
+              if (diffPassing !== 0) {
+                return diffPassing
+              }
+
+              const aTime = a.lastSubmittedAt
+              const bTime = b.lastSubmittedAt
+              const diffTime = aTime - bTime
+
+              return diffTime
+            })
+            .map((info, i) => [info.userId, i] as const)
+        )
+
+        players = players.map((p) => {
+          return {
+            ...p,
+            position: positions[p.userId] ?? "nah",
+          }
+        })
+      }
+
+      await ctx.runMutation(internal.games.patchGame, {
+        gameId: args.gameId,
+        updates: { state: "finished", players },
       })
     }
   },
@@ -178,7 +257,7 @@ export const advanceGameState = internalAction({
 
 const GAME_TIMINGS_MS = {
   waitingForPlayers: ms("1m"),
-  playTime: ms("5m"),
+  playTime: ms("1m"),
   promptRateLimitTime: ms("10s"),
 }
 
@@ -336,6 +415,7 @@ export const getPlayerGameInfo = internalQuery({
   handler: async (ctx, args) => {
     const gamePlayerInfo = await ctx.db
       .query("playerGameInfo")
+      .withIndex("by_gameId_userId")
       .filter((q) =>
         q.and(q.eq(q.field("gameId"), args.gameId), q.eq(q.field("userId"), args.userId))
       )
@@ -354,6 +434,7 @@ export const leaveGame = mutation({
 
     const playerGameInfoRecord = await ctx.db
       .query("playerGameInfo")
+      .withIndex("by_gameId_userId")
       .filter((q) => q.and(q.eq(q.field("gameId"), args.gameId), q.eq(q.field("userId"), userId)))
       .unique()
 
@@ -365,6 +446,7 @@ export const leaveGame = mutation({
 
     const otherPlayerRecords = await ctx.db
       .query("playerGameInfo")
+      .withIndex("by_gameId")
       .filter((q) => q.and(q.eq(q.field("gameId"), args.gameId)))
       .take(1)
 
@@ -529,6 +611,7 @@ export const getGameInfoForUser = query({
       game?.state === "finished"
         ? await ctx.db
             .query("playerGameInfo")
+            .withIndex("by_gameId")
             .filter((q) => q.eq(q.field("gameId"), args.gameId))
             .collect()
         : null
@@ -538,6 +621,7 @@ export const getGameInfoForUser = query({
         ? allPlayerGameInfos?.find((info) => info.userId === user?.userId)
         : await ctx.db
             .query("playerGameInfo")
+            .withIndex("by_gameId_userId")
             .filter((q) =>
               q.and(q.eq(q.field("gameId"), args.gameId), q.eq(q.field("userId"), user?.userId))
             )
@@ -649,10 +733,98 @@ export const patchPlayerGameInfo = internalMutation({
     updates: v.object({
       lastTestedAt: v.optional(v.number()),
       testState: v.optional(playerGameInfoTestState),
+      state: v.optional(v.literal("submitted")),
+
+      lastSubmittedAt: v.optional(v.number()),
+      submissionState: v.optional(playerGameInfoTestState),
     }),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.playerGameInfoId, args.updates)
+  },
+})
+
+export const submitCode = action({
+  args: {
+    gameId: v.id("game"),
+  },
+  handler: async (ctx, args) => {
+    const { userId } = await requireUser(ctx)
+
+    const [playerGameInfo, game] = await Promise.all([
+      ctx.runQuery(internal.games.getPlayerGameInfo, {
+        gameId: args.gameId,
+        userId,
+      }),
+      ctx.runQuery(internal.games.getFullGame, { gameId: args.gameId }),
+    ])
+
+    if (!game) {
+      throw new Error("Game not found")
+    }
+
+    if (!playerGameInfo) {
+      throw new Error("Player not found in game")
+    }
+
+    if (game.state !== "in-progress") {
+      throw new Error("Game is not in progress")
+    }
+
+    if (playerGameInfo.state === "submitted") {
+      throw new Error("Already submitted")
+    }
+
+    const now = new Date()
+
+    await ctx.runMutation(internal.games.patchPlayerGameInfo, {
+      playerGameInfoId: playerGameInfo._id,
+      updates: {
+        state: "submitted",
+        submissionState: {
+          type: "running",
+        },
+        lastSubmittedAt: now.getTime(),
+      },
+    })
+
+    const rawResults = await ctx.runAction(internal.codeExecution.runPythonCode, {
+      code: playerGameInfo.code,
+      args_list: game.question.test_cases.map((tc) => tc.args),
+    })
+    const resultsAfterChecking = rawResults.map((result, i): CodeRunResult => {
+      if (result.status === "success") {
+        // check expected
+        const expected = game.question.test_cases[i]!.expected
+        if (result.result === expected) {
+          return {
+            status: "success",
+            result: result.result,
+          }
+        } else {
+          return {
+            status: "error",
+            reason: {
+              name: "AssertionError",
+              message: `Expected ${JSON.stringify(expected)} but got ${JSON.stringify(
+                result.result
+              )}`,
+            },
+          }
+        }
+      } else {
+        return result
+      }
+    })
+    await ctx.runMutation(internal.games.patchPlayerGameInfo, {
+      playerGameInfoId: playerGameInfo._id,
+      updates: {
+        submissionState: {
+          type: "complete",
+          results: resultsAfterChecking,
+        },
+      },
+    })
   },
 })
 
@@ -717,12 +889,12 @@ export const runTests = action({
 
     const rawResults = await ctx.runAction(internal.codeExecution.runPythonCode, {
       code: playerGameInfo.code,
-      args_list: game.question.test_cases.map((tc) => tc.args),
+      args_list: game.question.examples.map((tc) => tc.args),
     })
     const resultsAfterChecking = rawResults.map((result, i): CodeRunResult => {
       if (result.status === "success") {
         // check expected
-        const expected = game.question.test_cases[i]!.expected
+        const expected = game.question.examples[i]!.expected
         if (result.result === expected) {
           return {
             status: "success",
@@ -766,6 +938,7 @@ export const resetStartingCode = mutation({
       ctx.db.get(args.gameId),
       ctx.db
         .query("playerGameInfo")
+        .withIndex("by_gameId_userId")
         .filter((q) => q.and(q.eq(q.field("userId"), userId), q.eq(q.field("gameId"), args.gameId)))
         .first(),
     ])

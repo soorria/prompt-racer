@@ -1,6 +1,7 @@
 import modal
 from typing import List
 from pydantic import BaseModel
+import time
 
 stub = modal.Stub("python-code-execution")
 image = modal.Image.debian_slim().pip_install("RestrictedPython")
@@ -14,7 +15,24 @@ def run_code(code: str, args: list):
     scope = {}
     exec(code, None, scope)
 
-    result = scope["solution"](*args)
+    start_time = time.time()
+
+    result = None
+
+    try:
+        ret = scope["solution"](*args)
+        end_time = time.time()
+
+        result = {"status": "success", "result": ret}
+
+    except Exception as e:
+        end_time = time.time()
+        result = {
+            "status": "error",
+            "reason": {"name": type(e).__name__, "message": str(e)},
+        }
+
+    result["time"] = end_time - start_time
 
     return result
 
@@ -31,15 +49,8 @@ def endpoint(item: RequestBody):
     results = list(run_code.starmap(run_code_args, return_exceptions=True))
 
     return {
-        "results": [
-            {"status": "success", "result": res}
-            if not isinstance(res, Exception)
-            else {
-                "status": "error",
-                "reason": {"name": type(res).__name__, "message": str(res)},
-            }
-            for res in results
-        ]
+        "results": results,
+        "total_time": sum(result["time"] for result in results),
     }
 
 

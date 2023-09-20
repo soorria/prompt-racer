@@ -92,6 +92,7 @@ export default function PanelSkeleton({
   }
 
   const runTests = useAction(api.games.runTests)
+  const submitCode = useAction(api.games.submitCode)
   const resetCode = useMutation(api.games.resetStartingCode)
 
   const codeInfo = getCodeToDisplayInfo({ game, messages: chatPanelProps.messages })
@@ -110,6 +111,7 @@ export default function PanelSkeleton({
               gameMode={game.mode}
               playerGameInfo={playerGameInfo}
               onRunTests={() => runTests({ gameId: game._id })}
+              onSubmitCode={() => submitCode({ gameId: game._id })}
             />
           </Panel>
           {/* <ResizeHandle orientation="horizontal" />

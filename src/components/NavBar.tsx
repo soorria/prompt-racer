@@ -32,6 +32,8 @@ export default function NavBar({}: Props) {
   const pathname = usePathname()
   const onHomePage = pathname === "/"
 
+  console.log(game)
+
   return (
     <nav
       className={clsx(
@@ -40,37 +42,28 @@ export default function NavBar({}: Props) {
       )}
     >
       <div className="font-display">
-        {isAuthenticated ? (
-          <>
-            {game ? (
-              <>
-                {game?.state === "in-progress" ? (
-                  <Link href={`/g/play/${game._id}`} className="text-xl flex flex-row">
-                    GAME <div className="ml-2 text-red-400 animate-pulse">IN-PROGRESS</div>
-                  </Link>
-                ) : (
-                  <div className="text-xl flex flex-row items-center">
-                    FINDING <div className="ml-2 text-orange-400 animate-pulse">PLAYERS</div>
-                    <div className="mx-4 w-1 h-12 bg-white/50 rounded-full"></div>
-                    <Button
-                      className="font-sans border-white/30"
-                      variant={"outline"}
-                      onClick={handleLeaveGame}
-                    >
-                      Leave game
-                    </Button>
-                  </div>
-                )}
-              </>
-            ) : (
-              // Show this if there's no active game but user is authenticated
-              <Link className="text-xl flex flex-row" href="/">
-                PROMPT<div className="text-primary">RACER</div>
-              </Link>
-            )}
-          </>
-        ) : (
-          // Default navbar content for unauthenticated users
+        {game?.state === "waiting-for-players" && (
+          <div className="text-xl flex flex-row items-center">
+            <Link href={`/g/play/${game._id}`} className="block w-auto">
+              FINDING <div className="ml-2 text-orange-400 animate-pulse">PLAYERS</div>
+            </Link>
+            <div className="mx-4 w-1 h-12 bg-white/50 rounded-full"></div>
+            <Button
+              className="font-sans border-white/30"
+              variant={"outline"}
+              onClick={handleLeaveGame}
+            >
+              Leave game
+            </Button>
+          </div>
+        )}
+        {game?.state === "in-progress" && (
+          <Link href={`/g/play/${game._id}`} className="text-xl flex flex-row">
+            GAME <div className="ml-2 text-red-400 animate-pulse">IN-PROGRESS</div>
+          </Link>
+        )}
+        {!game && (
+          // Show this if there's no active game but user is authenticated
           <Link className="text-xl flex flex-row" href="/">
             PROMPT<div className="text-primary">RACER</div>
           </Link>

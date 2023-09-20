@@ -37,6 +37,7 @@ export const codeRunResult = v.union(
   v.object({
     status: v.literal("success"),
     result: v.any(),
+    time: v.optional(v.number()),
   }),
   v.object({
     status: v.literal("error"),
@@ -44,6 +45,7 @@ export const codeRunResult = v.union(
       name: v.string(),
       message: v.string(),
     }),
+    time: v.optional(v.number()),
   })
 )
 
@@ -63,4 +65,7 @@ export const gamePlayer = v.object({
   name: v.string(),
   profilePictureUrl: v.string(),
   userId: v.string(),
+  position: v.optional(v.union(v.number(), v.literal("nah"))),
 })
+
+export const gameModes = ["fastest-player", "fastest-code"] as const
