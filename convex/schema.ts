@@ -1,6 +1,12 @@
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
-import { chatHistoryItem, codeRunResult, gamePlayer, playerGameInfoTestState } from "./utils/schema"
+import {
+  chatHistoryItem,
+  codeRunResult,
+  gameModeSchema,
+  gamePlayer,
+  playerGameInfoTestState,
+} from "./utils/schema"
 
 const questionSchema = {
   title: v.string(),
@@ -44,7 +50,7 @@ export default defineSchema({
 
     players: v.optional(v.array(gamePlayer)),
 
-    mode: v.union(v.literal("fastest-player"), v.literal("fastest-code")),
+    mode: gameModeSchema,
 
     gameStartTime: v.number(),
     gameEndTime: v.number(),

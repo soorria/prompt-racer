@@ -68,4 +68,5 @@ export const gamePlayer = v.object({
   position: v.optional(v.union(v.number(), v.literal("nah"))),
 })
 
+export const gameModeSchema = v.union(v.literal("fastest-player"), v.literal("fastest-code"))
 export const gameModes = ["fastest-player", "fastest-code"] as const

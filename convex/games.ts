@@ -16,7 +16,14 @@ import { getUser, requireUser } from "./utils/auth"
 import ms from "ms"
 import { addMilliseconds, formatDuration, intervalToDuration, isAfter, isEqual } from "date-fns"
 import { Doc, Id } from "./_generated/dataModel"
-import { CodeRunResult, chatHistoryItem, gamePlayer, playerGameInfoTestState } from "./utils/schema"
+import {
+  CodeRunResult,
+  chatHistoryItem,
+  gameModeSchema,
+  gameModes,
+  gamePlayer,
+  playerGameInfoTestState,
+} from "./utils/schema"
 
 export const getMyGames = query({
   handler: async (ctx) => {
@@ -87,7 +94,7 @@ export const getLatestActiveGameForAuthedUser = query({
 })
 
 export const createNewGame = internalMutation({
-  args: { creatorUserId: v.string(), questionId: v.id("question") },
+  args: { creatorUserId: v.string(), questionId: v.id("question"), mode: gameModeSchema },
   handler: async (ctx, args) => {
     const dbQuestion = await ctx.db.get(args.questionId)
 
@@ -316,12 +323,12 @@ export const createGame = internalAction({
     const questionIds = await ctx.runQuery(internal.questions.getQuestionIds)
 
     const questionId = questionIds[Math.floor(Math.random() * questionIds.length)]!
-
-    console.log({ questionId })
+    const gameMode = gameModes[Math.floor(Math.random() * gameModes.length)]!
 
     const newGameResult = await ctx.runMutation(internal.games.createNewGame, {
       creatorUserId: args.userId,
       questionId,
+      mode: gameMode,
     })
 
     // schedule advancing
