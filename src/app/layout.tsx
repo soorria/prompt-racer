@@ -2,6 +2,7 @@
 import "@total-typescript/ts-reset"
 import { ClerkProvider } from "@clerk/nextjs"
 import { dark } from "@clerk/themes"
+import PlausibleProvider from "next-plausible"
 
 import "~/styles/globals.css"
 // import "dracula-prism/dist/css/dracula-prism.css"
@@ -37,6 +38,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       }}
     >
       <html lang="en">
+        <head>
+          <PlausibleProvider
+            domain="prompt-racer.soorria.com"
+            selfHosted
+            customDomain="https://soorria.com"
+          />
+        </head>
         <body
           className={cx(Fugaz.variable, inter.variable, "font-sans", "px-4 pt-4 flex flex-col")}
         >
