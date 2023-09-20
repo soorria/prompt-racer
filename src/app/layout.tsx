@@ -42,9 +42,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <script
             async
             defer
-            data-domain="jjs.mooth.tech"
-            data-api="https://mooth.tech/proxy/api/event"
-            src="https://mooth.tech/js/potato.js"
+            data-domain="prompt-racer.mooth.tech"
+            data-api="https://soorria.com/proxy/api/event"
+            src="https://soorria.com/js/potato.js"
           />
         </head>
         <body
