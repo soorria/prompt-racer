@@ -76,7 +76,7 @@ export default function DescriptionPanel({
           })}
         </div>
         {playerGameInfo && (
-          <div className="mt-4 sticky bottom-0 flex justify-between">
+          <div className="mt-8 sticky bottom-0 flex justify-between">
             <Button size="sm" onClick={onRunTests} disabled={testsRunning}>
               Run tests
             </Button>
