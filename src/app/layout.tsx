@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <script
             async
             defer
-            data-domain="prompt-racer.mooth.tech"
+            data-domain="prompt-racer.soorria.com"
             data-api="https://soorria.com/proxy/api/event"
             src="https://soorria.com/js/potato.js"
           />
