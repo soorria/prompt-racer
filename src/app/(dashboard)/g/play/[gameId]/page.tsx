@@ -33,11 +33,9 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
   const sendMessage = useAction(api.games.sendMessageForPlayerInGame)
   const [sending, setSending] = useState(false)
 
-  const currentUser = useConvexUser()
-
   return (
     <div className="h-full pt-4">
-      {/* {(game?.state === "in-progress" || game?.state === "finished") && (
+      {(game?.state === "in-progress" || game?.state === "finished") && (
         <>
           {game && currentPlayerInfo && (
             <PanelSkeleton
@@ -63,7 +61,7 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
             />
           )}
         </>
-      )} */}
+      )}
 
       {game?.state === "waiting-for-players" && (
         <div className="flex flex-col items-center mt-8">
