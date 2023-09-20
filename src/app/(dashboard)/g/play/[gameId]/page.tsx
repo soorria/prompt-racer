@@ -13,10 +13,9 @@ import { useConvexUser } from "~/lib/convex"
 import { api } from "~convex/api"
 
 const fallbackGameInfo = {
-  game: null,
-  allPlayerGameInfos: null,
-  currentPlayerInfo: null,
-  loading: true,
+  game: undefined,
+  allPlayerGameInfos: undefined,
+  currentPlayerInfo: undefined,
 }
 const PlayGamePage = (props: { params: { gameId: string } }) => {
   const gameInfo =
