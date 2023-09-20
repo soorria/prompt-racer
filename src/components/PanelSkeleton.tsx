@@ -112,10 +112,10 @@ export default function PanelSkeleton({
               onRunTests={() => runTests({ gameId: game._id })}
             />
           </Panel>
-          <ResizeHandle orientation="horizontal" />
+          {/* <ResizeHandle orientation="horizontal" />
           <Panel defaultSize={bl}>
             <LeaderboardPanel />
-          </Panel>
+          </Panel> */}
         </PanelGroup>
       </Panel>
       <ResizeHandle orientation="vertical" />
