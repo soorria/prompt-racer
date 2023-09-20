@@ -2,11 +2,10 @@
 import React from "react"
 import AuthButton from "./AuthButton"
 import Link from "next/link"
-import { Authenticated, useConvexAuth, useMutation, useQuery } from "convex/react"
+import { useConvexAuth, useMutation, useQuery } from "convex/react"
 import { api } from "~convex/api"
 import { useConvexUser } from "~/lib/convex"
 import clsx from "clsx"
-import { Button } from "./ui/button"
 import invariant from "tiny-invariant"
 import { useRouter, usePathname } from "next/navigation"
 
@@ -14,20 +13,12 @@ type Props = {}
 
 export default function NavBar({}: Props) {
   const { isAuthenticated } = useConvexAuth()
-  const skip = "skip"
   const game = useQuery(
     api.games.getLatestActiveGameForAuthedUser,
     !isAuthenticated ? "skip" : undefined
   )
-  const leaveGame = useMutation(api.games.leaveGame)
   const currentUser = useConvexUser()
   const router = useRouter()
-
-  const handleLeaveGame = () => {
-    invariant(game, "activeGame should exist")
-    invariant(currentUser, "currentUser should exist")
-    leaveGame({ gameId: game._id }).then((success) => success && router.push("/g"))
-  }
 
   const pathname = usePathname()
   const onHomePage = pathname === "/"
@@ -52,12 +43,12 @@ export default function NavBar({}: Props) {
             GAME <div className="ml-2 text-red-400 animate-pulse">IN-PROGRESS</div>
           </Link>
         )}
-        {/* {!game && (
+        {!game && (
           // Show this if there's no active game but user is authenticated
           <Link className="text-xl flex flex-row" href="/">
             PROMPT<div className="text-primary">RACER</div>
           </Link>
-        )} */}
+        )}
       </div>
       <AuthButton />
     </nav>
