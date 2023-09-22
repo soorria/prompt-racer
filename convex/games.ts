@@ -825,10 +825,6 @@ export const submitCode = action({
       throw new Error("Game is not in progress")
     }
 
-    if (playerGameInfo.state === "submitted") {
-      throw new Error("Already submitted")
-    }
-
     const now = new Date()
 
     await ctx.runMutation(internal.games.patchPlayerGameInfo, {
