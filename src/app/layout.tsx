@@ -11,6 +11,7 @@ import ConvexClientProvider from "~/lib/convex"
 import { cx } from "class-variance-authority"
 import NavBar from "~/components/NavBar"
 import Footer from "~/components/Footer"
+import { TooltipProvider } from "~/components/ui/tooltip"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const Fugaz = Fugaz_One({ weight: "400", variable: "--font-fugaz", subsets: ["latin"] })
@@ -50,9 +51,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           className={cx(Fugaz.variable, inter.variable, "font-sans", "px-4 pt-4 flex flex-col")}
         >
           <ConvexClientProvider>
-            <NavBar />
-            <main className="flex-1">{children}</main>
-            <Footer />
+            <TooltipProvider>
+              <NavBar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </TooltipProvider>
           </ConvexClientProvider>
         </body>
       </html>
