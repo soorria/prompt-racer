@@ -1,25 +1,23 @@
 "use client"
-import React from "react"
+import React, { useEffect, useMemo } from "react"
 import AuthButton from "./AuthButton"
 import Link from "next/link"
-import { useConvexAuth, useMutation, useQuery } from "convex/react"
+import { useConvexAuth } from "convex/react"
 import { api } from "~convex/api"
-import { useConvexUser } from "~/lib/convex"
 import clsx from "clsx"
-import invariant from "tiny-invariant"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
+import { useWrappedQuery } from "~/lib/convex-utils"
 
 type Props = {}
 
 export default function NavBar({}: Props) {
   const { isAuthenticated } = useConvexAuth()
-  const game = useQuery(
+  const gameQuery = useWrappedQuery(
     api.games.getLatestActiveGameForAuthedUser,
     !isAuthenticated ? "skip" : undefined
   )
-  const currentUser = useConvexUser()
-  const router = useRouter()
+  const game = gameQuery.data
 
   const pathname = usePathname()
   const onHomePage = pathname === "/"
