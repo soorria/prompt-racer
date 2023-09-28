@@ -16,9 +16,41 @@ import { TooltipProvider } from "~/components/ui/tooltip"
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const Fugaz = Fugaz_One({ weight: "400", variable: "--font-fugaz", subsets: ["latin"] })
 
+const title = "Prompt Racer"
+const description = "Race against your friends using only the power of LLMs!"
+
 export const metadata: Metadata = {
-  title: "Prompt Racer",
-  description: "Race against your friends using only the power of LLMs!",
+  metadataBase: new URL("https://promptracer.dev"),
+  title: {
+    default: title,
+    template: "%s | Prompt Racer",
+  },
+  description,
+
+  alternates: {
+    canonical: "https://promptracer.dev",
+  },
+
+  openGraph: {
+    type: "website",
+    locale: "en_AU",
+    title,
+    description,
+    url: "https://promptracer.dev",
+    images: [
+      {
+        url: "https://promptracer.dev/ogimage.png",
+        width: 1200,
+        height: 630,
+        alt: `${title} - ${description}`,
+      },
+    ],
+  },
+
+  twitter: {
+    title,
+    card: "summary_large_image",
+  },
 }
 
 export const revalidate = 10
