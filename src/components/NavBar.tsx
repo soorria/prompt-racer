@@ -1,24 +1,23 @@
 "use client"
-import React from "react"
+import React, { useEffect, useMemo } from "react"
 import AuthButton from "./AuthButton"
 import Link from "next/link"
-import { useConvexAuth, useMutation, useQuery } from "convex/react"
+import { useConvexAuth } from "convex/react"
 import { api } from "~convex/api"
-import { useConvexUser } from "~/lib/convex"
 import clsx from "clsx"
-import invariant from "tiny-invariant"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
+import { useWrappedQuery } from "~/lib/convex-utils"
 
 type Props = {}
 
 export default function NavBar({}: Props) {
   const { isAuthenticated } = useConvexAuth()
-  const game = useQuery(
+  const gameQuery = useWrappedQuery(
     api.games.getLatestActiveGameForAuthedUser,
     !isAuthenticated ? "skip" : undefined
   )
-  const currentUser = useConvexUser()
-  const router = useRouter()
+  const game = gameQuery.data
 
   const pathname = usePathname()
   const onHomePage = pathname === "/"
@@ -26,7 +25,7 @@ export default function NavBar({}: Props) {
   return (
     <nav
       className={clsx(
-        "flex-row justify-between flex px-5 py-5 items-center rounded-xl h-20 z-10",
+        "flex-row gap-6 flex px-5 py-5 items-center rounded-xl h-20 z-10",
         onHomePage ? "bg-card/50" : "bg-card"
       )}
     >
@@ -50,6 +49,18 @@ export default function NavBar({}: Props) {
           </Link>
         )}
       </div>
+
+      <div className="flex-1" />
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="px-3 py-2 text-sm bg-yellow-800 rounded-md">Beta</span>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p>Beware bugs! We&apos;re still in beta :)</p>
+        </TooltipContent>
+      </Tooltip>
+
       <AuthButton />
     </nav>
   )
