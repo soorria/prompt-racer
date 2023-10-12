@@ -10,6 +10,7 @@ import { Doc } from "~convex/dataModel"
 import { api } from "~convex/api"
 import { InferQueryOutput } from "~/lib/convex"
 import { useAction, useMutation } from "convex/react"
+import LiveGameStats from "./LiveGameStats"
 
 export type LayoutType = {
   left?: number
@@ -114,10 +115,10 @@ export default function PanelSkeleton({
               onSubmitCode={() => submitCode({ gameId: game._id })}
             />
           </Panel>
-          {/* <ResizeHandle orientation="horizontal" />
+          <ResizeHandle orientation="horizontal" />
           <Panel defaultSize={bl}>
-            <LeaderboardPanel />
-          </Panel> */}
+            <LiveGameStats game={game} />
+          </Panel>
         </PanelGroup>
       </Panel>
       <ResizeHandle orientation="vertical" />
