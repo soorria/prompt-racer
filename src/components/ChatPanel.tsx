@@ -56,7 +56,7 @@ function ChatPanelMessage({
         className={clsx(
           "absolute left-0 flex w-6 justify-center top-0",
           index === len - 1 ? "h-6" : "-bottom-6",
-          { "h-8 top-auto": index === 0 }
+          { "-bottom-6 top-12": index === 0 }
         )}
       >
         <div className="w-0.5 bg-gray-400" />
@@ -90,7 +90,7 @@ function ChatPanelMessage({
       {message.role === "user" && (
         <>
           <div className="relative flex h-6 w-6 flex-none items-center justify-center mt-9">
-            <div className="h-1.5 w-1.5 rounded-full ring-1 ring-gray-300" />
+            <div className="h-1.5 w-1.5 rounded-full ring-1 ring-gray-300 bg-card" />
           </div>
           <p className="bg-primary flex-auto text-xs leading-5 mt-8 rounded-lg py-2 px-3 text-primary-foreground w-full">
             {message.content}
@@ -99,17 +99,12 @@ function ChatPanelMessage({
       )}
       {message.role === "reset" && (
         <>
-          <div className="relative flex h-6 w-6 flex-none items-center justify-center mt-8">
-            <div className="h-1.5 w-1.5 rounded-full ring-1 ring-gray-300" />
+          <div className="relative flex h-6 w-6 flex-none items-center justify-center mt-9">
+            <div className="h-1.5 w-1.5 rounded-full ring-1 ring-gray-300 bg-card" />
           </div>
-          <div
-            className="flex-auto text-xs leading-5 mt-4 rounded-lg py-2 px-3 w-full text-muted-foreground grid gap-1 items-center"
-            style={{ gridTemplateColumns: "1fr auto 1fr" }}
-          >
-            <div></div>
-            <div>code reset</div>
-            <div></div>
-          </div>
+          <p className="flex justify-center flex-auto text-xs leading-5 mt-8 rounded-lg py-2 px-3 text-zinc-500 w-full">
+            code reset
+          </p>
         </>
       )}
     </li>

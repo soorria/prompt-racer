@@ -1,30 +1,15 @@
 import { cx } from "class-variance-authority"
 import ms from "ms"
 import React, { useState, useEffect } from "react"
+import useCountdown from "./useCountdown"
 
 type Props = {
   endTime: number
 }
 
 export default function IngameTimer({ endTime }: Props) {
-  const [timeRemaining, setTimeRemaining] = useState(endTime - Date.now())
+  const { minutes, seconds } = useCountdown(endTime)
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const currentTime = Date.now()
-
-      if (currentTime < endTime) {
-        setTimeRemaining(endTime - currentTime)
-      } else {
-        clearInterval(intervalId)
-      }
-    }, 1000)
-
-    return () => clearInterval(intervalId)
-  }, [endTime])
-
-  const minutes = Math.floor(timeRemaining / ms("1m"))
-  const seconds = Math.floor((timeRemaining % ms("1m")) / 1000)
   const scale = 0.5
   return (
     <div className="flex opacity-20 hover:opacity-50 transition-opacity">

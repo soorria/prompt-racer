@@ -11,8 +11,6 @@ type Props = {
 }
 
 export default function LiveGameStats({ game }: Props) {
-  console.log(game)
-
   return (
     <div className="p-4 bg-card h-full rounded-lg shadow-md relative pt-24">
       <div className="top-6 left-4 absolute flex items-center gap-3 opacity-20 hover:opacity-50 transition-opacity">
