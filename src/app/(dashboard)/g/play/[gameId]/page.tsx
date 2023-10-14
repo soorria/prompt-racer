@@ -4,8 +4,10 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import invariant from "tiny-invariant"
 import ChatPanel from "~/components/ChatPanel"
+import CountdownTimer from "~/components/CountdownTimer"
 import { Debug } from "~/components/Debug"
 import FinishGameScreen from "~/components/FinishGameScreen"
+import IngameTimer from "~/components/IngameTimer"
 import LobbyPlayerCard from "~/components/LobbyPlayerCard"
 import PanelSkeleton from "~/components/PanelSkeleton"
 import { Button } from "~/components/ui/button"
@@ -76,7 +78,11 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
       )}
 
       {game?.state === "waiting-for-players" && (
-        <div className="flex flex-col items-center mt-8">
+        <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center justify-center my-16">
+            <h2 className="font-bold text-xl mb-8 text-zinc-400">Game Begins In</h2>
+            <CountdownTimer endTime={game.gameStartTime} />
+          </div>
           <LobbyPlayerCard
             players={game.players ?? []}
             onLeaveGame={() => {

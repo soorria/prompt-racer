@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react"
+import { CheckCircle2, CornerDownRightIcon, Loader2, MinusCircleIcon, XCircle } from "lucide-react"
 import React, { ReactNode, useState } from "react"
 import { Button } from "~/components/ui/button"
 import { Doc } from "~convex/dataModel"
@@ -55,25 +55,29 @@ export default function DescriptionPanel({
             } else if (testsRunning) {
               testEmoji = (
                 <span title="Running test">
-                  <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                  <Loader2 className="w-6 h-6 animate-spin" />
                 </span>
               )
             } else if (result) {
               testEmoji = (
                 <span title={result.status === "success" ? "Test passed" : "Test failed"}>
-                  {result.status === "success" ? "✅" : "❌"}
+                  {result.status === "success" ? (
+                    <CheckCircle2 className="w-6 h-6 rounded-full text-black bg-primary" />
+                  ) : (
+                    <XCircle className="w-6 h-6 rounded-full text-black bg-red-500" />
+                  )}
                 </span>
               )
             } else {
               testEmoji = (
                 <span className="grayscale" title="No tests run">
-                  ✅
+                  <MinusCircleIcon className="w-6 h-6 rounded-full text-black bg-primary" />
                 </span>
               )
             }
             return (
               <div key={i} className="font-mono whitespace-pre-wrap">
-                <div className="grid gap-1" style={{ gridTemplateColumns: "1em 1fr" }}>
+                <div className="flex items-center gap-2">
                   <span className="justify-self-center">{testEmoji}</span>
                   <span>
                     solution({testCase.args.map((a) => JSON.stringify(a)).join(", ")}) =={" "}
@@ -82,10 +86,14 @@ export default function DescriptionPanel({
                 </div>
                 {result?.status === "error" && (
                   <div className="grid gap-1" style={{ gridTemplateColumns: "1em 1fr" }}>
-                    <span className="justify-self-center">↳</span>
-                    {result.status === "error"
-                      ? `${result.reason.name}: ${result.reason.message}`
-                      : null}
+                    <span className="justify-self-center">
+                      <CornerDownRightIcon className="ml-4 w-4 h-4 text-red-500" />
+                    </span>
+                    <span className="ml-4">
+                      {result.status === "error"
+                        ? `${result.reason.name}: ${result.reason.message}`
+                        : null}
+                    </span>
                   </div>
                 )}
               </div>
@@ -99,7 +107,8 @@ export default function DescriptionPanel({
             </Button>
 
             <Button size="sm" onClick={handleSubmission} disabled={testsRunning || isSubmitting}>
-              {isSubmitting ? <Loader2 className="w-6 h-6 animate-spin" /> : "Submit code"}
+              {isSubmitting && <Loader2 className="w-6 h-6 animate-spin mr-1" />}
+              Submit code
             </Button>
           </div>
         )}

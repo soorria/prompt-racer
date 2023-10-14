@@ -380,6 +380,30 @@ export const getWaitingGames = query({
   },
 })
 
+export const checkAllPlayersSubmitted = internalAction({
+  args: { gameId: v.id("game") },
+  handler: async (ctx, args) => {
+    const game = await ctx.runQuery(internal.games.getFullGame, { gameId: args.gameId })
+
+    if (!game || game.state !== "in-progress") {
+      return
+    }
+
+    const playerInfos = await ctx.runQuery(internal.games.getPlayerInfosForGame, {
+      gameId: args.gameId,
+    })
+
+    const allSubmitted = playerInfos.every((info) => info.testState?.type === "complete")
+
+    if (allSubmitted) {
+      await ctx.runMutation(internal.games.patchGame, {
+        gameId: args.gameId,
+        updates: { state: "finished" },
+      })
+    }
+  },
+})
+
 export const joinGame = action({
   handler: async (ctx) => {
     const { userId, identity } = await requireUser(ctx)
@@ -870,6 +894,8 @@ export const submitCode = action({
         },
       },
     })
+
+    await ctx.runAction(internal.games.checkAllPlayersSubmitted, { gameId: args.gameId })
   },
 })
 

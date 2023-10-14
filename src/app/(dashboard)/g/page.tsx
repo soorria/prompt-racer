@@ -1,6 +1,4 @@
 "use client"
-
-import GameModeSelectionButton from "~/components/GameModeSelectionButton"
 import GameSelector from "~/components/GameSelector"
 
 const GameDashboard = () => {
