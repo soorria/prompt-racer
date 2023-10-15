@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useMemo } from "react"
+import React from "react"
 import AuthButton from "./AuthButton"
 import Link from "next/link"
 import { useConvexAuth } from "convex/react"
@@ -65,7 +65,9 @@ export default function NavBar({}: Props) {
           </Link>
         </TooltipTrigger>
         <TooltipContent side="bottom">
-          <p>Beware bugs! We&apos;re still in beta :)</p>
+          <p className="max-w-xs">
+            Beware bugs! We&apos;re still in beta :). Click to provide feedback & suggestions
+          </p>
         </TooltipContent>
       </Tooltip>
 

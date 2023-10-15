@@ -1,10 +1,8 @@
-// "use client"
 import "@total-typescript/ts-reset"
 import { ClerkProvider } from "@clerk/nextjs"
 import { dark } from "@clerk/themes"
 
 import "~/styles/globals.css"
-// import "dracula-prism/dist/css/dracula-prism.css"
 import type { Metadata } from "next"
 import { Inter, Fugaz_One } from "next/font/google"
 import ConvexClientProvider from "~/lib/convex"
