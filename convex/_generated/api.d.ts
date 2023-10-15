@@ -20,6 +20,7 @@ import type * as openai from "../openai";
 import type * as questions from "../questions";
 import type * as users from "../users";
 import type * as utils_auth from "../utils/auth";
+import type * as utils_games from "../utils/games";
 import type * as utils_types from "../utils/types";
 
 /**
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   questions: typeof questions;
   users: typeof users;
   "utils/auth": typeof utils_auth;
+  "utils/games": typeof utils_games;
   "utils/types": typeof utils_types;
 }>;
 export declare const api: FilterApi<

@@ -13,9 +13,12 @@ type Props = {
 export default function LiveGameStats({ game }: Props) {
   return (
     <div className="p-4 bg-card h-full rounded-lg shadow-md relative pt-24">
-      <div className="top-6 left-4 absolute flex items-center gap-3 opacity-20 hover:opacity-50 transition-opacity">
-        <Users2 className="h-10 w-10" />
-        <p className="text-2xl">{game?.players?.length}</p>
+      <div className="top-5 left-4 absolute flex flex-col opacity-20 hover:opacity-50 transition-opacity">
+        <div className="flex items-center gap-3">
+          <Users2 className="h-9 w-9" />
+          <p className="text-2xl">{game?.players?.length}</p>
+        </div>
+        <p className="text-xs font-bold">Players</p>
       </div>
       <div className="absolute right-0 top-0">
         <IngameTimer endTime={game.gameEndTime} />

@@ -10,9 +10,7 @@ import FinishGameScreen from "~/components/FinishGameScreen"
 import IngameTimer from "~/components/IngameTimer"
 import LobbyPlayerCard from "~/components/LobbyPlayerCard"
 import PanelSkeleton from "~/components/PanelSkeleton"
-import { Button } from "~/components/ui/button"
-import { Input } from "~/components/ui/input"
-import { useConvexUser } from "~/lib/convex"
+import { useWrappedAction, useWrappedMutation, useWrappedQuery } from "~/lib/convex-utils"
 import { api } from "~convex/api"
 
 const fallbackGameInfo = {
@@ -21,9 +19,8 @@ const fallbackGameInfo = {
   currentPlayerInfo: undefined,
 }
 const PlayGamePage = (props: { params: { gameId: string } }) => {
-  const gameInfo =
-    useQuery(api.games.getGameInfoForUser, { gameId: props.params.gameId }) ?? fallbackGameInfo
-  const { game, allPlayerGameInfos, currentPlayerInfo } = gameInfo
+  const gameInfo = useWrappedQuery(api.games.getGameInfoForUser, { gameId: props.params.gameId })
+  const { game, allPlayerGameInfos, currentPlayerInfo } = gameInfo.data ?? fallbackGameInfo
 
   const router = useRouter()
 
@@ -33,10 +30,9 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
     }
   }, [game, router])
 
-  const sendMessage = useAction(api.games.sendMessageForPlayerInGame)
-  const [sending, setSending] = useState(false)
+  const sendMessage = useWrappedAction(api.games.sendMessageForPlayerInGame)
 
-  const leaveGame = useMutation(api.games.leaveGame)
+  const leaveGame = useWrappedMutation(api.games.leaveGame)
 
   return (
     <div className="h-full pt-4">
@@ -53,19 +49,13 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
               question={game.question}
               chatPanelProps={{
                 messages: currentPlayerInfo.chatHistory,
-                onMessageSend: async (message) => {
-                  try {
-                    setSending(true)
-
-                    await sendMessage({
-                      gameId: game!._id,
-                      message,
-                    })
-                  } finally {
-                    setSending(false)
-                  }
+                onMessageSend: (message) => {
+                  sendMessage.mutate({
+                    gameId: game!._id,
+                    message,
+                  })
                 },
-                sending: sending,
+                sending: sendMessage.isLoading,
               }}
               playerGameInfo={currentPlayerInfo}
             />
@@ -85,9 +75,7 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
           </div>
           <LobbyPlayerCard
             players={game.players ?? []}
-            onLeaveGame={() => {
-              leaveGame({ gameId: game._id })
-            }}
+            onLeaveGame={() => leaveGame.mutate({ gameId: game._id })}
           />
           <p className="mt-4 text-gray-600 animate-pulse">Waiting for players...</p>
         </div>

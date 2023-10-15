@@ -206,7 +206,7 @@ const createSafeMutationHook = <Type extends "mutation" | "action">(type: Type) 
       }
     }
     const mutate = (...args: OptionalArgs<ConvexMutationArgs>) => {
-      mutateAsync(...args)
+      mutateAsync(...args).catch(() => {})
     }
 
     return {

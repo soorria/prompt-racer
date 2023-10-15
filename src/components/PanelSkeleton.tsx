@@ -11,6 +11,7 @@ import { api } from "~convex/api"
 import { InferQueryOutput } from "~/lib/convex"
 import { useAction, useMutation } from "convex/react"
 import LiveGameStats from "./LiveGameStats"
+import { debounce } from "~/lib/utils"
 
 export type LayoutType = {
   left?: number
@@ -80,6 +81,26 @@ export default function PanelSkeleton({
   const [panelSizes, setPanelSizes] = useState<LayoutType>(defaultLayout)
   const { left, right, tl, bl, tr, br } = panelSizes
 
+  const [direction, setDirection] = useState<"vertical" | "horizontal">(
+    window.innerWidth < 768 ? "vertical" : "horizontal"
+  )
+
+  useEffect(() => {
+    const handleResize = debounce(() => {
+      if (window.innerWidth < 768 && direction !== "vertical") {
+        setDirection("vertical")
+      } else if (window.innerWidth >= 768 && direction !== "horizontal") {
+        setDirection("horizontal")
+      }
+    }, 150)
+
+    window.addEventListener("resize", handleResize)
+
+    return () => {
+      window.removeEventListener("resize", handleResize)
+    }
+  }, [direction])
+
   useEffect(() => {
     document.cookie = `react-resizable-panels:layout=${JSON.stringify(panelSizes)}`
   }, [panelSizes])
@@ -100,7 +121,7 @@ export default function PanelSkeleton({
 
   return (
     <PanelGroup
-      direction="horizontal"
+      direction={direction}
       onLayout={handleLayout(["left", "right"])}
       className="flex-1 gap-1"
     >
@@ -121,7 +142,11 @@ export default function PanelSkeleton({
           </Panel>
         </PanelGroup>
       </Panel>
-      <ResizeHandle orientation="vertical" />
+      {direction === "vertical" ? (
+        <ResizeHandle orientation="horizontal" />
+      ) : (
+        <ResizeHandle orientation="vertical" />
+      )}
       <Panel defaultSize={right}>
         <PanelGroup direction="vertical" onLayout={handleLayout(["tr", "br"])} className="gap-1">
           <Panel defaultSize={tr}>
