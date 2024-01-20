@@ -139,8 +139,7 @@ export const useWrappedQuery = <
       status: "error",
       error: queryResult,
     }
-  }
-  if (typeof queryResult === "undefined") {
+  } else if (typeof queryResult === "undefined") {
     result = {
       status: "loading",
     }
