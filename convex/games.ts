@@ -226,6 +226,7 @@ const GAME_TIMINGS_MS = {
   playTime: ms("3m"),
   promptRateLimitTime: ms("10s"),
 }
+export const DEFAULT_RATING = 1000
 
 export const createGame = internalAction({
   args: {
@@ -330,7 +331,10 @@ export const joinGame = action({
       throw new Error("You're already in an active game")
     }
 
-    const games = await ctx.runQuery(api.games.getWaitingGames)
+    const [games, userDetails] = await Promise.all([
+      ctx.runQuery(api.games.getWaitingGames),
+      ctx.runQuery(api.users.getUserDetailsById, { userId }),
+    ])
     let gameToJoin = games[Math.floor(Math.random() * games.length)]
 
     if (!gameToJoin) {
@@ -370,6 +374,7 @@ export const joinGame = action({
               userId,
               profilePictureUrl:
                 identity.profileUrl || identity.pictureUrl || "https://soorria.com/logo.png",
+              starting_rating: userDetails?.rating ?? DEFAULT_RATING,
             },
           ],
         },

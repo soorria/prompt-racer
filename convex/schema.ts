@@ -78,4 +78,10 @@ export default defineSchema({
     .index("by_gameId_userId", ["gameId", "userId"]),
 
   question: defineTable(questionSchema),
+
+  user: defineTable({
+    userId: v.string(),
+
+    rating: v.number(),
+  }).index("by_userId", ["userId"]),
 })
