@@ -42,6 +42,7 @@
     "eslint-config-next": "13.4.19",
     "hast-util-to-jsx-runtime": "^2.1.1",
     "lucide-react": "^0.274.0",
+    "mathjs": "^12.3.0",
     "ms": "^2.1.3",
     "next": "13.4.19",
     "next-themes": "^0.2.1",
