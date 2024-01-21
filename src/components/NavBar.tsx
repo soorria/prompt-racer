@@ -8,6 +8,7 @@ import clsx from "clsx"
 import { usePathname } from "next/navigation"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 import { useWrappedQuery } from "~/lib/convex-utils"
+import { FEEDBACK_FORM_URL } from "~/lib/feedback"
 
 type Props = {}
 
@@ -60,11 +61,7 @@ export default function NavBar({}: Props) {
           <p className="max-w-xs">
             Beware bugs! We&apos;re still in beta and all data could be deleted at any time as we
             work on this :).{" "}
-            <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSdeSO0ULDja2P42oDCfQnZGNjHDQCGWE8-mbsBShWS-qUmm7w/viewform?usp=sf_link"
-              target="_blank"
-              className="underline"
-            >
+            <a href={FEEDBACK_FORM_URL} target="_blank" className="underline">
               Click to provide feedback & suggestions
             </a>
           </p>
