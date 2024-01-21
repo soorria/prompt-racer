@@ -54,19 +54,19 @@ export default function NavBar({}: Props) {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Link
-            href={
-              "https://docs.google.com/forms/d/e/1FAIpQLSdeSO0ULDja2P42oDCfQnZGNjHDQCGWE8-mbsBShWS-qUmm7w/viewform?usp=sf_link"
-            }
-            target="_blank"
-            className="px-3 py-2 text-sm bg-yellow-800 rounded-md cursor-pointer"
-          >
-            Beta
-          </Link>
+          <span className="px-3 py-2 text-sm bg-yellow-800 rounded-md">Beta</span>
         </TooltipTrigger>
         <TooltipContent side="bottom">
           <p className="max-w-xs">
-            Beware bugs! We&apos;re still in beta :). Click to provide feedback & suggestions
+            Beware bugs! We&apos;re still in beta and all data could be deleted at any time as we
+            work on this :).{" "}
+            <a
+              href="https://docs.google.com/forms/d/e/1FAIpQLSdeSO0ULDja2P42oDCfQnZGNjHDQCGWE8-mbsBShWS-qUmm7w/viewform?usp=sf_link"
+              target="_blank"
+              className="underline"
+            >
+              Click to provide feedback & suggestions
+            </a>
           </p>
         </TooltipContent>
       </Tooltip>
