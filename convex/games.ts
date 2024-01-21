@@ -14,7 +14,14 @@ import { api, internal } from "./_generated/api"
 import { v } from "convex/values"
 import { getUser, requireUser } from "./utils/auth"
 import ms from "ms"
-import { addMilliseconds, formatDuration, intervalToDuration, isAfter, isEqual } from "date-fns"
+import {
+  addMilliseconds,
+  formatDuration,
+  intervalToDuration,
+  isAfter,
+  isEqual,
+  max,
+} from "date-fns"
 import { Doc, Id } from "./_generated/dataModel"
 import {
   CodeRunResult,
@@ -24,7 +31,12 @@ import {
   gamePlayer,
   playerGameInfoTestState,
 } from "./utils/schema"
-import { getPlayerPostionsForGameMode, getUpdatedPlayerPostions } from "./utils/games"
+import {
+  PlayerPostionsResult,
+  getPlayerPostionsForGameMode,
+  getUpdatedPlayerPostions,
+} from "./utils/games"
+import { elo } from "./utils/elo"
 
 export const getMyGames = query({
   handler: async (ctx) => {
@@ -207,16 +219,43 @@ export const advanceGameState = internalAction({
         gameId: game._id,
       })
 
-      const positions: Record<string, number | "nah"> = getPlayerPostionsForGameMode(
-        game.mode,
-        playerInfos
-      )
-      const players = getUpdatedPlayerPostions([...(game.players ?? [])], positions)
+      const positions = getPlayerPostionsForGameMode(game.mode, playerInfos)
+      const playersWithPositions = getUpdatedPlayerPostions([...(game.players ?? [])], positions)
 
-      await ctx.runMutation(internal.games.patchGame, {
-        gameId: args.gameId,
-        updates: { state: "finished", players },
-      })
+      const initialPlayerRatings = playersWithPositions.map(
+        (p) => p.starting_rating ?? DEFAULT_RATING
+      )
+      const maxPosition = Math.max(
+        ...playersWithPositions.map((p) => (typeof p.position === "number" ? p.position : 0))
+      )
+      const updatedRatings =
+        initialPlayerRatings.length > 1
+          ? elo.getNewRatings(
+              initialPlayerRatings,
+              playersWithPositions.map((p) =>
+                typeof p.position === "number" ? p.position : maxPosition + 1
+              )
+            )
+          : initialPlayerRatings
+      const playersWithEndingRatings = playersWithPositions.map((p, i) => ({
+        ...p,
+        ending_rating: updatedRatings[i],
+      }))
+
+      const updates = playersWithEndingRatings.map((p) => ({
+        userId: p.userId,
+        rating: p.ending_rating!,
+      }))
+
+      await Promise.all([
+        ctx.runMutation(internal.games.patchGame, {
+          gameId: args.gameId,
+          updates: { state: "finished", players: playersWithEndingRatings },
+        }),
+        ctx.runMutation(internal.users.updateUserRatings, {
+          updates,
+        }),
+      ])
     }
   },
 })
@@ -298,12 +337,16 @@ export const getWaitingGames = query({
   },
 })
 
-export const checkAllPlayersSubmitted = internalAction({
+export const endGameEarlyIfPossible = internalAction({
   args: { gameId: v.id("game") },
   handler: async (ctx, args) => {
     const game = await ctx.runQuery(internal.games.getFullGame, { gameId: args.gameId })
 
     if (!game || game.state !== "in-progress") {
+      return
+    }
+
+    if (game.players?.length !== 1) {
       return
     }
 
@@ -314,9 +357,8 @@ export const checkAllPlayersSubmitted = internalAction({
     const allSubmitted = playerInfos.every((info) => info.testState?.type === "complete")
 
     if (allSubmitted) {
-      await ctx.runMutation(internal.games.patchGame, {
+      await ctx.runAction(internal.games.advanceGameState, {
         gameId: args.gameId,
-        updates: { state: "finished" },
       })
     }
   },
@@ -822,17 +864,15 @@ export const submitCode = action({
     const playerInfos = await ctx.runQuery(internal.games.getPlayerInfosForGame, {
       gameId: game._id,
     })
-    const positions: Record<string, number | "nah"> = getPlayerPostionsForGameMode(
-      game.mode,
-      playerInfos
-    )
-    const players = getUpdatedPlayerPostions([...(game.players ?? [])], positions)
+    const positions = getPlayerPostionsForGameMode(game.mode, playerInfos)
+    const playersWithPositions = getUpdatedPlayerPostions([...(game.players ?? [])], positions)
+
     await ctx.runMutation(internal.games.patchGame, {
       gameId: args.gameId,
-      updates: { players },
+      updates: { players: playersWithPositions },
     })
 
-    await ctx.runAction(internal.games.checkAllPlayersSubmitted, { gameId: args.gameId })
+    await ctx.runAction(internal.games.endGameEarlyIfPossible, { gameId: args.gameId })
   },
 })
 

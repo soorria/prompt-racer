@@ -22,13 +22,16 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
   const gameInfo = useWrappedQuery(api.games.getGameInfoForUser, { gameId: props.params.gameId })
   const { game, allPlayerGameInfos, currentPlayerInfo } = gameInfo.data ?? fallbackGameInfo
 
+  console.log("game details", { game })
+
   const router = useRouter()
 
-  useEffect(() => {
-    if (game === null) {
-      router.replace("/g")
-    }
-  }, [game, router])
+  // useEffect(() => {
+  //   console.log({ game, router })
+  //   if (game === null) {
+  //     router.replace("/g")
+  //   }
+  // }, [game, router])
 
   const sendMessage = useWrappedAction(api.games.sendMessageForPlayerInGame)
 

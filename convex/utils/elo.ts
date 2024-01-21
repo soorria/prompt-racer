@@ -40,6 +40,9 @@ class MultiElo {
 
   getNewRatings(initialRatings: number[], resultOrder?: number[]): number[] {
     const n = initialRatings.length
+    if (n <= 1) {
+      return [...initialRatings]
+    }
     const actualScores = this.getActualScores(n, resultOrder)
     const expectedScores = this.getExpectedScores(initialRatings)
     const scaleFactor = this.k * (n - 1)

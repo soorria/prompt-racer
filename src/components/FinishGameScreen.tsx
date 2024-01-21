@@ -95,7 +95,7 @@ export default function FinishGameScreen({ players = [] }: Props) {
                 key={player.userId}
                 className="flex items-center py-2 border-b border-gray-300/50"
               >
-                <span className="opacity-50 mr-3">NAH</span>
+                <span className="opacity-50 mr-3">nah</span>
                 <Avatar className="mr-4">
                   <AvatarImage src={player.profilePictureUrl} />
                   <AvatarFallback>{player.name[0]}</AvatarFallback>
