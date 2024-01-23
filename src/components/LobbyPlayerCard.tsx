@@ -32,16 +32,15 @@ export default function LobbyPlayerCard({ players, onLeaveGame }: Props) {
             </Avatar>
           </div>
           <div className="min-w-0 flex-1">
-            <a href="#" className="focus:outline-none">
-              <span className="absolute inset-0" aria-hidden="true" />
-              <p className="text-sm font-medium">{person?.name}</p>
-            </a>
+            <p className="text-sm font-medium">{person?.name}</p>
+            <p className="text-xs text-gray-700">{person.starting_rating ?? 1000}</p>
           </div>
-          {currentUser?.userId === person.userId && (
+          {/* TODO: fix leaving */}
+          {/* {currentUser?.userId === person.userId && (
             <Button variant="destructive" size="sm" onClick={onLeaveGame}>
               Leave
             </Button>
-          )}
+          )} */}
         </div>
       ))}
       {/* Skeleton card */}

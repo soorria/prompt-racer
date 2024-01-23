@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss"
-import defaultTheme from "tailwindcss/defaultTheme"
+import { fontFamily } from "tailwindcss/defaultTheme"
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -16,8 +16,8 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        display: ["var(--font-fugaz)", ...defaultTheme.fontFamily.sans],
-        sans: ["var(--font-inter)", ...defaultTheme.fontFamily.sans],
+        display: ["var(--font-fugaz)", ...fontFamily.sans],
+        sans: ["var(--font-inter)", ...fontFamily.sans],
       },
       colors: {
         dracula: "#282a36",

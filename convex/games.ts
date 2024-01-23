@@ -508,6 +508,10 @@ export const sendMessageForPlayerInGame = action({
     message: v.string(),
   },
   handler: async (ctx, args) => {
+    if (args.message.length > 40) {
+      throw new Error("Message too long. Maximum message length is 40 characters.")
+    }
+
     const { userId } = await requireUser(ctx)
     const [game, playerGameInfo] = await Promise.all([
       ctx.runQuery(api.games.getGame, { gameId: args.gameId }),

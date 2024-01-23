@@ -90,7 +90,7 @@ export default function CodePanel({
             autoComplete="off"
             required
             disabled={sending || generating}
-            maxLength={80}
+            maxLength={40}
           />
           <Button type="submit" disabled={sending || generating} size="icon" className="shrink-0">
             <Send className="w-5 h-5" />

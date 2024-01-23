@@ -25,7 +25,7 @@ const LeaderboardPanel: React.FC<Props> = ({ users }) => {
       {sortedUsers.map((user, idx) => (
         <div key={user.userId} className="flex items-center mb-3">
           <div className="text-lg text-gray-500 mr-3">
-            {user.position ? (
+            {typeof user.position === "number" ? (
               <div className="flex items-center">
                 <Hash className="h-5 w-5" />
                 {`${+user.position + 1}`}
