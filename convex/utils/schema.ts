@@ -1,4 +1,4 @@
-import { Infer, v } from "convex/values"
+import { Infer, v, Validator } from "convex/values"
 
 export const chatHistorySingleItem = {
   user: v.object({
@@ -74,5 +74,27 @@ export const gamePlayer = v.object({
   ending_rating: v.optional(v.number()),
 })
 
-export const gameModeSchema = v.union(v.literal("fastest-player"), v.literal("fastest-code"))
-export const gameModes = ["fastest-player", "fastest-code"] as const
+type GameModesList = [
+  "fastest-player",
+  "fastest-code",
+  "shortest-code",
+  "shortest-messages-word-length"
+]
+export const gameModes: Readonly<GameModesList> = [
+  "fastest-player",
+  "fastest-code",
+  "shortest-code",
+  "shortest-messages-word-length",
+]
+
+type ToValidators<T extends readonly string[], Acc extends Validator<string>[] = []> = T extends [
+  infer H,
+  ...infer R extends readonly string[]
+]
+  ? H extends string
+    ? ToValidators<R, [...Acc, Validator<H>]>
+    : never
+  : Acc
+type GameModeValidatorsList = ToValidators<GameModesList>
+
+export const gameModeSchema = v.union(...(gameModes.map(v.literal) as GameModeValidatorsList))

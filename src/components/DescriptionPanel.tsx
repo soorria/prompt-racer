@@ -14,6 +14,10 @@ type Props = {
 const winConditionDescriptions: Record<Doc<"game">["mode"], string> = {
   "fastest-player": "The first player to submit code that passes all tests wins.",
   "fastest-code": "The player whose code passes the most tests and runs the fastest wins.",
+  "shortest-code":
+    "The player whose code passes the most tests and has the fewest characters wins.",
+  "shortest-messages-word-length":
+    "The player whose code passes the most tests and has the fewest characters in their messages wins. Note: this count does not reset when you reset your code!",
 }
 
 export default function DescriptionPanel({
