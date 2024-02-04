@@ -83,5 +83,7 @@ export default defineSchema({
     userId: v.string(),
 
     rating: v.number(),
-  }).index("by_userId", ["userId"]),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_rating", ["rating"]),
 })

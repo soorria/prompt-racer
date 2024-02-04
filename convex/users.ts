@@ -59,3 +59,9 @@ export const updateUserRatings = internalMutation({
     )
   },
 })
+
+export const getLeaderboardPlayers = query({
+  handler: async (ctx) => {
+    return ctx.db.query("user").withIndex("by_rating").order("desc").take(10)
+  },
+})

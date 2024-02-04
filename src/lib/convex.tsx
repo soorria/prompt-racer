@@ -4,9 +4,9 @@ import { ConvexReactClient, useQuery } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
 import { useAuth } from "@clerk/nextjs"
 import { api } from "~convex/api"
-import { FunctionReference, RegisteredQuery } from "convex/server"
+import { FunctionReference } from "convex/server"
 
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
+export const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
 
 export default function ConvexClientProvider({ children }: { children: ReactNode }) {
   return (
