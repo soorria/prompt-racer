@@ -17,23 +17,24 @@ export const codeGeneration = internalAction({
     const apiKey = keys[Math.floor(Math.random() * keys.length)]!
     const openai = new OpenAI({ apiKey })
 
-    const stream = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      stream: true,
-      temperature: 0.7,
-      stop: ["</code>"],
-      messages: [
-        {
-          role: "system",
-          content: [
-            "You are a terse, helpful AI assistant that helps people write code.",
-            "You should only ever output code wrapped in a <code> tag.",
-            "Never update the existing function's name or argument list.",
-          ].join(" "),
-        },
-        {
-          role: "user",
-          content: `
+    const { data: stream, response } = await openai.chat.completions
+      .create({
+        model: "gpt-3.5-turbo",
+        stream: true,
+        temperature: 0.7,
+        stop: ["</code>"],
+        messages: [
+          {
+            role: "system",
+            content: [
+              "You are a terse, helpful AI assistant that helps people write code.",
+              "You should only ever output code wrapped in a <code> tag.",
+              "Never update the existing function's name or argument list.",
+            ].join(" "),
+          },
+          {
+            role: "user",
+            content: `
 CURRENT CODE: <code>
 ${args.currentCode}
 </code>
@@ -47,12 +48,10 @@ The update code should contain a function named solution, and the arguments shou
 
 UPDATED CODE:
 `.trim(),
-        },
-      ],
-    })
-
-    // Hack to access private property
-    const response = (stream as unknown as { response: Response }).response
+          },
+        ],
+      })
+      .withResponse()
 
     if (!response.ok) {
       await ctx.runMutation(internal.games.setAgentMessageForPlayerInGame, {

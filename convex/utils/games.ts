@@ -7,12 +7,21 @@ export type SortablePlayerInfo = Doc<"playerGameInfo"> & {
   }
   lastSubmittedAt: number
 }
-export type PlayerPostions = Record<string, number | "nah">
+export type PlayerPostionsResult = Record<
+  string,
+  {
+    position: number | "nah"
+    score: number | "nah"
+  }
+>
 
 export const getPlayerPositions = (
   infos: Doc<"playerGameInfo">[],
-  sortPlayerInfo: (a: SortablePlayerInfo, b: SortablePlayerInfo) => number
-) => {
+  fns: {
+    getScore: (info: SortablePlayerInfo) => number | "nah"
+    compareScore: (a: number, b: number) => number
+  }
+): PlayerPostionsResult => {
   const sorted = infos
     .filter(
       (info): info is SortablePlayerInfo =>
@@ -20,19 +29,35 @@ export const getPlayerPositions = (
         info.submissionState?.type === "complete" &&
         typeof info.lastSubmittedAt === "number"
     )
+    .map((info) => {
+      const numPassing = info.submissionState.results.filter((r) => r.status === "success").length
+      return {
+        ...info,
+        numPassing: numPassing,
+        score: numPassing === 0 ? "nah" : fns.getScore(info),
+      }
+    })
     .sort((a, b) => {
-      const aPassing = a.submissionState.results.filter((r) => r.status === "success").length
-      const bPassing = b.submissionState.results.filter((r) => r.status === "success").length
-      const diffPassing = bPassing - aPassing
+      const diffPassing = b.numPassing - a.numPassing
 
       if (diffPassing !== 0) {
         return diffPassing
       }
 
-      return sortPlayerInfo(a, b)
+      if (a.score === "nah" && b.score === "nah") {
+        return 0
+      } else if (a.score === "nah") {
+        return 1
+      } else if (b.score === "nah") {
+        return -1
+      }
+
+      return fns.compareScore(a.score, b.score)
     })
 
-  return Object.fromEntries(sorted.map((info, i) => [info.userId, i] as const))
+  return Object.fromEntries(
+    sorted.map((info, i) => [info.userId, { position: i, score: info.score }] as const)
+  )
 }
 
 const getTotalRuntime = (info: SortablePlayerInfo) => {
@@ -50,40 +75,29 @@ export const getPlayerPostionsForGameMode = (
   gameMode: Doc<"game">["mode"],
   playerInfos: Doc<"playerGameInfo">[]
 ) => {
-  let positions: Record<string, number | "nah"> = {}
+  let positions: PlayerPostionsResult = {}
 
   if (gameMode === "fastest-player") {
     // sort by submission time, ascending
-    positions = getPlayerPositions(playerInfos, (a, b) => {
-      const aTime = a.lastSubmittedAt
-      const bTime = b.lastSubmittedAt
-      const diffTime = aTime - bTime
-
-      return diffTime
+    positions = getPlayerPositions(playerInfos, {
+      getScore: (info) => info.lastSubmittedAt,
+      compareScore: (a, b) => a - b,
     })
   } else if (gameMode === "fastest-code") {
     // sort by total runtime for passing code, ascending
-    positions = getPlayerPositions(playerInfos, (a, b) => {
-      const aTime = getTotalRuntime(a)
-      const bTime = getTotalRuntime(b)
-      const diffTime = aTime - bTime
-
-      return diffTime
+    positions = getPlayerPositions(playerInfos, {
+      getScore: getTotalRuntime,
+      compareScore: (a, b) => a - b,
     })
   } else if (gameMode === "shortest-code") {
-    positions = getPlayerPositions(playerInfos, (a, b) => {
-      const aCode = a.code
-      const bCode = b.code
-      const diffCode = aCode.length - bCode.length
-
-      return diffCode
+    positions = getPlayerPositions(playerInfos, {
+      getScore: getTotalRuntime,
+      compareScore: (a, b) => b - a,
     })
   } else if (gameMode === "shortest-messages-word-length") {
-    positions = getPlayerPositions(playerInfos, (a, b) => {
-      const aTotal = getTotalWordLength(a)
-      const bTotal = getTotalWordLength(b)
-
-      return aTotal - bTotal
+    positions = getPlayerPositions(playerInfos, {
+      getScore: getTotalWordLength,
+      compareScore: (a, b) => a - b,
     })
   }
 
@@ -92,12 +106,13 @@ export const getPlayerPostionsForGameMode = (
 
 export const getUpdatedPlayerPostions = (
   players: NonNullable<Doc<"game">["players"]>,
-  positions: PlayerPostions
-) => {
+  positions: PlayerPostionsResult
+): NonNullable<Doc<"game">["players"]> => {
   return players.map((p) => {
     return {
       ...p,
-      position: positions[p.userId] ?? "nah",
+      position: positions[p.userId]?.position ?? "nah",
+      score: positions[p.userId]?.score ?? "nah",
     }
   })
 }

@@ -61,11 +61,17 @@ export const playerGameInfoTestState = v.union(
   })
 )
 
+const nah = v.literal("nah")
+
 export const gamePlayer = v.object({
+  userId: v.string(),
   name: v.string(),
   profilePictureUrl: v.string(),
-  userId: v.string(),
-  position: v.optional(v.union(v.number(), v.literal("nah"))),
+  position: v.optional(v.union(v.number(), nah)),
+
+  score: v.optional(v.union(v.number(), nah)),
+  starting_rating: v.optional(v.number()),
+  ending_rating: v.optional(v.number()),
 })
 
 export const gameModeSchema = v.union(v.literal("fastest-player"), v.literal("fastest-code"))

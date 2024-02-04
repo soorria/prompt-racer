@@ -21,7 +21,7 @@ export default function LobbyPlayerCard({ players, onLeaveGame }: Props) {
       {ordered.map((person, idx) => (
         <div
           key={idx}
-          className="relative flex items-center gap-3 rounded-lg border border-gray-700 bg-card px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400"
+          className="relative flex items-center gap-3 rounded-lg border border-gray-700 bg-card px-6 py-5 shadow-sm hover:border-gray-400"
         >
           <div className="flex-shrink-0">
             <Avatar>
@@ -32,16 +32,15 @@ export default function LobbyPlayerCard({ players, onLeaveGame }: Props) {
             </Avatar>
           </div>
           <div className="min-w-0 flex-1">
-            <a href="#" className="focus:outline-none">
-              <span className="absolute inset-0" aria-hidden="true" />
-              <p className="text-sm font-medium">{person?.name}</p>
-            </a>
+            <p className="text-sm font-medium">{person?.name}</p>
+            <p className="text-xs text-gray-700">{person.starting_rating ?? 1000}</p>
           </div>
-          {currentUser?.userId === person.userId && (
-            <Button variant={"destructive"} size="sm" onClick={onLeaveGame}>
+          {/* TODO: fix leaving */}
+          {/* {currentUser?.userId === person.userId && (
+            <Button variant="destructive" size="sm" onClick={onLeaveGame}>
               Leave
             </Button>
-          )}
+          )} */}
         </div>
       ))}
       {/* Skeleton card */}

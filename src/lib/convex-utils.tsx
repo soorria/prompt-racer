@@ -155,7 +155,7 @@ export const useWrappedQuery = <
   return result as WrappedUseQueryResult<ConvexQueryOutput>
 }
 
-const createSafeMutationHook = <Type extends "mutation" | "action">(type: Type) => {
+const createWrappedMutationHook = <Type extends "mutation" | "action">(type: Type) => {
   const useConvexMutationFn =
     type === "mutation" ? useConvexMutation : type === "action" ? useConvexAction : null
 
@@ -219,8 +219,14 @@ const createSafeMutationHook = <Type extends "mutation" | "action">(type: Type) 
   return useActionOrMutationInternal
 }
 
-export const useWrappedMutation = createSafeMutationHook("mutation")
-export const useWrappedAction = createSafeMutationHook("action")
+const createWrappedMutationHooks = () => {
+  return {
+    useWrappedMutation: createWrappedMutationHook("mutation"),
+    useWrappedAction: createWrappedMutationHook("action"),
+  }
+}
+
+export const { useWrappedMutation, useWrappedAction } = createWrappedMutationHooks()
 
 /**
  * These are copied from convex/server.ts

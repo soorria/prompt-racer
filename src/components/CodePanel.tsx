@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import CodeMirror from "@uiw/react-codemirror"
 import { python } from "@codemirror/lang-python"
 import { dracula } from "@uiw/codemirror-theme-dracula"
@@ -7,6 +7,18 @@ import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { Send, RotateCcw } from "lucide-react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
+
+function useMounted() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+
+    return () => setMounted(false)
+  }, [])
+
+  return mounted
+}
 
 type Props = {
   code: string
@@ -23,10 +35,11 @@ export default function CodePanel({
   generating = false,
   onResetCode,
 }: Props) {
-  const contentRef = useRef<HTMLDivElement>(null)
   const [animateRef] = useAutoAnimate()
   const previousGenerating = useRef<boolean>(false)
   const form = useRef<HTMLFormElement>(null)
+
+  const mounted = useMounted()
 
   useEffect(() => {
     previousGenerating.current = generating
@@ -46,17 +59,17 @@ export default function CodePanel({
       ref={animateRef}
     >
       <div className="flex-1">
-        <CodeMirror
-          // @ts-ignore TODO: it doesn't understand the ref is actually on a div not sure how to fix rn
-          ref={contentRef}
-          data-gramm="false"
-          data-gramm_editor="false"
-          data-enable-grammarly="false"
-          editable={false}
-          value={code}
-          extensions={[python()]}
-          theme={dracula}
-        />
+        {mounted && (
+          <CodeMirror
+            data-gramm="false"
+            data-gramm_editor="false"
+            data-enable-grammarly="false"
+            editable={false}
+            value={code}
+            extensions={[python()]}
+            theme={dracula}
+          />
+        )}
       </div>
       <div className="flex sticky bottom-2 px-2 pt-4">
         <form
@@ -77,7 +90,7 @@ export default function CodePanel({
             autoComplete="off"
             required
             disabled={sending || generating}
-            maxLength={80}
+            maxLength={40}
           />
           <Button type="submit" disabled={sending || generating} size="icon" className="shrink-0">
             <Send className="w-5 h-5" />
