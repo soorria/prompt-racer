@@ -12,6 +12,9 @@ import { InferQueryOutput } from "~/lib/convex"
 import { useAction, useMutation } from "convex/react"
 import LiveGameStats from "./LiveGameStats"
 import { debounce } from "~/lib/utils"
+import { useTwBreakpoint } from "~/lib/use-tw-breakpoint"
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
+import { TabsContent } from "@radix-ui/react-tabs"
 
 export type LayoutType = {
   left?: number
@@ -80,6 +83,7 @@ export default function PanelSkeleton({
 }: PanelSkeletonProps) {
   const [panelSizes, setPanelSizes] = useState<LayoutType>(defaultLayout)
   const { left, right, tl, bl, tr, br } = panelSizes
+  const showResizerUI = useTwBreakpoint("sm")
 
   const [direction, setDirection] = useState<"vertical" | "horizontal">(
     window.innerWidth < 768 ? "vertical" : "horizontal"
@@ -119,55 +123,89 @@ export default function PanelSkeleton({
 
   const codeInfo = getCodeToDisplayInfo({ game, messages: chatPanelProps.messages })
 
-  return (
-    <PanelGroup
-      direction={direction}
-      onLayout={handleLayout(["left", "right"])}
-      className="flex-1 gap-1"
-    >
-      <Panel defaultSize={left}>
-        <PanelGroup direction="vertical" onLayout={handleLayout(["tl", "bl"])} className="gap-1">
-          <Panel defaultSize={tl}>
-            <DescriptionPanel
-              question={question}
-              gameMode={game.mode}
-              playerGameInfo={playerGameInfo}
-              onRunTests={() => runTests({ gameId: game._id })}
-              onSubmitCode={() => submitCode({ gameId: game._id })}
-            />
-          </Panel>
+  const panels = {
+    description: (
+      <DescriptionPanel
+        question={question}
+        gameMode={game.mode}
+        playerGameInfo={playerGameInfo}
+        onRunTests={() => runTests({ gameId: game._id })}
+        onSubmitCode={() => submitCode({ gameId: game._id })}
+      />
+    ),
+    timer: <LiveGameStats game={game} />,
+    code: (
+      <CodePanel
+        code={codeInfo.code}
+        generating={codeInfo.generating}
+        onMessageSend={chatPanelProps.onMessageSend}
+        onResetCode={() => resetCode({ gameId: game._id })}
+        sending={chatPanelProps.sending}
+      />
+    ),
+    changelog: (
+      <ChatPanel
+        messages={chatPanelProps.messages}
+        onMessageSend={chatPanelProps.onMessageSend}
+        sending={chatPanelProps.sending}
+      />
+    ),
+  }
+
+  if (showResizerUI) {
+    return (
+      <PanelGroup
+        direction={direction}
+        onLayout={handleLayout(["left", "right"])}
+        className="flex-1 gap-1"
+      >
+        <Panel defaultSize={left}>
+          <PanelGroup direction="vertical" onLayout={handleLayout(["tl", "bl"])} className="gap-1">
+            <Panel defaultSize={tl}>{panels.description}</Panel>
+            <ResizeHandle orientation="horizontal" />
+            <Panel defaultSize={bl}>{panels.timer}</Panel>
+          </PanelGroup>
+        </Panel>
+        {direction === "vertical" ? (
           <ResizeHandle orientation="horizontal" />
-          <Panel defaultSize={bl}>
-            <LiveGameStats game={game} />
-          </Panel>
-        </PanelGroup>
-      </Panel>
-      {direction === "vertical" ? (
-        <ResizeHandle orientation="horizontal" />
-      ) : (
-        <ResizeHandle orientation="vertical" />
-      )}
-      <Panel defaultSize={right}>
-        <PanelGroup direction="vertical" onLayout={handleLayout(["tr", "br"])} className="gap-1">
-          <Panel defaultSize={tr}>
-            <CodePanel
-              code={codeInfo.code}
-              generating={codeInfo.generating}
-              onMessageSend={chatPanelProps.onMessageSend}
-              onResetCode={() => resetCode({ gameId: game._id })}
-              sending={chatPanelProps.sending}
-            />
-          </Panel>
-          <ResizeHandle orientation="horizontal" />
-          <Panel defaultSize={br} className="relative">
-            <ChatPanel
-              messages={chatPanelProps.messages}
-              onMessageSend={chatPanelProps.onMessageSend}
-              sending={chatPanelProps.sending}
-            />
-          </Panel>
-        </PanelGroup>
-      </Panel>
-    </PanelGroup>
-  )
+        ) : (
+          <ResizeHandle orientation="vertical" />
+        )}
+        <Panel defaultSize={right}>
+          <PanelGroup direction="vertical" onLayout={handleLayout(["tr", "br"])} className="gap-1">
+            <Panel defaultSize={tr}>{panels.code}</Panel>
+            <ResizeHandle orientation="horizontal" />
+            <Panel defaultSize={br} className="relative">
+              {panels.changelog}
+            </Panel>
+          </PanelGroup>
+        </Panel>
+      </PanelGroup>
+    )
+  } else {
+    return (
+      <Tabs defaultValue="description" className="h-full flex flex-col">
+        <div className="flex-1 bg-card rounded pb-2">
+          <TabsContent className="h-full" value="description">
+            {panels.description}
+          </TabsContent>
+          <TabsContent className="h-full" value="code">
+            {panels.code}
+          </TabsContent>
+          <TabsContent className="h-full" value="timer">
+            {panels.timer}
+          </TabsContent>
+          <TabsContent className="h-full" value="log">
+            {panels.changelog}
+          </TabsContent>
+        </div>
+        <TabsList className="w-full">
+          <TabsTrigger value="description">Question</TabsTrigger>
+          <TabsTrigger value="code">Code</TabsTrigger>
+          <TabsTrigger value="timer">Timer</TabsTrigger>
+          <TabsTrigger value="log">Changelog</TabsTrigger>
+        </TabsList>
+      </Tabs>
+    )
+  }
 }

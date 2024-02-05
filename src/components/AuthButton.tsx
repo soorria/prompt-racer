@@ -16,7 +16,7 @@ export default function AuthButton({}: Props) {
         <UserButton afterSignOutUrl="/" />
       ) : (
         <SignInButton mode="modal">
-          <Button size={"sm"}>Sign In</Button>
+          <Button size="sm">Sign In</Button>
         </SignInButton>
       )}
     </div>

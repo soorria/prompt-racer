@@ -12,6 +12,7 @@ import LobbyPlayerCard from "~/components/LobbyPlayerCard"
 import PanelSkeleton from "~/components/PanelSkeleton"
 import { useWrappedAction, useWrappedMutation, useWrappedQuery } from "~/lib/convex-utils"
 import { api } from "~convex/api"
+import { Id } from "~convex/dataModel"
 
 const fallbackGameInfo = {
   game: undefined,
@@ -20,7 +21,37 @@ const fallbackGameInfo = {
 }
 const PlayGamePage = (props: { params: { gameId: string } }) => {
   const gameInfo = useWrappedQuery(api.games.getGameInfoForUser, { gameId: props.params.gameId })
-  const { game, allPlayerGameInfos, currentPlayerInfo } = gameInfo.data ?? fallbackGameInfo
+  let { game, allPlayerGameInfos, currentPlayerInfo } = gameInfo.data ?? fallbackGameInfo
+
+  game ||= {
+    _id: "a" as Id<"game">,
+    _creationTime: 1,
+    creatorId: "a",
+    gameEndTime: 1,
+    gameStartTime: 1,
+    mode: "shortest-code",
+    question: {
+      description: "what is 1 + 1?",
+      title: "math",
+      examples: [],
+      source: {
+        type: "ai",
+      } as any,
+      starting_code: ``,
+      test_cases: [],
+      difficulty: "easy",
+    },
+    state: "in-progress",
+  }
+  currentPlayerInfo ||= {
+    _id: "a" as Id<"playerGameInfo">,
+    _creationTime: 1,
+    chatHistory: [],
+    code: "",
+    gameId: game._id,
+    userId: "",
+    state: "playing",
+  }
 
   const router = useRouter()
 
@@ -33,6 +64,8 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
   const sendMessage = useWrappedAction(api.games.sendMessageForPlayerInGame)
 
   const leaveGame = useWrappedMutation(api.games.leaveGame)
+
+  console.log(game, game.state)
 
   return (
     <div className="h-full pt-4">
@@ -75,7 +108,7 @@ const PlayGamePage = (props: { params: { gameId: string } }) => {
           </div>
           <LobbyPlayerCard
             players={game.players ?? []}
-            onLeaveGame={() => leaveGame.mutate({ gameId: game._id })}
+            onLeaveGame={() => leaveGame.mutate({ gameId: game!._id })}
           />
           <p className="mt-4 text-gray-600 animate-pulse">Waiting for players...</p>
         </div>

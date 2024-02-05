@@ -26,7 +26,7 @@ export default function NavBar({}: Props) {
   return (
     <nav
       className={clsx(
-        "flex-row gap-6 flex px-5 py-5 items-center rounded-xl h-20 z-10",
+        "flex-row gap-6 flex p-3 sm:p-5 items-center rounded-xl h-20 z-10",
         onHomePage ? "bg-card/50" : "bg-card"
       )}
     >
@@ -55,7 +55,7 @@ export default function NavBar({}: Props) {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="px-3 py-2 text-sm bg-yellow-800 rounded-md">Beta</span>
+          <span className="px-2 py-1 text-sm bg-yellow-800 rounded-md">Beta</span>
         </TooltipTrigger>
         <TooltipContent side="bottom">
           <p className="max-w-xs">
