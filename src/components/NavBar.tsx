@@ -26,7 +26,7 @@ export default function NavBar({}: Props) {
   return (
     <nav
       className={clsx(
-        "flex-row gap-6 flex p-3 sm:p-5 items-center rounded-xl h-20 z-10",
+        "flex-row  flex p-3 sm:p-5 justify-between items-center rounded-xl h-20 z-10",
         onHomePage ? "bg-card/50" : "bg-card"
       )}
     >
@@ -51,24 +51,26 @@ export default function NavBar({}: Props) {
         )}
       </div>
 
-      <div className="flex-1" />
+      <div className="flex items-center gap-4 sm:gap-6">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button tabIndex={-1} className="px-2 py-1 text-sm bg-yellow-800 rounded-md">
+              Beta
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <p className="max-w-xs">
+              Beware bugs! We&apos;re still in beta and all data could be deleted at any time as we
+              work on this :).{" "}
+              <a href={FEEDBACK_FORM_URL} target="_blank" className="underline">
+                Click to provide feedback & suggestions
+              </a>
+            </p>
+          </TooltipContent>
+        </Tooltip>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span className="px-2 py-1 text-sm bg-yellow-800 rounded-md">Beta</span>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">
-          <p className="max-w-xs">
-            Beware bugs! We&apos;re still in beta and all data could be deleted at any time as we
-            work on this :).{" "}
-            <a href={FEEDBACK_FORM_URL} target="_blank" className="underline">
-              Click to provide feedback & suggestions
-            </a>
-          </p>
-        </TooltipContent>
-      </Tooltip>
-
-      <AuthButton />
+        <AuthButton />
+      </div>
     </nav>
   )
 }

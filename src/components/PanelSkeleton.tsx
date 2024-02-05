@@ -184,8 +184,8 @@ export default function PanelSkeleton({
     )
   } else {
     return (
-      <Tabs defaultValue="description" className="h-full flex flex-col">
-        <div className="flex-1 bg-card rounded pb-2">
+      <Tabs defaultValue="description" className="h-full flex flex-col bg-card rounded-md">
+        <div className="flex-1 bg-card pb-2">
           <TabsContent className="h-full" value="description">
             {panels.description}
           </TabsContent>
