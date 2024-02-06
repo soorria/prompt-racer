@@ -1,5 +1,6 @@
 import { UserIdentity } from "convex/server"
 import { AnyCtx } from "./types"
+import { ConvexError } from "convex/values"
 
 export const getUserId = (identity: UserIdentity) => identity.tokenIdentifier
 
@@ -7,7 +8,7 @@ export const requireUser = async (ctx: AnyCtx) => {
   const user = await getUser(ctx)
 
   if (!user) {
-    throw new Error("Not logged in")
+    throw new ConvexError("Not logged in")
   }
 
   return user

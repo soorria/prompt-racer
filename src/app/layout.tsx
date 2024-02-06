@@ -10,6 +10,7 @@ import { cx } from "class-variance-authority"
 import NavBar from "~/components/NavBar"
 import Footer from "~/components/Footer"
 import { TooltipProvider } from "~/components/ui/tooltip"
+import { Toaster } from "~/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const Fugaz = Fugaz_One({ weight: "400", variable: "--font-fugaz", subsets: ["latin"] })
@@ -96,6 +97,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <NavBar />
               <main className="flex-1">{children}</main>
               <Footer />
+
+              <Toaster />
             </TooltipProvider>
           </ConvexClientProvider>
         </body>

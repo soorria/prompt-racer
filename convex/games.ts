@@ -11,7 +11,7 @@ import {
 import { dequal } from "dequal"
 import { api, internal } from "./_generated/api"
 
-import { v } from "convex/values"
+import { v, ConvexError } from "convex/values"
 import { getUser, requireUser } from "./utils/auth"
 import ms from "ms"
 import {
@@ -112,7 +112,7 @@ export const createNewGame = internalMutation({
     const dbQuestion = await ctx.db.get(args.questionId)
 
     if (!dbQuestion) {
-      throw new Error("Question not found")
+      throw new ConvexError("Question not found")
     }
 
     const nTestsForExample = Math.floor(0.4 * dbQuestion.test_cases.length)
@@ -308,15 +308,15 @@ export const cancelGame = mutation({
 
     const game = await ctx.db.get(args.gameId)
     if (!game) {
-      throw new Error("Game not found")
+      throw new ConvexError("Game not found")
     }
 
     if (game.creatorId !== userId) {
-      throw new Error("Only the creator can cancel the game")
+      throw new ConvexError("Only the creator can cancel the game")
     }
 
     if (game.state !== "waiting-for-players") {
-      throw new Error("Game cannot be cancelled in this state")
+      throw new ConvexError("Game cannot be cancelled in this state")
     }
 
     await ctx.db.patch(args.gameId, {
@@ -369,8 +369,8 @@ export const joinGame = action({
     const { userId, identity } = await requireUser(ctx)
 
     const currentGame = await ctx.runQuery(internal.games.getLatestActiveGameForUser, { userId })
-    if (currentGame) {
-      throw new Error("You're already in an active game")
+    if (currentGame || "a" === "a") {
+      throw new ConvexError("You're already in an active game")
     }
 
     const [games, userDetails] = await Promise.all([
@@ -385,7 +385,7 @@ export const joinGame = action({
       })
       const newGame = await ctx.runQuery(api.games.getGame, { gameId })
       if (!newGame) {
-        throw new Error("Failed to create game")
+        throw new ConvexError("Failed to create game")
       }
       gameToJoin = newGame as Doc<"game">
     }
@@ -476,7 +476,7 @@ export const leaveGame = mutation({
       .unique()
 
     if (!playerGameInfoRecord) {
-      throw new Error("You're not part of this game or the game doesn't exist.")
+      throw new ConvexError("You're not part of this game or the game doesn't exist.")
     }
 
     await ctx.db.delete(playerGameInfoRecord._id)
@@ -509,7 +509,7 @@ export const sendMessageForPlayerInGame = action({
   },
   handler: async (ctx, args) => {
     if (args.message.length > 40) {
-      throw new Error("Message too long. Maximum message length is 40 characters.")
+      throw new ConvexError("Message too long. Maximum message length is 40 characters.")
     }
 
     const { userId } = await requireUser(ctx)
@@ -522,15 +522,15 @@ export const sendMessageForPlayerInGame = action({
     ])
 
     if (!game) {
-      throw new Error("Game not found")
+      throw new ConvexError("Game not found")
     }
     if (!playerGameInfo) {
-      throw new Error("Player not found in game")
+      throw new ConvexError("Player not found in game")
     }
 
-    // if (game.state !== "in-progress") {
-    //   throw new Error("Game is not in progress")
-    // }
+    if (game.state !== "in-progress") {
+      throw new ConvexError("Game is not in progress")
+    }
 
     const history = playerGameInfo.chatHistory || []
     const lastMessage = history.at(-1)
@@ -538,7 +538,7 @@ export const sendMessageForPlayerInGame = action({
       lastMessage?.role === "user" ||
       (lastMessage?.role === "ai" && lastMessage?.parsed.state === "generating")
     ) {
-      throw new Error("You can't send a message until the AI responds")
+      throw new ConvexError("You can't send a message until the AI responds")
     }
 
     const now = new Date()
@@ -557,7 +557,7 @@ export const sendMessageForPlayerInGame = action({
 
     if (!canPrompt) {
       if (!canPromptBasedOnRateLimit) {
-        throw new Error(
+        throw new ConvexError(
           `You can't prompt the AI yet. Please wait ${formatDuration(
             intervalToDuration({
               start: now,
@@ -568,7 +568,7 @@ export const sendMessageForPlayerInGame = action({
         )
       }
 
-      throw new Error("The game is not in progress.")
+      throw new ConvexError("The game is not in progress.")
     }
 
     await Promise.all([
@@ -623,7 +623,7 @@ export const pushNewMessages = internalMutation({
   handler: async (ctx, args) => {
     const playerGameInfo = await ctx.db.get(args.playerGameInfoId)
     if (!playerGameInfo) {
-      throw new Error("Player not found in game")
+      throw new ConvexError("Player not found in game")
     }
 
     playerGameInfo.chatHistory.push(...args.messages)
@@ -698,7 +698,7 @@ export const setAgentMessageForPlayerInGame = internalMutation({
   handler: async (ctx, args) => {
     const playerGameInfo = await ctx.db.get(args.playerGameInfoId)
     if (!playerGameInfo) {
-      throw new Error("Player not found in game")
+      throw new ConvexError("Player not found in game")
     }
 
     const history = playerGameInfo.chatHistory
@@ -801,15 +801,15 @@ export const submitCode = action({
     ])
 
     if (!game) {
-      throw new Error("Game not found")
+      throw new ConvexError("Game not found")
     }
 
     if (!playerGameInfo) {
-      throw new Error("Player not found in game")
+      throw new ConvexError("Player not found in game")
     }
 
     if (game.state !== "in-progress") {
-      throw new Error("Game is not in progress")
+      throw new ConvexError("Game is not in progress")
     }
 
     const now = new Date()
@@ -896,15 +896,15 @@ export const runTests = action({
     ])
 
     if (!game) {
-      throw new Error("Game not found")
+      throw new ConvexError("Game not found")
     }
 
     if (!playerGameInfo) {
-      throw new Error("Player not found in game")
+      throw new ConvexError("Player not found in game")
     }
 
     if (game.state !== "in-progress") {
-      throw new Error("Game is not in progress")
+      throw new ConvexError("Game is not in progress")
     }
 
     const now = new Date()
@@ -918,7 +918,7 @@ export const runTests = action({
       !nextTestableAt || isAfter(now, nextTestableAt) || isEqual(now, nextTestableAt)
 
     if (!canTestBasedOnRateLimit) {
-      throw new Error(
+      throw new ConvexError(
         `You can't test your code yet. Please wait ${formatDuration(
           intervalToDuration({
             start: now,
@@ -996,7 +996,7 @@ export const resetStartingCode = mutation({
     ])
 
     if (!game || !playerGameInfo) {
-      throw new Error("Game or player not found")
+      throw new ConvexError("Game or player not found")
     }
 
     if (playerGameInfo.code === game.question.starting_code) {

@@ -5,7 +5,9 @@ import {
   useAction as useConvexAction,
 } from "convex/react"
 import type { FunctionReference } from "convex/server"
-import { useMemo, useState } from "react"
+import { ConvexError } from "convex/values"
+import { useCallback, useMemo, useState } from "react"
+import { toast } from "sonner"
 
 export type ExtractConvexArgs<ConvexQuery> = ConvexQuery extends FunctionReference<
   any,
@@ -155,7 +157,14 @@ export const useWrappedQuery = <
   return result as WrappedUseQueryResult<ConvexQueryOutput>
 }
 
-const createWrappedMutationHook = <Type extends "mutation" | "action">(type: Type) => {
+type MutationHookOptions = {
+  onError?: (error: Error) => void | Promise<void>
+}
+
+const createWrappedMutationHook = <Type extends "mutation" | "action">(
+  type: Type,
+  options: MutationHookOptions = {}
+) => {
   const useConvexMutationFn =
     type === "mutation" ? useConvexMutation : type === "action" ? useConvexAction : null
 
@@ -179,34 +188,42 @@ const createWrappedMutationHook = <Type extends "mutation" | "action">(type: Typ
       status: "idle",
     })
 
-    const mutateAsync = async (
-      ...args: OptionalArgs<ConvexMutationArgs>
-    ): Promise<ConvexMutationOutput> => {
-      try {
-        setState({
-          status: "loading",
-        })
+    const mutateAsync = useCallback(
+      async (...args: OptionalArgs<ConvexMutationArgs>): Promise<ConvexMutationOutput> => {
+        try {
+          setState({
+            status: "loading",
+          })
 
-        const data = await run(...args)
+          const data = await run(...args)
 
-        setState({
-          status: "success",
-          data,
-        })
+          setState({
+            status: "success",
+            data,
+          })
 
-        return data
-      } catch (error) {
-        setState({
-          status: "error",
-          error: error as Error,
-        })
+          return data
+        } catch (error) {
+          console.log(error)
 
-        throw error
-      }
-    }
-    const mutate = (...args: OptionalArgs<ConvexMutationArgs>) => {
-      mutateAsync(...args).catch(() => {})
-    }
+          setState({
+            status: "error",
+            error: error as Error,
+          })
+
+          options.onError?.(error as Error)
+
+          throw error
+        }
+      },
+      [run]
+    )
+    const mutate = useCallback(
+      (...args: OptionalArgs<ConvexMutationArgs>) => {
+        mutateAsync(...args)
+      },
+      [mutateAsync]
+    )
 
     return {
       ...state,
@@ -219,14 +236,24 @@ const createWrappedMutationHook = <Type extends "mutation" | "action">(type: Typ
   return useActionOrMutationInternal
 }
 
-const createWrappedMutationHooks = () => {
+const createWrappedMutationHooks = (options: MutationHookOptions = {}) => {
   return {
-    useWrappedMutation: createWrappedMutationHook("mutation"),
-    useWrappedAction: createWrappedMutationHook("action"),
+    useWrappedMutation: createWrappedMutationHook("mutation", options),
+    useWrappedAction: createWrappedMutationHook("action", options),
   }
 }
 
-export const { useWrappedMutation, useWrappedAction } = createWrappedMutationHooks()
+export const { useWrappedMutation, useWrappedAction } = createWrappedMutationHooks({
+  onError: (error) => {
+    let message = error.message
+
+    if (error instanceof ConvexError) {
+      message = error.data
+    }
+
+    toast.error(message)
+  },
+})
 
 /**
  * These are copied from convex/server.ts

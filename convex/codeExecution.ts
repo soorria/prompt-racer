@@ -1,4 +1,4 @@
-import { v, convexToJson } from "convex/values"
+import { v, convexToJson, ConvexError } from "convex/values"
 import { internalAction } from "./_generated/server"
 import { CodeRunResult } from "./utils/schema"
 
@@ -21,7 +21,7 @@ export const runPythonCode = internalAction({
 
     if (!response.ok) {
       console.log(await response.text())
-      throw new Error(`Failed to run code`)
+      throw new ConvexError(`Failed to run code`)
     }
 
     const body = (await response.json()) as {
