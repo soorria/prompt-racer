@@ -37,6 +37,7 @@ import {
   getUpdatedPlayerPostions,
 } from "./utils/games"
 import { elo } from "./utils/elo"
+import { DEFAULT_RATING, GAME_TIMINGS_MS } from "./utils/game_settings"
 
 export const getMyGames = query({
   handler: async (ctx) => {
@@ -260,13 +261,6 @@ export const advanceGameState = internalAction({
   },
 })
 
-const GAME_TIMINGS_MS = {
-  waitingForPlayers: ms("30s"),
-  playTime: ms("3m"),
-  promptRateLimitTime: ms("10s"),
-}
-export const DEFAULT_RATING = 1000
-
 export const createGame = internalAction({
   args: {
     userId: v.string(),
@@ -369,7 +363,7 @@ export const joinGame = action({
     const { userId, identity } = await requireUser(ctx)
 
     const currentGame = await ctx.runQuery(internal.games.getLatestActiveGameForUser, { userId })
-    if (currentGame || "a" === "a") {
+    if (currentGame) {
       throw new ConvexError("You're already in an active game")
     }
 
@@ -813,6 +807,27 @@ export const submitCode = action({
     }
 
     const now = new Date()
+    const lastSubmittedAt = playerGameInfo.lastSubmittedAt
+      ? new Date(playerGameInfo.lastSubmittedAt)
+      : null
+    const nextSubmittableAt = lastSubmittedAt
+      ? addMilliseconds(lastSubmittedAt, GAME_TIMINGS_MS.promptRateLimitTime)
+      : null
+    const canSubmitBasedOnRateLimit =
+      // no lastSubmittedAt means we can submit
+      !nextSubmittableAt || isAfter(now, nextSubmittableAt) || isEqual(now, nextSubmittableAt)
+
+    if (!canSubmitBasedOnRateLimit) {
+      throw new ConvexError(
+        `You can't submit your code yet. Please wait ${formatDuration(
+          intervalToDuration({
+            start: now,
+            end: nextSubmittableAt,
+          }),
+          { format: ["seconds"] }
+        )}`
+      )
+    }
 
     await ctx.runMutation(internal.games.patchPlayerGameInfo, {
       playerGameInfoId: playerGameInfo._id,

@@ -21,6 +21,7 @@ import type * as questions from "../questions.js";
 import type * as users from "../users.js";
 import type * as utils_auth from "../utils/auth.js";
 import type * as utils_elo from "../utils/elo.js";
+import type * as utils_game_settings from "../utils/game_settings.js";
 import type * as utils_games from "../utils/games.js";
 import type * as utils_types from "../utils/types.js";
 
@@ -40,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   users: typeof users;
   "utils/auth": typeof utils_auth;
   "utils/elo": typeof utils_elo;
+  "utils/game_settings": typeof utils_game_settings;
   "utils/games": typeof utils_games;
   "utils/types": typeof utils_types;
 }>;

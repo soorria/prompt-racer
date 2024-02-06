@@ -1,20 +1,20 @@
 "use client"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 import DescriptionPanel from "./DescriptionPanel"
 import CodePanel from "./CodePanel"
 import ChatPanel, { ChatPanelProps } from "./ChatPanel"
 import { cx } from "class-variance-authority"
-import LeaderboardPanel from "./LeaderboardPanel"
 import { Doc } from "~convex/dataModel"
 import { api } from "~convex/api"
 import { InferQueryOutput } from "~/lib/convex"
-import { useAction, useMutation } from "convex/react"
 import LiveGameStats from "./LiveGameStats"
 import { debounce } from "~/lib/utils"
 import { useTwBreakpoint } from "~/lib/use-tw-breakpoint"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
 import { TabsContent } from "@radix-ui/react-tabs"
+import { useWrappedAction, useWrappedMutation } from "~/lib/convex-utils"
+import { toast } from "sonner"
 
 export type LayoutType = {
   left?: number
@@ -117,9 +117,22 @@ export default function PanelSkeleton({
     updatePanelSizes(newSizes)
   }
 
-  const runTests = useAction(api.games.runTests)
-  const submitCode = useAction(api.games.submitCode)
-  const resetCode = useMutation(api.games.resetStartingCode)
+  const runTests = useWrappedAction(api.games.runTests)
+  const submitCode = useWrappedAction(api.games.submitCode)
+  const resetCode = useWrappedMutation(api.games.resetStartingCode)
+
+  const previousSubmissionStatus = useRef(playerGameInfo?.submissionState?.type)
+
+  useEffect(() => {
+    if (
+      playerGameInfo?.submissionState?.type === "complete" &&
+      previousSubmissionStatus.current !== "complete"
+    ) {
+      toast.success("Code submitted successfully!")
+    }
+
+    previousSubmissionStatus.current = playerGameInfo?.submissionState?.type
+  }, [playerGameInfo?.submissionState?.type])
 
   const codeInfo = getCodeToDisplayInfo({ game, messages: chatPanelProps.messages })
 
@@ -129,8 +142,10 @@ export default function PanelSkeleton({
         question={question}
         gameMode={game.mode}
         playerGameInfo={playerGameInfo}
-        onRunTests={() => runTests({ gameId: game._id })}
-        onSubmitCode={() => submitCode({ gameId: game._id })}
+        onRunTests={() => runTests.mutate({ gameId: game._id })}
+        onSubmitCode={() => {
+          submitCode.mutate({ gameId: game._id })
+        }}
       />
     ),
     timer: <LiveGameStats game={game} />,
@@ -139,7 +154,7 @@ export default function PanelSkeleton({
         code={codeInfo.code}
         generating={codeInfo.generating}
         onMessageSend={chatPanelProps.onMessageSend}
-        onResetCode={() => resetCode({ gameId: game._id })}
+        onResetCode={() => resetCode.mutate({ gameId: game._id })}
         sending={chatPanelProps.sending}
       />
     ),

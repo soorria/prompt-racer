@@ -2,6 +2,11 @@ import { CheckCircle2, CornerDownRightIcon, Loader2, MinusCircleIcon, XCircle } 
 import React, { ReactNode, useState } from "react"
 import { Button } from "~/components/ui/button"
 import { Doc } from "~convex/dataModel"
+import { GAME_TIMINGS_MS } from "../../convex/utils/game_settings"
+import { addMilliseconds, formatDuration, intervalToDuration, isAfter, isEqual } from "date-fns"
+import { Tooltip, TooltipContent } from "./ui/tooltip"
+import { TooltipTrigger } from "@radix-ui/react-tooltip"
+import { useNow } from "~/lib/use-now"
 
 type Props = {
   gameMode: Doc<"game">["mode"]
@@ -20,6 +25,35 @@ const winConditionDescriptions: Record<Doc<"game">["mode"], string> = {
     "The player whose code passes the most tests and has the fewest characters in their messages wins. Note: this count does not reset when you reset your code!",
 }
 
+const timingCheck = (
+  now: Date,
+  lastRunAt: number | null | undefined
+): { canRun: true } | { canRun: false; timeLeft: string } => {
+  const lastRun = lastRunAt ? new Date(lastRunAt) : null
+
+  if (!lastRun) return { canRun: true }
+
+  const runnableAt = addMilliseconds(lastRun, GAME_TIMINGS_MS.promptRateLimitTime)
+
+  const canRun = isAfter(now, runnableAt) || isEqual(now, runnableAt)
+
+  if (canRun) {
+    return { canRun: true }
+  }
+  return {
+    canRun: false,
+    timeLeft: formatDuration(
+      intervalToDuration({
+        start: now,
+        end: runnableAt,
+      }),
+      {
+        format: ["seconds"],
+      }
+    ),
+  }
+}
+
 export default function DescriptionPanel({
   question,
   gameMode,
@@ -31,6 +65,16 @@ export default function DescriptionPanel({
   const testsRunning = playerGameInfo?.testState?.type === "running"
   const testResults =
     playerGameInfo?.testState?.type === "complete" ? playerGameInfo.testState.results : []
+
+  const now = useNow()
+
+  const testTiming = timingCheck(now, playerGameInfo?.lastTestedAt)
+  console.log({
+    testTiming,
+    now,
+    testedAt: playerGameInfo?.lastTestedAt,
+  })
+  const submitTiming = timingCheck(now, playerGameInfo?.lastSubmittedAt)
 
   const handleSubmission = async () => {
     setIsSubmitting(true)
@@ -105,15 +149,55 @@ export default function DescriptionPanel({
           })}
         </div>
         {playerGameInfo && (
-          <div className="mt-8 sticky bottom-0 flex justify-between">
-            <Button size="sm" onClick={onRunTests} disabled={testsRunning}>
-              Run tests
-            </Button>
+          <div className="mt-8 sticky bottom-0 flex justify-between items-center">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    size="sm"
+                    onClick={onRunTests}
+                    disabled={testsRunning || isSubmitting || !testTiming.canRun}
+                  >
+                    Run tests
+                  </Button>
+                </span>
+              </TooltipTrigger>
 
-            <Button size="sm" onClick={handleSubmission} disabled={testsRunning || isSubmitting}>
-              {isSubmitting && <Loader2 className="w-6 h-6 animate-spin mr-1" />}
-              Submit code
-            </Button>
+              <TooltipContent>
+                {testsRunning ? (
+                  <p>Running tests...</p>
+                ) : isSubmitting ? (
+                  <p>pls wait until code submission done :)</p>
+                ) : testTiming.canRun ? null : (
+                  <p>Wait {testTiming.timeLeft}</p>
+                )}
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    size="sm"
+                    onClick={handleSubmission}
+                    disabled={testsRunning || isSubmitting || !submitTiming.canRun}
+                  >
+                    {isSubmitting && <Loader2 className="w-6 h-6 animate-spin mr-1" />}
+                    Submit code
+                  </Button>
+                </span>
+              </TooltipTrigger>
+
+              <TooltipContent>
+                {testsRunning ? (
+                  <p>pls wait until tests done :)</p>
+                ) : isSubmitting ? (
+                  <p>Submitting code...</p>
+                ) : submitTiming.canRun ? null : (
+                  <p>Wait {submitTiming.timeLeft}</p>
+                )}
+              </TooltipContent>
+            </Tooltip>
           </div>
         )}
       </div>

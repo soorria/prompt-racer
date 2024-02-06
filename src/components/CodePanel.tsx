@@ -36,14 +36,9 @@ export default function CodePanel({
   onResetCode,
 }: Props) {
   const [animateRef] = useAutoAnimate()
-  const previousGenerating = useRef<boolean>(false)
   const form = useRef<HTMLFormElement>(null)
 
   const mounted = useMounted()
-
-  useEffect(() => {
-    previousGenerating.current = generating
-  }, [generating])
 
   useEffect(() => {
     if (!sending) {

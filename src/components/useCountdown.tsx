@@ -18,7 +18,7 @@ function useCountdown(endTime: number): CountdownResult {
       } else {
         clearInterval(intervalId)
       }
-    }, 1000)
+    }, 100)
 
     return () => clearInterval(intervalId)
   }, [endTime])
