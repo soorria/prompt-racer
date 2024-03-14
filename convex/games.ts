@@ -245,7 +245,7 @@ export const advanceGameState = internalAction({
 
       const updates = playersWithEndingRatings.map((p) => ({
         userId: p.userId,
-        rating: p.ending_rating!,
+        rating: p.ending_rating ?? p.starting_rating ?? DEFAULT_RATING,
       }))
 
       await Promise.all([
@@ -253,9 +253,9 @@ export const advanceGameState = internalAction({
           gameId: args.gameId,
           updates: { state: "finished", players: playersWithEndingRatings },
         }),
-        ctx.runMutation(internal.users.updateUserRatings, {
-          updates,
-        }),
+        // ctx.runMutation(internal.users.updateUserRatings, {
+        //   updates,
+        // }),
       ])
     }
   },
