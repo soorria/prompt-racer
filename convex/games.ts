@@ -340,10 +340,6 @@ export const endGameEarlyIfPossible = internalAction({
       return
     }
 
-    if (game.players?.length !== 1) {
-      return
-    }
-
     const playerInfos = await ctx.runQuery(internal.games.getPlayerInfosForGame, {
       gameId: args.gameId,
     })
