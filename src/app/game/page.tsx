@@ -1,7 +1,42 @@
 import React from "react"
 import CodeView from "~/components/game-screen/CodeView"
 import QuestionDescription from "~/components/game-screen/QuestionDescription"
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "~/components/ui/resizable"
+import { type LayoutSchema } from "~/lib/surfaces/panels/panels"
+import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
+
+const dynamicSchema: LayoutSchema = {
+  direction: "horizontal",
+  panels: [
+    {
+      direction: "vertical",
+      panels: [
+        {
+          className: "bg-dracula p-4",
+          component: CodeView,
+        },
+        {
+          className: "bg-card p-4",
+          component: QuestionDescription,
+          props: {
+            question: "Describe the approach you would take to solve this problem.",
+          },
+        },
+      ],
+    },
+    {
+      direction: "vertical",
+      panels: [
+        {
+          className: "bg-card p-4",
+          component: QuestionDescription,
+          props: {
+            question: "Describe the approach you would take to solve this problem.",
+          },
+        },
+      ],
+    },
+  ],
+}
 
 /*
  *  TODO: given a schema, generate the panels and throw in the
@@ -11,28 +46,5 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "~/componen
  *  and how to display them
  */
 export default function GamePage() {
-  return (
-    <ResizablePanelGroup direction="horizontal">
-      <ResizablePanel className="bg-card p-4">
-        <QuestionDescription />
-      </ResizablePanel>
-      <ResizableHandle withHandle />
-      <ResizablePanel className="bg-none">
-        <ResizablePanelGroup direction="vertical">
-          <ResizablePanel className="bg-dracula p-4">
-            <CodeView />
-          </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel className="bg-card p-4">
-            been the industr standard dummy text ever since the 1500s, when an unknown printer took
-            a galley of type and scrambled it to make a type specimen book. It has survived not only
-            five centuries, but also the leap into electronic typesetting, remaining essentially
-            unchanged. It was popularised in the 1960s with the release of Letraset sheets
-            containing Lorem Ipsum passages, and more recently with desktop publishing software like
-            Aldus PageMaker including versions of Lorem Ipsum.
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </ResizablePanel>
-    </ResizablePanelGroup>
-  )
+  return <PanelSkeleton schema={dynamicSchema} />
 }
