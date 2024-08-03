@@ -270,7 +270,7 @@ export const playerGameSessions = pgTable(
       .references(() => users.id),
     game_id: text("game_id")
       .notNull()
-      .references(() => questions.id),
+      .references(() => gameStates.id),
 
     question_id: text("question_id")
       .notNull()
@@ -278,6 +278,8 @@ export const playerGameSessions = pgTable(
 
     test_state_id: text("test_state_id"),
     submission_state_id: text("submission_state_id"),
+
+    model: text("string").notNull(),
 
     code: text("code").notNull(),
     last_prompted_at: integer("last_prompted_at"),
@@ -311,5 +313,45 @@ export const playerGameSessionsRelations = relations(playerGameSessions, ({ one,
       fields: [playerGameSessions.user_id],
       references: [users.id],
     }),
+    game: one(gameStates, {
+      fields: [playerGameSessions.game_id],
+      references: [gameStates.id],
+    }),
+  }
+})
+
+export const gameStateEnum = pgEnum("game_state", [
+  "waitingForPlayers",
+  "inProgress",
+  "finalising",
+  "finished",
+  "cancelled",
+])
+
+export const gameModeEnum = pgEnum("game_mode", [
+  "fastest-player",
+  "fastest-code",
+  "shortest-code",
+  "shortest-messages-word-length",
+])
+
+export const gameStates = pgTable("game_states", {
+  id: customTypes.primaryKey("id"),
+  question_id: text("question_id")
+    .notNull()
+    .references(() => questions.id),
+  game_state: gameStateEnum("game_state").notNull(),
+  mode: gameModeEnum("mode").notNull(),
+  start_time: timestamp("start_time").notNull(),
+  end_time: timestamp("end_time"),
+})
+
+export const gameStatesRelations = relations(gameStates, ({ one, many }) => {
+  return {
+    question: one(questions, {
+      fields: [gameStates.question_id],
+      references: [questions.id],
+    }),
+    players: many(playerGameSessions),
   }
 })
