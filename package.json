@@ -12,6 +12,7 @@
     "dev": "next dev",
     "lint": "next lint",
     "format": "prettier ./**/*.{ts,tsx} --ignore-path .gitignore",
+    "typecheck": "tsc --noEmit",
     "start": "next start"
   },
   "dependencies": {

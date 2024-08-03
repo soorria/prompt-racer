@@ -8,8 +8,8 @@ import { createTRPCReact } from "@trpc/react-query"
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server"
 import SuperJSON from "superjson"
 
-import { type AppRouter } from "~/server/api/root"
 import { createQueryClient } from "./query-client"
+import { type AppRouter } from "./root"
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined
 const getQueryClient = () => {
