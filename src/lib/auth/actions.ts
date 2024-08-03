@@ -27,3 +27,8 @@ export const loginWithGitHubAction = action.action(async ({}) => {
 
   redirect(data.url)
 })
+
+export const logoutAction = action.action(async () => {
+  const sb = createServerClient()
+  await sb.auth.signOut()
+})

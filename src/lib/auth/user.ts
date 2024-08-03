@@ -6,7 +6,7 @@ export async function getAuthUser() {
   const { data, error } = await sb.auth.getUser()
 
   if (error) {
-    logger.error(error, "failed to get auth user")
+    logger.debug(error, "failed to get auth user")
     return null
   }
 
