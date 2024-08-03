@@ -40,10 +40,10 @@ const CodeDisplay = ({ preProps, codeProps, showLineNumbers, ...rest }: CodeDisp
   return (
     <pre
       {...preProps}
-      className={cn("relative py-2", { "pl-10": showLineNumbers }, preProps?.className)}
+      className={cn("relative py-2", { "pl-4": showLineNumbers }, preProps?.className)}
     >
       {showLineNumbers && (
-        <div className="absolute left-0 top-0 w-10 select-none pr-3 pt-2 text-right text-gray-500">
+        <div className="absolute left-0 top-0 select-none pr-3 pt-2 text-right text-gray-500">
           {lines.map((_, i) => (
             <div key={i}>{i + 1}</div>
           ))}

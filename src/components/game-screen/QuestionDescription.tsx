@@ -1,6 +1,7 @@
 import React from "react"
 
-export default function QuestionDescription() {
+export default async function QuestionDescription() {
+  "use server"
   return (
     <div>
       Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has

@@ -11,6 +11,7 @@ const fakePythonCodeSnippet = `def solution(nums, target):
             indexes[target - n] = i
     return None, None`
 
-export default function CodeView() {
+export default async function CodeView() {
+  // const fiveSecondAwait = await new Promise((resolve) => setTimeout(resolve, 5000))
   return <CodeDisplay code={fakePythonCodeSnippet} language="python" showLineNumbers />
 }
