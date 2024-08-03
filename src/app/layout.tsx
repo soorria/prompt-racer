@@ -1,10 +1,14 @@
 import "~/styles/globals.css"
 
-import { Inter } from "next/font/google"
+import { Inter, Fugaz_One } from "next/font/google"
 import { type Metadata } from "next"
 import { cn } from "~/lib/utils"
+import Navbar from "~/lib/surfaces/navbar/Navbar"
+import Logo from "~/components/nav-bar/Logo"
+import ProfileCard from "~/components/nav-bar/ProfileCard"
 
 const fontSans = Inter({ subsets: ["latin"], variable: "--font-sans" })
+const Fugaz = Fugaz_One({ weight: "400", variable: "--font-fugaz", subsets: ["latin"] })
 
 const title = "Prompt Racer"
 const description = "Race against your friends using only the power of LLMs!"
@@ -55,12 +59,13 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const rootclass = cn(fontSans.variable, "hi mb-1")
+  const rootclass = cn(Fugaz.variable, fontSans.variable, "h-[100svh]")
   return (
     <html lang="en" className={rootclass}>
-      <body>
+      <body className="flex flex-col p-4">
+        <Navbar leftContent={<Logo />} rightContent={<ProfileCard />} />
         {/* <TRPCReactProvider> */}
-        {children}
+        <div className="flex-1 overflow-hidden pt-4">{children}</div>
         {/* </TRPCReactProvider> */}
       </body>
     </html>

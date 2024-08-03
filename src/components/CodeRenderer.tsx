@@ -4,8 +4,8 @@ import { type Jsx, toJsxRuntime } from "hast-util-to-jsx-runtime"
 import { type ComponentProps, Fragment, useMemo } from "react"
 import { jsx, jsxs } from "react/jsx-runtime"
 import "~/styles/dracula-prism.css"
-import { twMerge } from "tailwind-merge"
 import { type Nodes } from "node_modules/hast-util-to-jsx-runtime/lib"
+import { cn } from "~/lib/utils"
 
 // Register the language
 refractor.register(python as Syntax)
@@ -13,6 +13,7 @@ refractor.register(python as Syntax)
 type CodeDisplayProps = {
   code: string
   language: "python"
+  showLineNumbers?: boolean
   preProps?: ComponentProps<"pre">
   codeProps?: ComponentProps<"code">
 }
@@ -26,12 +27,25 @@ const CodeDisplayContent = ({ code, language }: Pick<CodeDisplayProps, "code" | 
   return <>{rendered}</>
 }
 
-const CodeDisplay = ({ preProps, codeProps, ...rest }: CodeDisplayProps) => {
+const CodeDisplay = ({ preProps, codeProps, showLineNumbers, ...rest }: CodeDisplayProps) => {
+  const { code } = rest
+  const lines = code.split("\n")
+
   return (
-    <pre {...preProps} className={twMerge("py-2", preProps?.className)}>
+    <pre
+      {...preProps}
+      className={cn("relative py-2", { "pl-10": showLineNumbers }, preProps?.className)}
+    >
+      {showLineNumbers && (
+        <div className="absolute left-0 top-0 w-10 select-none pr-3 pt-2 text-right text-gray-500">
+          {lines.map((_, i) => (
+            <div key={i}>{i + 1}</div>
+          ))}
+        </div>
+      )}
       <code
         {...codeProps}
-        className={twMerge("block w-max px-3", codeProps?.className)}
+        className={cn("block w-max px-3", codeProps?.className)}
         ref={codeProps?.ref}
       >
         <CodeDisplayContent {...rest} />

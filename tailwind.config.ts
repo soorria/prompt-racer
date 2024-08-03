@@ -20,6 +20,7 @@ const config = {
     },
     extend: {
       fontFamily: {
+        display: ["var(--font-fugaz)", ...fontFamily.sans],
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
       colors: {

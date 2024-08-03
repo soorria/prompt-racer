@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react"
 import { Loader2, Send } from "lucide-react"
 import { Button } from "../ui/button"
-import CodeDisplay from "../CodeDisplay"
+import CodeDisplay from "../CodeRenderer"
 import { Input } from "../ui/input"
 import { useAutoAnimate } from "@formkit/auto-animate/react"
 import clsx from "clsx"
@@ -128,13 +128,7 @@ export default function HeroAnimation() {
     }
   }, [example, stepMilestones])
 
-  // For testing
-  // const showSubmittingFakeModal = true
-  // const complete = true
-  // const inputToShow = example.input
-  // const codeToShow = example.code
-
-  const showSubmittingOpacityClass = showSubmittingFakeModal && "opacity-40"
+  const showSubmittingOpacityClass = showSubmittingFakeModal ? "opacity-40" : "opacity-100"
 
   return (
     <div
@@ -144,7 +138,7 @@ export default function HeroAnimation() {
       {codeToShow ? (
         <div
           className={clsx(
-            "bg-dracula h-full w-full overflow-y-scroll rounded-xl transition-all",
+            "h-full w-full overflow-y-scroll rounded-xl bg-dracula transition-all",
             showSubmittingOpacityClass,
           )}
         >
