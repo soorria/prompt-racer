@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm"
-import { index, pgTable, text, integer, pgEnum, jsonb, timestamp } from "drizzle-orm/pg-core"
+import { index, integer, jsonb, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core"
 
 const customTypes = {
   primaryKey: (name: string) => text(name).primaryKey(),

@@ -1,11 +1,14 @@
 import "~/styles/globals.css"
 
-import { Inter, Fugaz_One } from "next/font/google"
 import { type Metadata } from "next"
-import { cn } from "~/lib/utils"
-import Navbar from "~/lib/surfaces/navbar/Navbar"
+import { Fugaz_One, Inter } from "next/font/google"
+import Link from "next/link"
+
 import Logo from "~/components/nav-bar/Logo"
 import ProfileCard from "~/components/nav-bar/ProfileCard"
+import { getAuthUser } from "~/lib/auth/user"
+import Navbar from "~/lib/surfaces/navbar/Navbar"
+import { cn } from "~/lib/utils"
 
 const fontSans = Inter({ subsets: ["latin"], variable: "--font-sans" })
 const Fugaz = Fugaz_One({ weight: "400", variable: "--font-fugaz", subsets: ["latin"] })
@@ -25,7 +28,8 @@ export const metadata: Metadata = {
     canonical: "https://promptracer.dev",
   },
 
-  manifest: "/site.webmanifest",
+  // Not set up yet
+  // manifest: "/site.webmanifest",
 
   icons: {
     icon: [
@@ -58,12 +62,30 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const rootclass = cn(Fugaz.variable, fontSans.variable, "h-[100svh]")
+  const user = await getAuthUser()
   return (
     <html lang="en" className={rootclass}>
       <body className="flex flex-col p-4">
-        <Navbar leftContent={<Logo />} rightContent={<ProfileCard />} />
+        <Navbar
+          leftContent={<Logo />}
+          rightContent={
+            <>
+              {/* TODO: make this UI better */}
+              {user ? (
+                /**
+                 * Note: intentionally not using Link here because the full reload reset's next's
+                 * cache in the browser
+                 */
+                <a href="/auth/logout">Logout</a>
+              ) : (
+                <Link href="/auth/login">Login</Link>
+              )}
+              <ProfileCard />
+            </>
+          }
+        />
         {/* <TRPCReactProvider> */}
         <div className="flex-1 overflow-hidden pt-4">{children}</div>
         {/* </TRPCReactProvider> */}

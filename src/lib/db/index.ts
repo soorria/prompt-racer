@@ -1,9 +1,9 @@
+import { getOperators, getOrderByOperators } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 
 import { env } from "~/env"
 import * as schema from "./schema"
-import { getOperators, getOrderByOperators } from "drizzle-orm"
 
 /**
  * Cache the database connection in development. This avoids creating a new connection on every HMR
@@ -19,3 +19,4 @@ if (env.NODE_ENV !== "production") globalForDb.conn = conn
 export const db = drizzle(conn, { schema })
 export const cmp = getOperators()
 export const orderBy = getOrderByOperators()
+export { schema }

@@ -1,4 +1,5 @@
 import React from "react"
+
 import CodeDisplay from "../CodeRenderer"
 
 const fakePythonCodeSnippet = `def solution(nums, target):
