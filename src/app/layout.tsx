@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     canonical: "https://promptracer.dev",
   },
 
-  // Not set up yet
+  // TODO: Set up manifest
   // manifest: "/site.webmanifest",
 
   icons: {
