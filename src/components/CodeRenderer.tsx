@@ -1,10 +1,16 @@
-import { refractor, type Syntax } from "refractor"
-import python from "refractor/lang/python"
-import { type Jsx, toJsxRuntime } from "hast-util-to-jsx-runtime"
-import { type ComponentProps, Fragment, useMemo } from "react"
+import type { Jsx } from "hast-util-to-jsx-runtime"
+import type { ComponentProps } from "react"
+import type { Syntax } from "refractor"
+import { Fragment, useMemo } from "react"
 import { jsx, jsxs } from "react/jsx-runtime"
+import { toJsxRuntime } from "hast-util-to-jsx-runtime"
+import { refractor } from "refractor"
+import python from "refractor/lang/python"
+
 import "~/styles/dracula-prism.css"
+
 import { type Nodes } from "node_modules/hast-util-to-jsx-runtime/lib"
+
 import { cn } from "~/lib/utils"
 
 // Register the language

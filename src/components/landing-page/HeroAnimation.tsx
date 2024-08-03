@@ -1,12 +1,14 @@
 "use client"
-import React, { useState, useEffect, useMemo } from "react"
-import { Loader2, Send } from "lucide-react"
-import { Button } from "../ui/button"
-import CodeDisplay from "../CodeRenderer"
-import { Input } from "../ui/input"
+
+import React, { useEffect, useMemo, useState } from "react"
 import { useAutoAnimate } from "@formkit/auto-animate/react"
 import clsx from "clsx"
+import { Loader2, Send } from "lucide-react"
+
 import { noop } from "~/lib/utils"
+import CodeDisplay from "../CodeRenderer"
+import { Button } from "../ui/button"
+import { Input } from "../ui/input"
 
 const examples = [
   {
