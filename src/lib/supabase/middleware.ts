@@ -1,6 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import type { NextRequest } from "next/server"
+import { NextResponse } from "next/server"
 import { createServerClient } from "@supabase/ssr"
-import { NextResponse, type NextRequest } from "next/server"
+
 import { env } from "~/env"
 
 export async function updateSupabaseSessionInMiddleware(request: NextRequest) {

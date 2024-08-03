@@ -63,6 +63,7 @@ const config = {
         ],
       },
     ],
+    "@typescript-eslint/no-empty-interface": "warn",
   },
 }
 module.exports = config

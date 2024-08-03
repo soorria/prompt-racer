@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { createBrowserClient as _createBrowserClient } from "@supabase/ssr"
+
 import { env } from "~/env"
 
 export function createBrowserClient() {

@@ -1,7 +1,8 @@
 "use server"
 
-import { redirect } from "next/navigation"
 import { headers } from "next/headers"
+import { redirect } from "next/navigation"
+
 import { action } from "../actions/utils"
 import { createServerClient } from "../supabase/server"
 

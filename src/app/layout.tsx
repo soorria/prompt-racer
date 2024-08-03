@@ -1,13 +1,14 @@
 import "~/styles/globals.css"
 
-import { Inter, Fugaz_One } from "next/font/google"
 import { type Metadata } from "next"
-import { cn } from "~/lib/utils"
-import Navbar from "~/lib/surfaces/navbar/Navbar"
+import { Fugaz_One, Inter } from "next/font/google"
+import Link from "next/link"
+
 import Logo from "~/components/nav-bar/Logo"
 import ProfileCard from "~/components/nav-bar/ProfileCard"
-import Link from "next/link"
 import { getAuthUser } from "~/lib/auth/user"
+import Navbar from "~/lib/surfaces/navbar/Navbar"
+import { cn } from "~/lib/utils"
 
 const fontSans = Inter({ subsets: ["latin"], variable: "--font-sans" })
 const Fugaz = Fugaz_One({ weight: "400", variable: "--font-fugaz", subsets: ["latin"] })

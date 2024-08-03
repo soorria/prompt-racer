@@ -9,9 +9,9 @@
 import { initTRPC } from "@trpc/server"
 import superjson from "superjson"
 import { ZodError } from "zod"
-import { logger } from "~/lib/server/logger"
 
 import { db } from "~/lib/db"
+import { logger } from "~/lib/server/logger"
 
 /**
  * 1. CONTEXT
