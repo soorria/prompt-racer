@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div className="h-full">
       <PatternBlobBackground />
-      <div className="isolate mt-40 overflow-hidden">
+      <div className="isolate overflow-hidden md:mt-40">
         <div className="mx-auto mb-16 max-w-7xl items-center px-6 lg:flex lg:px-8">
           <div className="mx-auto max-w-2xl flex-shrink-0 pr-12 lg:mx-0 lg:max-w-xl lg:pt-8">
             <h1 className="mt-10 text-4xl font-bold tracking-tight text-white sm:text-6xl">
