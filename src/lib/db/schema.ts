@@ -344,6 +344,9 @@ export const gameStates = pgTable("game_states", {
   mode: gameModeEnum("mode").notNull(),
   start_time: timestamp("start_time").notNull(),
   end_time: timestamp("end_time"),
+
+  waiting_for_players_duration_ms: integer("waiting_for_players_duration_ms"),
+  in_progress_duration_ms: integer("in_progress_duration_ms"),
 })
 
 export const gameStatesRelations = relations(gameStates, ({ one, many }) => {

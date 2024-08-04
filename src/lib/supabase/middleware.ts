@@ -1,6 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { createServerClient } from "@supabase/ssr"
 
 import { env } from "~/env"

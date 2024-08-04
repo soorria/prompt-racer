@@ -1,5 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { cookies } from "next/headers"
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { createServerClient as _createServerClient } from "@supabase/ssr"
 
 import { env } from "~/env"
