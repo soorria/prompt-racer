@@ -1,10 +1,13 @@
 import "server-only"
 
+import type { LanguageModel } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
 import { invariant } from "@epic-web/invariant"
 import { streamText } from "ai"
 
 import { env } from "~/env"
+import { type ModelId } from "./constants"
+import { parseModelId } from "./utils"
 
 function getOpenAIKey(): string {
   const keys = env.OPENAI_API_KEYS.split(",")
@@ -13,15 +16,26 @@ function getOpenAIKey(): string {
   return key
 }
 
-export async function streamUpdatedCode(existingCode: string, instructions: string) {
-  const getOpenAIModel = createOpenAI({
-    apiKey: getOpenAIKey(),
-  })
+function getAIModelProvider(modelId: ModelId): LanguageModel {
+  const { provider, model } = parseModelId(modelId)
 
-  const model = getOpenAIModel("gpt-4o-mini")
+  if (provider === "openai") {
+    const getOpenAIModel = createOpenAI({
+      apiKey: getOpenAIKey(),
+    })
+    return getOpenAIModel(model)
+  }
 
+  throw new Error(`Unsupported model provider: ${provider as string}`)
+}
+
+export async function streamUpdatedCode(args: {
+  existingCode: string
+  instructions: string
+  modelId: ModelId
+}) {
   const stream = await streamText({
-    model,
+    model: getAIModelProvider(args.modelId),
     temperature: 0.7,
     stopSequences: ["</code>"],
     messages: [
@@ -37,11 +51,11 @@ export async function streamUpdatedCode(existingCode: string, instructions: stri
         role: "user",
         content: `
 CURRENT CODE: <code>
-${existingCode}
+${args.existingCode}
 </code>
 
 INSTRUCTIONS: <instructions>
-${instructions}
+${args.instructions}
 </instructions>
 
 Follow the instructions to update the provided python code. Output only the updated code wrapped in a <code> tag.

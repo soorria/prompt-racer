@@ -1,3 +1,5 @@
+import "@total-typescript/ts-reset"
+import "@total-typescript/ts-reset/dom"
 import "~/styles/globals.css"
 
 import { type Metadata } from "next"

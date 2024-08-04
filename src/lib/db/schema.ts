@@ -1,8 +1,23 @@
-import { relations, sql } from "drizzle-orm"
-import { index, integer, jsonb, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core"
+import { relations } from "drizzle-orm"
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core"
+
+import { type ChatHistoryItemContent } from "../games/schemas"
+import { type ModelId } from "../llm/constants"
 
 const customTypes = {
-  primaryKey: (name: string) => text(name).primaryKey(),
+  primaryKey: (name: string) => uuid(name).primaryKey().defaultRandom().notNull(),
+  primaryKeyWithoutDefault: (name: string) => uuid(name).primaryKey().notNull(),
+  primaryKeyReference: (name: string) => uuid(name),
 }
 
 export const users = pgTable(
@@ -11,7 +26,7 @@ export const users = pgTable(
     /**
      * Supabase auth user id
      */
-    id: customTypes.primaryKey("id").notNull(),
+    id: customTypes.primaryKeyWithoutDefault("id"),
     wins: integer("wins").default(0).notNull(),
   },
   (table) => {
@@ -47,11 +62,12 @@ export const questionTestCases = pgTable(
   "question_test_cases",
   {
     id: customTypes.primaryKey("id"),
-    question_id: text("question_id")
+    question_id: customTypes
+      .primaryKeyReference("question_id")
       .notNull()
       .references(() => questions.id),
     type: questionTestCaseTypeEnum("type").notNull(),
-    args: jsonb("args").notNull(),
+    args: jsonb("args").notNull().$type<unknown[]>(),
     expectedOutput: jsonb("expected_output").notNull(),
   },
   (table) => {
@@ -80,7 +96,8 @@ export const questions = pgTable("questions", {
   description: text("description").notNull(),
   difficulty: questionDifficultyEnum("difficulty").notNull(),
   starterCode: text("starter_code").notNull(),
-  source_id: text("source_id")
+  source_id: customTypes
+    .primaryKeyReference("source_id")
     .notNull()
     .references(() => questionSources.id),
 })
@@ -92,7 +109,7 @@ export const questionsRelations = relations(questions, ({ one, many }) => {
       references: [questionSources.id],
     }),
     testCases: many(questionTestCases),
-    gameSessions: many(playerGameSessions),
+    gameStates: many(gameStates),
   }
 })
 
@@ -100,7 +117,8 @@ export const playerGameSessionFinalResults = pgTable(
   "player_game_session_final_results",
   {
     id: customTypes.primaryKey("id"),
-    player_game_session_id: text("player_game_session_id")
+    player_game_session_id: customTypes
+      .primaryKeyReference("player_game_session_id")
       .notNull()
       .references(() => playerGameSessions.id),
     position: integer("position").notNull(),
@@ -138,16 +156,19 @@ export const playerGameSubmissionStateResults = pgTable(
   "player_game_submission_state_results",
   {
     id: customTypes.primaryKey("id"),
-    player_game_submission_state_id: text("player_game_submission_state_id")
+    player_game_submission_state_id: customTypes
+      .primaryKeyReference("player_game_submission_state_id")
       .notNull()
       .references(() => playerGameSubmissionStates.id),
-    question_test_case_id: text("question_test_case_id")
+    question_test_case_id: customTypes
+      .primaryKeyReference("question_test_case_id")
       .notNull()
       .references(() => questionTestCases.id),
     status: playerGameSubmissionStateResultStatusEnum("status").notNull(),
     result: jsonb("result"),
     reason: text("reason"),
-    runDurationMs: integer("runDurationMs").notNull(),
+    is_correct: boolean("is_correct").notNull(),
+    run_duration_ms: integer("runDurationMs").notNull(),
   },
   (table) => {
     return {
@@ -186,13 +207,14 @@ export const playerGameSubmissionStates = pgTable(
   "player_game_submission_states",
   {
     id: customTypes.primaryKey("id"),
-    player_game_session_id: text("player_game_session_id")
+    player_game_session_id: customTypes
+      .primaryKeyReference("player_game_session_id")
       .references(() => playerGameSessions.id, {
         onDelete: "cascade",
       })
       .notNull(),
-    submissionType: playerGameSubmissionStateSubmissionTypeEnum("submission_type").notNull(),
-    lastSubmittedAt: integer("last_submitted_at").notNull(),
+    submittion_type: playerGameSubmissionStateSubmissionTypeEnum("submission_type").notNull(),
+    last_submitted_at: timestamp("last_submitted_at").notNull(),
     status: playerGameSubmissionStateStatusEnum("status").notNull(),
   },
   (table) => {
@@ -217,23 +239,16 @@ export const playerGameSubmissionStatesRelations = relations(
   },
 )
 
-export const playerGameSessionChatHistoryItemTypeEnum = pgEnum(
-  "player_game_session_chat_history_item_type",
-  ["user", "ai", "reset"],
-)
-
 export const playerGameSessionChatHistoryItems = pgTable(
   "player_game_session_chat_history_items",
   {
     id: customTypes.primaryKey("id"),
-    player_game_session_id: text("player_game_session_id")
+    player_game_session_id: customTypes
+      .primaryKeyReference("player_game_session_id")
       .notNull()
       .references(() => playerGameSessions.id),
-    type: playerGameSessionChatHistoryItemTypeEnum("type").notNull(),
-    content: jsonb("content").notNull(),
-    inserted_at: timestamp("inserted_at")
-      .notNull()
-      .default(sql`now()`),
+    content: jsonb("content").notNull().$type<ChatHistoryItemContent>(),
+    inserted_at: timestamp("inserted_at").notNull().defaultNow(),
   },
   (table) => {
     return {
@@ -265,24 +280,22 @@ export const playerGameSessions = pgTable(
   "player_game_sessions",
   {
     id: customTypes.primaryKey("id"),
-    user_id: text("user_id")
+    user_id: customTypes
+      .primaryKeyReference("user_id")
       .notNull()
       .references(() => users.id),
-    game_id: text("game_id")
+    game_id: customTypes
+      .primaryKeyReference("game_id")
       .notNull()
       .references(() => gameStates.id),
 
-    question_id: text("question_id")
-      .notNull()
-      .references(() => questions.id),
+    test_state_id: customTypes.primaryKeyReference("test_state_id"),
+    submission_state_id: customTypes.primaryKeyReference("submission_state_id"),
 
-    test_state_id: text("test_state_id"),
-    submission_state_id: text("submission_state_id"),
-
-    model: text("string").notNull(),
+    model: text("string").notNull().$type<ModelId>(),
 
     code: text("code").notNull(),
-    last_prompted_at: integer("last_prompted_at"),
+    last_prompted_at: timestamp("last_prompted_at"),
   },
   (table) => {
     return {
@@ -295,18 +308,14 @@ export const playerGameSessions = pgTable(
 
 export const playerGameSessionsRelations = relations(playerGameSessions, ({ one, many }) => {
   return {
-    question: one(questions, {
-      fields: [playerGameSessions.question_id],
-      references: [questions.id],
-    }),
     chatHistory: many(playerGameSessionChatHistoryItems),
-    testState: one(playerGameSubmissionStateResults, {
+    testState: one(playerGameSubmissionStates, {
       fields: [playerGameSessions.test_state_id],
-      references: [playerGameSubmissionStateResults.id],
+      references: [playerGameSubmissionStates.id],
     }),
-    submissionState: one(playerGameSubmissionStateResults, {
+    submissionState: one(playerGameSubmissionStates, {
       fields: [playerGameSessions.submission_state_id],
-      references: [playerGameSubmissionStateResults.id],
+      references: [playerGameSubmissionStates.id],
     }),
     finalResult: many(playerGameSessionFinalResults),
     user: one(users, {
@@ -320,7 +329,7 @@ export const playerGameSessionsRelations = relations(playerGameSessions, ({ one,
   }
 })
 
-export const gameStateEnum = pgEnum("game_state", [
+export const gameStatusEnum = pgEnum("game_state", [
   "waitingForPlayers",
   "inProgress",
   "finalising",
@@ -332,22 +341,30 @@ export const gameModeEnum = pgEnum("game_mode", [
   "fastest-player",
   "fastest-code",
   "shortest-code",
-  "shortest-messages-word-length",
+  "fewest-characters-to-llm",
 ])
 
-export const gameStates = pgTable("game_states", {
-  id: customTypes.primaryKey("id"),
-  question_id: text("question_id")
-    .notNull()
-    .references(() => questions.id),
-  game_state: gameStateEnum("game_state").notNull(),
-  mode: gameModeEnum("mode").notNull(),
-  start_time: timestamp("start_time").notNull(),
-  end_time: timestamp("end_time"),
-
-  waiting_for_players_duration_ms: integer("waiting_for_players_duration_ms"),
-  in_progress_duration_ms: integer("in_progress_duration_ms"),
-})
+export const gameStates = pgTable(
+  "game_states",
+  {
+    id: customTypes.primaryKey("id"),
+    question_id: customTypes
+      .primaryKeyReference("question_id")
+      .notNull()
+      .references(() => questions.id),
+    status: gameStatusEnum("status").notNull(),
+    mode: gameModeEnum("mode").notNull(),
+    start_time: timestamp("start_time").notNull().defaultNow(),
+    end_time: timestamp("end_time"),
+    waiting_for_players_duration_ms: integer("waiting_for_players_duration_ms").notNull(),
+    in_progress_duration_ms: integer("in_progress_duration_ms").notNull(),
+  },
+  (table) => {
+    return {
+      status_idx: index("status_idx").on(table.status),
+    }
+  },
+)
 
 export const gameStatesRelations = relations(gameStates, ({ one, many }) => {
   return {

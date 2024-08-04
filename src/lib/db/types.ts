@@ -2,6 +2,7 @@ import type { InferInsertModel, InferSelectModel } from "drizzle-orm"
 import type { SQLiteTableWithColumns } from "drizzle-orm/sqlite-core"
 
 import type * as schema from "./schema"
+import { type db } from "."
 
 /**
  * Filters out any relation definitions from your schema
@@ -28,3 +29,5 @@ type DBInsertTypeMap = {
  * Get the INSERT type for a table given it's export name in the drizzle schema.
  */
 export type DocInsert<TableName extends keyof DBInsertTypeMap> = DBInsertTypeMap[TableName]
+
+export type DBOrTransation = Parameters<Parameters<typeof db.transaction>[0]>[0] | typeof db

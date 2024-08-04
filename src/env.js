@@ -13,6 +13,7 @@ export const env = createEnv({
       const keysArray = keys.split(",")
       return keysArray.length > 0 && keysArray.every((key) => key.trim().length > 0)
     }),
+    MODAL_PYTHON_APP_URL: z.string().url(),
   },
 
   /**
@@ -33,6 +34,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     OPENAI_API_KEYS: process.env.OPENAI_API_KEYS,
+    MODAL_PYTHON_APP_URL: process.env.MODAL_PYTHON_APP_URL,
 
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
