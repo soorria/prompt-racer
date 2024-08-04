@@ -296,6 +296,8 @@ export const playerGameSessions = pgTable(
 
     code: text("code").notNull(),
     last_prompted_at: timestamp("last_prompted_at"),
+
+    final_result_id: customTypes.primaryKeyReference("final_result_id"),
   },
   (table) => {
     return {
@@ -317,7 +319,7 @@ export const playerGameSessionsRelations = relations(playerGameSessions, ({ one,
       fields: [playerGameSessions.submission_state_id],
       references: [playerGameSubmissionStates.id],
     }),
-    finalResult: many(playerGameSessionFinalResults),
+    finalResult: one(playerGameSessionFinalResults),
     user: one(users, {
       fields: [playerGameSessions.user_id],
       references: [users.id],

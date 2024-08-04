@@ -16,3 +16,4 @@ export const GAME_MODES = [
 
 export const LLM_PROMPTING_TIMEOUT = ms("10s")
 export const CODE_SUBMISSION_TIMEOUT = ms("10s")
+export const FINALIZING_SUBMISSION_BUFFER_TIME = ms("2s")

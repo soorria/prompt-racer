@@ -1,7 +1,7 @@
 "use server"
 
 import { invariant } from "@epic-web/invariant"
-import { addSeconds, sub } from "date-fns"
+import { addSeconds } from "date-fns"
 import { count } from "drizzle-orm"
 import { z } from "zod"
 
@@ -9,6 +9,7 @@ import { authedAction } from "../actions/utils"
 import { runPythonCodeAgainstTestCases } from "../code-execution/python"
 import { cmp, db, schema } from "../db"
 import { type DBOrTransation, type DocInsert } from "../db/types"
+import { inngest } from "../inngest/client"
 import { streamUpdatedCode } from "../llm/generation"
 import { extractCodeFromRawCompletion } from "../llm/utils"
 import { logger } from "../server/logger"
@@ -41,6 +42,15 @@ async function createGame(tx: DBOrTransation) {
   if (!game) {
     throw new Error("Failed to create game")
   }
+
+  await inngest.send({
+    name: "game/started",
+    data: {
+      game_id: game.id,
+      waiting_for_players_duration_ms: DEFAULT_GAME_DURATIONS.waitingForPlayers,
+      in_progress_duration_ms: DEFAULT_GAME_DURATIONS.inProgress,
+    },
+  })
 
   return { game, question }
 }
