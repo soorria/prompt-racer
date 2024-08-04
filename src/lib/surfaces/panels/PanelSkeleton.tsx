@@ -2,12 +2,12 @@
 
 import React, { Suspense } from "react"
 
-import type { LayoutSchema } from "./panels"
+import type { GroupPanelSchema } from "./panels"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "~/components/ui/resizable"
 import { Skeleton } from "~/components/ui/skeleton"
 import { validateUniqueKeys } from "./panels"
 
-const PanelSkeleton = ({ schema }: { schema: LayoutSchema }) => {
+const PanelSkeleton = ({ schema }: { schema: GroupPanelSchema }) => {
   validateUniqueKeys(schema)
 
   const onLayout = (sizes: number[]) => {
@@ -18,7 +18,6 @@ const PanelSkeleton = ({ schema }: { schema: LayoutSchema }) => {
     <ResizablePanelGroup
       direction={schema.direction}
       autoSaveId={`${schema.key}-panel`}
-      // defaultValue={schema.defaultValue}
       onLayout={onLayout}
     >
       {schema.panels.map((panel, index) => {
@@ -26,7 +25,7 @@ const PanelSkeleton = ({ schema }: { schema: LayoutSchema }) => {
 
         return (
           <React.Fragment key={index}>
-            {panel.type === "layout" ? (
+            {panel.type === "group" ? (
               <ResizablePanel defaultSize={panel.defaultSize}>
                 <PanelSkeleton schema={panel} />
               </ResizablePanel>

@@ -6,7 +6,7 @@ import clsx from "clsx"
 import { Loader2, Send } from "lucide-react"
 
 import { noop } from "~/lib/utils"
-import CodeDisplay from "../CodeRenderer"
+import CodeRenderer from "../CodeRenderer"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 
@@ -144,7 +144,7 @@ export default function HeroAnimation() {
             showSubmittingOpacityClass,
           )}
         >
-          <CodeDisplay code={codeToShow} language="python" />
+          <CodeRenderer code={codeToShow} language="python" />
         </div>
       ) : null}
       <div

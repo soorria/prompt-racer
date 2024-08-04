@@ -1,3 +1,8 @@
+export type PanelSlot = {
+  key: string
+  className: string
+  component: React.ReactElement
+}
 
 export type PanelSchema = {
   type: "panel"
@@ -7,25 +12,24 @@ export type PanelSchema = {
   component: React.ReactElement
 }
 
-export type LayoutSchema = {
-  type: "layout"
+export type GroupPanelSchema = {
+  type: "group"
   key: string
   defaultSize: number
   direction: "horizontal" | "vertical"
   panels: PanelItem[]
 }
 
-export type PanelItem = PanelSchema | LayoutSchema;
+export type PanelItem = PanelSchema | GroupPanelSchema;
 
 export type GamePageProps = {
-  schema: LayoutSchema
+  schema: GroupPanelSchema
 }
 
-
-export const validateUniqueKeys = (schema: LayoutSchema) => {
+export const validateUniqueKeys = (schema: GroupPanelSchema) => {
   const keySet = new Set<string>();
 
-  const validateKeysRecursive = (layout: LayoutSchema, alreadyVisited = true) => {
+  const validateKeysRecursive = (layout: GroupPanelSchema, alreadyVisited = true) => {
     if (!alreadyVisited) {
       if (keySet.has(layout.key)) {
         throw new Error(`Duplicate key found: ${layout.key}`);
@@ -38,7 +42,7 @@ export const validateUniqueKeys = (schema: LayoutSchema) => {
       }
       keySet.add(panel.key);
 
-      if ('panels' in panel) {
+      if (panel.type === "group") {
         validateKeysRecursive(panel, true);
       }
     });

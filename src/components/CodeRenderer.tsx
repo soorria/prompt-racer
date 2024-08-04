@@ -33,7 +33,7 @@ const CodeDisplayContent = ({ code, language }: Pick<CodeDisplayProps, "code" | 
   return <>{rendered}</>
 }
 
-const CodeDisplay = ({ preProps, codeProps, showLineNumbers, ...rest }: CodeDisplayProps) => {
+const CodeRenderer = ({ preProps, codeProps, showLineNumbers, ...rest }: CodeDisplayProps) => {
   const { code } = rest
   const lines = code.split("\n")
 
@@ -60,4 +60,4 @@ const CodeDisplay = ({ preProps, codeProps, showLineNumbers, ...rest }: CodeDisp
   )
 }
 
-export default CodeDisplay
+export default CodeRenderer

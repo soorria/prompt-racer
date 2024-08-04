@@ -2,63 +2,38 @@
 
 import React from "react"
 
-import type { LayoutSchema } from "~/lib/surfaces/panels/panels"
-import CodeView from "~/components/game-screen/CodeView"
-import QuestionDescription from "~/components/game-screen/QuestionDescription"
+import CodeView from "~/components/game-screen/code-view/CodeView"
+import { GameManagerProvider } from "~/components/game-screen/GameManagerProvider"
+import QuestionDescription from "~/components/game-screen/question-description/QuestionDescription"
+import { createDefaultLayout } from "~/lib/surfaces/panels/layouts"
 import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
-import { updateSchemaFromCookies } from "~/lib/surfaces/panels/persistance"
-
-const dynamicSchema: LayoutSchema = {
-  type: "layout",
-  key: "main",
-  direction: "horizontal",
-  defaultSize: 100,
-  panels: [
-    {
-      type: "layout",
-      key: "left",
-      direction: "vertical",
-      defaultSize: 20,
-      panels: [
-        {
-          type: "panel",
-          key: "code",
-          className: "bg-dracula p-4",
-          defaultSize: 90,
-          component: <CodeView />,
-        },
-        {
-          type: "panel",
-          key: "question",
-          className: "bg-card p-4",
-          defaultSize: 10,
-          component: <QuestionDescription />,
-        },
-      ],
-    },
-    {
-      type: "layout",
-      key: "right",
-      direction: "vertical",
-      defaultSize: 80,
-      panels: [
-        {
-          type: "panel",
-          key: "question2",
-          className: "bg-card p-4",
-          defaultSize: 100,
-          component: <QuestionDescription />,
-        },
-      ],
-    },
-  ],
-}
+import { updateLayoutSizingFromCookies } from "~/lib/surfaces/panels/persistance"
 
 export default async function GamePage() {
-  const updatedSchema = updateSchemaFromCookies(dynamicSchema)
+  const CodeViewImpl = { key: "code", className: "bg-dracula p-4", component: <CodeView /> }
+  const QuestionViewImpl = {
+    key: "qdesc",
+    className: "bg-card p-4",
+    component: <QuestionDescription />,
+  }
+  const QuestionViewImpl2 = {
+    key: "qdesc2",
+    className: "bg-card p-4",
+    component: <QuestionDescription />,
+  }
 
+  const defaultSchema = createDefaultLayout({
+    leftSection: { top: CodeViewImpl, bottom: QuestionViewImpl },
+    rightSection: QuestionViewImpl2,
+  })
+
+  const updatedSchema = updateLayoutSizingFromCookies(defaultSchema)
   if (!updatedSchema) {
     return <div>Failed to load game</div>
   }
-  return <PanelSkeleton schema={updatedSchema} />
+  return (
+    <GameManagerProvider>
+      <PanelSkeleton schema={updatedSchema} />
+    </GameManagerProvider>
+  )
 }
