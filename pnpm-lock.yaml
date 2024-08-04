@@ -11,6 +11,9 @@ dependencies:
   '@radix-ui/react-slot':
     specifier: ^1.1.0
     version: 1.1.0(@types/react@18.3.3)(react@18.3.1)
+  '@react-hook/media-query':
+    specifier: ^1.1.1
+    version: 1.1.1(react@18.3.1)
   '@supabase/ssr':
     specifier: ^0.4.0
     version: 0.4.0(@supabase/supabase-js@2.45.0)
@@ -992,6 +995,14 @@ packages:
     dependencies:
       '@radix-ui/react-compose-refs': 1.1.0(@types/react@18.3.3)(react@18.3.1)
       '@types/react': 18.3.3
+      react: 18.3.1
+    dev: false
+
+  /@react-hook/media-query@1.1.1(react@18.3.1):
+    resolution: {integrity: sha512-VM14wDOX5CW5Dn6b2lTiMd79BFMTut9AZj2+vIRT3LCKgMCYmdqruTtzDPSnIVDQdtxdPgtOzvU9oK20LopuOw==}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
       react: 18.3.1
     dev: false
 
