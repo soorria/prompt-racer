@@ -1,13 +1,12 @@
 "use server"
 
 import React from "react"
-import { cookies } from "next/headers"
 
 import type { LayoutSchema } from "~/lib/surfaces/panels/panels"
 import CodeView from "~/components/game-screen/CodeView"
 import QuestionDescription from "~/components/game-screen/QuestionDescription"
-import { PanelItem } from "~/lib/surfaces/panels/panels"
 import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
+import { updateSchemaFromCookies } from "~/lib/surfaces/panels/persistance"
 
 const dynamicSchema: LayoutSchema = {
   type: "layout",
@@ -58,33 +57,8 @@ const dynamicSchema: LayoutSchema = {
 export default async function GamePage() {
   const updatedSchema = updateSchemaFromCookies(dynamicSchema)
 
-  if (updatedSchema.type === "layout") {
-    return <PanelSkeleton schema={updatedSchema} />
+  if (!updatedSchema) {
+    return <div>Failed to load game</div>
   }
-}
-
-function updateSchemaFromCookies(schema: PanelItem): PanelItem {
-  const cookieKey = `react-resizable-panels:${schema.key}`
-  const layout = cookies().get(cookieKey)
-  if (schema.type === "panel") {
-    return schema
-  }
-  if (layout && schema.type === "layout") {
-    try {
-      const savedLayout = JSON.parse(layout.value) as number[]
-      // go through each panel and update the default size
-      schema.panels = schema.panels.map((panel, index) => {
-        if (panel.type === "panel") {
-          panel.defaultSize = savedLayout[index]!
-        } else if (panel.type === "layout") {
-          panel = updateSchemaFromCookies(panel)
-          panel.defaultSize = savedLayout[index]!
-        }
-        return panel
-      })
-    } catch (error) {
-      console.error(`Failed to parse layout for ${layout.value}:`, error)
-    }
-  }
-  return schema
+  return <PanelSkeleton schema={updatedSchema} />
 }

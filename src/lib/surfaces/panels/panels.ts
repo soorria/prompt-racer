@@ -1,3 +1,4 @@
+
 export type PanelSchema = {
   type: "panel"
   key: string
