@@ -26,7 +26,7 @@ const ResizablePanel = ({
 }: React.ComponentProps<typeof ResizablePrimitive.Panel>) => (
   <ResizablePrimitive.Panel
     {...props}
-    className={cn("max-h-full overflow-scroll rounded-xl", className)}
+    className={cn("relative max-h-full overflow-scroll rounded-xl", className)}
     style={{ overflow: "scroll" }}
   />
 )

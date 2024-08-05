@@ -7,5 +7,5 @@ import { useGameManager } from "../GameManagerContext"
 
 export default function CodeView({ code }: { code?: string }) {
   const context = useGameManager()
-  return <CodeRenderer code={context.code} language="python" showLineNumbers />
+  return <CodeRenderer code={context.code ?? code} language="python" showLineNumbers />
 }

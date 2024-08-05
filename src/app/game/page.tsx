@@ -4,6 +4,7 @@ import React from "react"
 
 import CodeView from "~/components/game-screen/code-view/CodeView"
 import { GameManagerProvider } from "~/components/game-screen/GameManagerProvider"
+import ResponsiveMultiSelectPanel from "~/components/game-screen/multi-select-panel/ResponsiveMultiSelectPanel"
 import QuestionDescription from "~/components/game-screen/question-description/QuestionDescription"
 import { createDefaultLayout, createDefaultMobileLayout } from "~/lib/surfaces/panels/layouts"
 import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
@@ -21,13 +22,26 @@ export default async function GamePage() {
     className: "bg-card p-4",
     component: <QuestionDescription />,
   }
+  const Test = {
+    key: "qdesc3",
+    className: "",
+    component: (
+      <ResponsiveMultiSelectPanel
+        panels={[
+          { ...CodeViewImpl, title: "Code" },
+          { ...QuestionViewImpl, title: "Question" },
+        ]}
+      />
+    ),
+  }
 
   const defaultDesktopLayout = createDefaultLayout({
     leftSection: { top: CodeViewImpl, bottom: QuestionViewImpl },
     rightSection: QuestionViewImpl2,
   })
+
   const defaultMobileLayout = createDefaultMobileLayout({
-    top: QuestionViewImpl,
+    top: Test,
     bottom: CodeViewImpl,
   })
 
