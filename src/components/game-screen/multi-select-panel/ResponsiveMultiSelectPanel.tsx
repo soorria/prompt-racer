@@ -34,6 +34,7 @@ export default function ResponsiveMultiSelectPanel({ panels }: { panels: PanelSl
               key={panel.key}
               aria-current={index === selectedPanelIndex}
               variant={index === selectedPanelIndex ? "default" : "ghost"}
+              className="h-8 rounded-full"
               onClick={() => handlePanelChange(index)}
             >
               {panel.title}
