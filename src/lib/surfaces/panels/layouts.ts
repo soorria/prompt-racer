@@ -42,3 +42,25 @@ export const createDefaultLayout = ({ leftSection, rightSection }: { leftSection
   }
   return schema
 }
+
+export const createDefaultMobileLayout = ({ top, bottom }: { top: PanelSlot, bottom: PanelSlot }): GroupPanelSchema => {
+  const schema: GroupPanelSchema = {
+    type: "group",
+    key: "main",
+    direction: "vertical",
+    defaultSize: 100,
+    panels: [
+      {
+        type: "panel",
+        defaultSize: 70,
+        ...top
+      },
+      {
+        type: "panel",
+        defaultSize: 30,
+        ...bottom
+      },
+    ],
+  }
+  return schema
+}

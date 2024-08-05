@@ -7,27 +7,27 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "~/componen
 import { Skeleton } from "~/components/ui/skeleton"
 import { validateUniqueKeys } from "./panels"
 
-const PanelSkeleton = ({ schema }: { schema: GroupPanelSchema }) => {
-  validateUniqueKeys(schema)
+const PanelSkeleton = ({ layout }: { layout: GroupPanelSchema }) => {
+  validateUniqueKeys(layout)
 
   const onLayout = (sizes: number[]) => {
-    document.cookie = `react-resizable-panels:${schema.key}=${JSON.stringify(sizes)}`
+    document.cookie = `react-resizable-panels:${layout.key}=${JSON.stringify(sizes)}`
   }
 
   return (
     <ResizablePanelGroup
-      direction={schema.direction}
-      autoSaveId={`${schema.key}-panel`}
+      direction={layout.direction}
+      autoSaveId={`${layout.key}-panel`}
       onLayout={onLayout}
     >
-      {schema.panels.map((panel, index) => {
-        const isLast = index === schema.panels.length - 1
+      {layout.panels.map((panel, index) => {
+        const isLast = index === layout.panels.length - 1
 
         return (
           <React.Fragment key={index}>
             {panel.type === "group" ? (
               <ResizablePanel defaultSize={panel.defaultSize}>
-                <PanelSkeleton schema={panel} />
+                <PanelSkeleton layout={panel} />
               </ResizablePanel>
             ) : (
               <ResizablePanel defaultSize={panel.defaultSize} className={panel.className}>
