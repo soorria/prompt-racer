@@ -3,6 +3,7 @@
 import { invariant } from "@epic-web/invariant"
 import { addSeconds } from "date-fns"
 import { count } from "drizzle-orm"
+import ms from "ms"
 import { z } from "zod"
 
 import { authedAction } from "../actions/utils"
@@ -47,8 +48,8 @@ async function createGame(tx: DBOrTransation) {
     name: "game/started",
     data: {
       game_id: game.id,
-      waiting_for_players_duration_ms: DEFAULT_GAME_DURATIONS.waitingForPlayers,
-      in_progress_duration_ms: DEFAULT_GAME_DURATIONS.inProgress,
+      waiting_for_players_duration_ms: ms("1s"),
+      in_progress_duration_ms: ms("1000m"),
     },
   })
 
@@ -213,6 +214,8 @@ export const sendMessageInGameAction = authedAction
 
     const insertedAtMessage = insertedItems.find((item) => chatHistoryItemTypeIs(item, "ai"))
 
+    console.log({ insertedAtMessage, insertedItems })
+
     if (!insertedAtMessage) {
       throw new Error("Failed to insert message")
     }
@@ -224,6 +227,8 @@ export const sendMessageInGameAction = authedAction
       })
       .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
 
+    console.time(insertedAtMessage.id)
+    console.timeLog(insertedAtMessage.id, "streamed code")
     const result = await streamUpdatedCode({
       existingCode: playerGameSession.code,
       instructions: parsedInput.instructions,
@@ -232,29 +237,37 @@ export const sendMessageInGameAction = authedAction
 
     // TODO: streaming
     const rawUpdatedCode = await result.text
+    console.timeLog(insertedAtMessage.id, "streamed code done")
 
     const extractedCode = extractCodeFromRawCompletion(rawUpdatedCode)
 
-    await db.insert(schema.playerGameSessionChatHistoryItems).values({
-      player_game_session_id: playerGameSession.id,
-      content: extractedCode
-        ? {
-            type: "ai",
-            rawCompletion: rawUpdatedCode,
-            parsedCompletion: {
-              state: "generating",
-              maybeCode: extractedCode,
+    await Promise.all([
+      db.insert(schema.playerGameSessionChatHistoryItems).values({
+        player_game_session_id: playerGameSession.id,
+        content: extractedCode
+          ? {
+              type: "ai",
+              rawCompletion: rawUpdatedCode,
+              parsedCompletion: {
+                state: "success",
+                maybeCode: extractedCode,
+              },
+            }
+          : {
+              type: "ai",
+              rawCompletion: rawUpdatedCode,
+              parsedCompletion: {
+                state: "error",
+                error: "Could not find code in AI completion",
+              },
             },
-          }
-        : {
-            type: "ai",
-            rawCompletion: rawUpdatedCode,
-            parsedCompletion: {
-              state: "error",
-              error: "Could not find code in AI completion",
-            },
-          },
-    })
+      }),
+      extractedCode &&
+        db
+          .update(schema.playerGameSessions)
+          .set({ code: extractedCode })
+          .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
+    ])
   })
 
 export const submitCodeAction = authedAction
@@ -365,6 +378,8 @@ export const submitCodeAction = authedAction
       testCases.map((testCase) => testCase.args),
     )
 
+    console.log(runResults)
+
     const submissionResultDocs: DocInsert<"playerGameSubmissionStateResults">[] = testCases.map(
       (testCase, index) => {
         const result = runResults[index]
@@ -390,7 +405,7 @@ export const submitCodeAction = authedAction
           result: result.status === "success" ? result.result : null,
           reason: result.status === "error" ? result.reason.message : null,
           is_correct: result.status === "success",
-          run_duration_ms: result.time,
+          run_duration_ms: Math.max(Math.round(result.time), 1),
         }
       },
     )

@@ -10,7 +10,7 @@ export async function advanceGameToStatus(
   status: Exclude<Doc<"gameStates">["status"], "waitingForPlayers" | "cancelled" | "finished">,
 ) {
   const game = await db.query.gameStates.findFirst({
-    where: cmp.eq(schema.gameStates, gameId),
+    where: cmp.eq(schema.gameStates.id, gameId),
   })
 
   if (!game) {
@@ -26,7 +26,7 @@ export async function advanceGameToStatus(
     .set({
       status,
     })
-    .where(cmp.eq(schema.gameStates, gameId))
+    .where(cmp.eq(schema.gameStates.id, gameId))
 }
 
 export async function finalizeGame(gameId: string) {
@@ -63,7 +63,7 @@ export async function finalizeGame(gameId: string) {
       await db
         .update(schema.users)
         .set({ wins: sql`${schema.users.wins} + 1` })
-        .where(cmp.eq(schema.users, winningPlayerSession.user_id))
+        .where(cmp.eq(schema.users.id, winningPlayerSession.user_id))
     }
   }
 
@@ -72,5 +72,5 @@ export async function finalizeGame(gameId: string) {
     .set({
       status: "finished",
     })
-    .where(cmp.eq(schema.gameStates, game.id))
+    .where(cmp.eq(schema.gameStates.id, game.id))
 }

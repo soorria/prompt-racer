@@ -3,7 +3,7 @@ import "server-only"
 import type { LanguageModel } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
 import { invariant } from "@epic-web/invariant"
-import { streamText } from "ai"
+import { generateText, streamText } from "ai"
 
 import { env } from "~/env"
 import { type ModelId } from "./constants"
@@ -34,7 +34,7 @@ export async function streamUpdatedCode(args: {
   instructions: string
   modelId: ModelId
 }) {
-  const stream = await streamText({
+  const stream = await generateText({
     model: getAIModelProvider(args.modelId),
     temperature: 0.7,
     stopSequences: ["</code>"],

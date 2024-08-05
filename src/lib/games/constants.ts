@@ -4,7 +4,7 @@ import { type Doc } from "../db/types"
 
 export const DEFAULT_GAME_DURATIONS = {
   waitingForPlayers: ms("30s"),
-  inProgress: ms("1m"),
+  inProgress: ms("5m"),
 }
 
 export const GAME_MODES = [

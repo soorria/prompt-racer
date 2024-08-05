@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { upsertProfile as upsertUserProfile } from "~/lib/auth/profile"
 import { db, schema } from "~/lib/db"
 import { createServerClient } from "~/lib/supabase/server"
 
@@ -16,16 +17,7 @@ export async function GET(request: Request) {
 
     if (!error) {
       if (data.user) {
-        await db
-          .insert(schema.users)
-          .values({
-            id: data.user.id,
-            wins: 0,
-          })
-          .onConflictDoUpdate({
-            target: schema.users.id,
-            set: {},
-          })
+        await upsertUserProfile(data.user.id)
       }
 
       const forwardedHost = request.headers.get("x-forwarded-host") // original origin before load balancer
