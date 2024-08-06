@@ -1,3 +1,5 @@
+import "@total-typescript/ts-reset"
+import "@total-typescript/ts-reset/dom"
 import "~/styles/globals.css"
 
 import { type Metadata } from "next"
@@ -87,7 +89,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           }
         />
         {/* <TRPCReactProvider> */}
-        <div className="flex-1 overflow-hidden pt-4">{children}</div>
+        <div className="flex-1 pt-4">{children}</div>
         {/* </TRPCReactProvider> */}
       </body>
     </html>

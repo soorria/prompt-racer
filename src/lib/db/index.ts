@@ -1,4 +1,4 @@
-import { getOperators, getOrderByOperators } from "drizzle-orm"
+import { getOperators, getOrderByOperators, sql } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 
@@ -16,7 +16,7 @@ const globalForDb = globalThis as unknown as {
 const conn = globalForDb.conn ?? postgres(env.DATABASE_URL, { prepare: false })
 if (env.NODE_ENV !== "production") globalForDb.conn = conn
 
-export const db = drizzle(conn, { schema })
+export const db = drizzle(conn, { schema, logger: false })
 export const cmp = getOperators()
 export const orderBy = getOrderByOperators()
-export { schema }
+export { schema, sql }
