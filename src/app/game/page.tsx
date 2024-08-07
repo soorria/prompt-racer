@@ -14,6 +14,7 @@ import { createDefaultLayout, createDefaultMobileLayout } from "~/lib/surfaces/p
 import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
 
 const CodeViewImpl = { key: "code", className: "bg-dracula p-4", component: <CodeView /> }
+const CodeViewImpl1 = { key: "code1", className: "bg-dracula p-4", component: <CodeView /> }
 const QuestionViewImpl = {
   key: "qdesc",
   className: "bg-card p-4",
@@ -30,7 +31,7 @@ const Test = {
   component: (
     <ResponsiveMultiSelectPanel
       panels={[
-        { ...QuestionViewImpl2, title: "Question" },
+        { ...CodeViewImpl1, title: "Question" },
         { ...QuestionViewImpl, title: "More..." },
       ]}
     />
