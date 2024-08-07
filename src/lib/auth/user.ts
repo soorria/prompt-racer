@@ -1,3 +1,4 @@
+import { logger } from "../server/logger"
 import { createServerClient } from "../supabase/server"
 
 export async function getAuthUser() {
@@ -5,6 +6,7 @@ export async function getAuthUser() {
   const { data, error } = await sb.auth.getUser()
 
   if (error) {
+    logger.error(error, "failed to get user")
     return null
   }
 

@@ -41,6 +41,7 @@ async function createGame(tx: DBOrTransation) {
     .returning()
 
   if (!game) {
+    logger.error("Failed to create game")
     throw new Error("Failed to create game")
   }
 
@@ -167,7 +168,7 @@ export const sendMessageInGameAction = authedAction
       throw new Error("Game not found, or you are not in this game")
     }
 
-    const game = playerGameSession.game
+    const { game } = playerGameSession
 
     if (game.status !== "inProgress") {
       throw new Error("Game is not in progress")
@@ -246,27 +247,27 @@ export const sendMessageInGameAction = authedAction
         player_game_session_id: playerGameSession.id,
         content: extractedCode
           ? {
-              type: "ai",
-              rawCompletion: rawUpdatedCode,
-              parsedCompletion: {
-                state: "success",
-                maybeCode: extractedCode,
-              },
-            }
-          : {
-              type: "ai",
-              rawCompletion: rawUpdatedCode,
-              parsedCompletion: {
-                state: "error",
-                error: "Could not find code in AI completion",
-              },
+            type: "ai",
+            rawCompletion: rawUpdatedCode,
+            parsedCompletion: {
+              state: "success",
+              maybeCode: extractedCode,
             },
+          }
+          : {
+            type: "ai",
+            rawCompletion: rawUpdatedCode,
+            parsedCompletion: {
+              state: "error",
+              error: "Could not find code in AI completion",
+            },
+          },
       }),
       extractedCode &&
-        db
-          .update(schema.playerGameSessions)
-          .set({ code: extractedCode })
-          .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
+      db
+        .update(schema.playerGameSessions)
+        .set({ code: extractedCode })
+        .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
     ])
   })
 
@@ -348,14 +349,14 @@ export const submitCodeAction = authedAction
           id: schema.playerGameSubmissionStates.id,
         }),
       submissionState &&
-        db
-          .delete(schema.playerGameSubmissionStateResults)
-          .where(
-            cmp.eq(
-              schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-              submissionState.id,
-            ),
+      db
+        .delete(schema.playerGameSubmissionStateResults)
+        .where(
+          cmp.eq(
+            schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+            submissionState.id,
           ),
+        ),
     ])
 
     if (!insertedSubmissionState) {

@@ -5,8 +5,9 @@ import { redirect } from "next/navigation"
 
 import { action } from "../actions/utils"
 import { createServerClient } from "../supabase/server"
+import { logger } from "../server/logger"
 
-export const loginWithGitHubAction = action.action(async ({}) => {
+export const loginWithGitHubAction = action.action(async ({ }) => {
   const sb = createServerClient()
 
   const referrer = headers().get("referer")
@@ -23,6 +24,7 @@ export const loginWithGitHubAction = action.action(async ({}) => {
   })
 
   if (error) {
+    logger.error(error, "failed to login with github")
     throw error
   }
 

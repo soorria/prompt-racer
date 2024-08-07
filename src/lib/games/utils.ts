@@ -1,7 +1,7 @@
-import { Doc } from "../db/types"
+import type { Doc } from "../db/types"
 import { randomElement } from "../utils/random"
 import { GAME_MODES } from "./constants"
-import { ChatHistoryItemContentType, ChatHistoryItemContentWithType } from "./schemas"
+import type { ChatHistoryItemContentType, ChatHistoryItemContentWithType } from "./schemas"
 
 export function getRandomGameMode() {
   return randomElement(GAME_MODES)
