@@ -31,8 +31,8 @@ const Test = {
   component: (
     <ResponsiveMultiSelectPanel
       panels={[
-        { ...CodeViewImpl1, title: "Question" },
-        { ...QuestionViewImpl, title: "More..." },
+        { ...QuestionViewImpl, title: "Question" },
+        { ...CodeViewImpl1, title: "More..." },
       ]}
     />
   ),
