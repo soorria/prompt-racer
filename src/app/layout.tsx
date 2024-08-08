@@ -69,7 +69,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const user = await getAuthUser()
   return (
     <html lang="en" className={rootclass}>
-      <body className="flex flex-col p-4">
+      <body className="max-w-screen-4xl mx-auto flex flex-col p-4">
         <Navbar
           leftContent={<Logo />}
           rightContent={

@@ -2,6 +2,9 @@ import type { Config } from "tailwindcss"
 import { fontFamily } from "tailwindcss/defaultTheme"
 
 const config = {
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   darkMode: ["class"],
   content: [
     "./pages/**/*.{ts,tsx}",
@@ -19,6 +22,10 @@ const config = {
       },
     },
     extend: {
+      screens: {
+        "3xl": "1700px",
+        "4xl": "1900px",
+      },
       fontFamily: {
         display: ["var(--font-fugaz)", ...fontFamily.sans],
         sans: ["var(--font-sans)", ...fontFamily.sans],
