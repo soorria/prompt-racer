@@ -1,8 +1,11 @@
+import Link from "next/link"
+
 import HeroAnimation from "~/components/landing-page/HeroAnimation"
 import PatternBlobBackground from "~/components/landing-page/PatternBlobBackground"
-import { Button } from "~/components/ui/button"
+import { getAuthUser } from "~/lib/auth/user"
 
-export default function Home() {
+export default async function Home() {
+  const user = await getAuthUser()
   return (
     <div className="sm:mt-40">
       <PatternBlobBackground />
@@ -16,7 +19,14 @@ export default function Home() {
               Put your AI prompting skills to the test in a game of speed and intelligence.
             </p>
             <div className="mt-10 flex items-center gap-x-6">
-              <Button>Play Now</Button>
+              <Link
+                href={user ? "/game" : "/auth/login"}
+                className={
+                  "inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                }
+              >
+                Play Now
+              </Link>
             </div>
           </div>
           <div className="mx-auto mt-16 flex flex-1 sm:mt-24 lg:mr-0 lg:mt-12">

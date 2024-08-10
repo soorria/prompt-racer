@@ -1,15 +1,40 @@
-import { getAuthUser } from "~/lib/auth/user"
+"use client"
 
-export default async function ProfileCard() {
-  const user = await getAuthUser()
+import type { User } from "@supabase/supabase-js"
+import React from "react"
+import Link from "next/link"
+import { BookOpen } from "lucide-react"
+
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
+import { cn } from "~/lib/utils"
+import { Button } from "../ui/button"
+import LoginLogoutButton from "./LoginLogoutButton"
+import UserAvatar from "./UserAvatar"
+
+export default function ProfileCard({ user }: { user: User | null }) {
+  const [open, setOpen] = React.useState(false)
 
   return (
-    <div className="h-10 w-10 rounded-full bg-gray-200">
-      {user && typeof user.user_metadata.avatar_url === "string" && (
-        // don't care about optimal images for the profile image
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={user.user_metadata.avatar_url} alt="avatar" className="h-10 w-10 rounded-full" />
-      )}
-    </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        className={cn("flex items-center justify-center space-x-3 rounded-full p-2", {
+          "ring-2 ring-zinc-400/20": !user,
+        })}
+      >
+        <UserAvatar user={user} />
+      </PopoverTrigger>
+      <PopoverContent className="p-0 py-2" align="end">
+        <LoginLogoutButton user={user} setOpen={setOpen} />
+        <div className="spacer my-2 h-0.5 w-full bg-gray-200/20" />
+        <Button
+          asChild
+          variant={"ghost"}
+          Icon={BookOpen}
+          className="w-full justify-start rounded-none"
+        >
+          <Link href="/auth/login">Privacy Policy</Link>
+        </Button>
+      </PopoverContent>
+    </Popover>
   )
 }

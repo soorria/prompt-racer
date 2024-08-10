@@ -25,14 +25,6 @@ import {
 } from "./queries"
 import { chatHistoryItemTypeIs, getRandomGameMode } from "./utils"
 
-async function getGameModes(tx: DBOrTransation) {
-  return await tx.query.gameStates.findMany({
-    columns: {
-      mode: true,
-    }
-  })
-}
-
 async function createGame(tx: DBOrTransation) {
   const question = await getRandomQuestion(tx)
   const gameMode = getRandomGameMode()

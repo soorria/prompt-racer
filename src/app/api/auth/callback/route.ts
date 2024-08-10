@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 
 import { upsertProfile as upsertUserProfile } from "~/lib/auth/profile"
-import { db, schema } from "~/lib/db"
 import { createServerClient } from "~/lib/supabase/server"
 
 export async function GET(request: Request) {

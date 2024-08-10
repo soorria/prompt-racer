@@ -4,7 +4,6 @@ import "~/styles/globals.css"
 
 import { type Metadata } from "next"
 import { Fugaz_One, Inter } from "next/font/google"
-import Link from "next/link"
 
 import Logo from "~/components/nav-bar/Logo"
 import ProfileCard from "~/components/nav-bar/ProfileCard"
@@ -67,27 +66,11 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const rootclass = cn(Fugaz.variable, fontSans.variable, "h-[100svh]")
   const user = await getAuthUser()
+
   return (
     <html lang="en" className={rootclass}>
-      <body className="max-w-screen-4xl mx-auto flex flex-col p-4">
-        <Navbar
-          leftContent={<Logo />}
-          rightContent={
-            <>
-              {/* TODO: make this UI better */}
-              {user ? (
-                /**
-                 * Note: intentionally not using Link here because the full reload reset's next's
-                 * cache in the browser
-                 */
-                <a href="/auth/logout">Logout</a>
-              ) : (
-                <Link href="/auth/login">Login</Link>
-              )}
-              <ProfileCard />
-            </>
-          }
-        />
+      <body className="mx-auto flex max-w-screen-4xl flex-col p-4">
+        <Navbar leftContent={<Logo />} rightContent={<ProfileCard user={user} />} />
         {/* <TRPCReactProvider> */}
         <div className="flex-1 pt-4">{children}</div>
         {/* </TRPCReactProvider> */}
