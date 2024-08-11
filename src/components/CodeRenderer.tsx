@@ -34,8 +34,8 @@ const CodeDisplayContent = ({ code, language }: Pick<CodeDisplayProps, "code" | 
 }
 
 const CodeRenderer = ({ preProps, codeProps, showLineNumbers, ...rest }: CodeDisplayProps) => {
-  const { code } = rest
-  const lines = code.split("\n")
+  rest.code = rest.code.replace(/\\n/g, "\n")
+  const lines = rest.code.split("\n")
 
   return (
     <pre

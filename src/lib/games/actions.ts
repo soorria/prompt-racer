@@ -2,8 +2,7 @@
 
 import { invariant } from "@epic-web/invariant"
 import { addSeconds } from "date-fns"
-import { count } from "drizzle-orm"
-import ms from "ms"
+import { count, desc } from "drizzle-orm"
 import { z } from "zod"
 
 import { authedAction } from "../actions/utils"
@@ -21,9 +20,12 @@ import {
   getGamesWithStatus,
   getLatestActiveGameForUser,
   getQuestionById,
+  getQuestionForGame,
   getRandomQuestion,
+  getSessionInfoForPlayer,
 } from "./queries"
 import { chatHistoryItemTypeIs, getRandomGameMode } from "./utils"
+import { requireAuthUser } from "../auth/user"
 
 async function createGame(tx: DBOrTransation) {
   const question = await getRandomQuestion(tx)
@@ -49,8 +51,8 @@ async function createGame(tx: DBOrTransation) {
     name: "game/started",
     data: {
       game_id: game.id,
-      waiting_for_players_duration_ms: ms("1s"),
-      in_progress_duration_ms: ms("1000m"),
+      in_progress_duration_ms: DEFAULT_GAME_DURATIONS.inProgress,
+      waiting_for_players_duration_ms: DEFAULT_GAME_DURATIONS.waitingForPlayers,
     },
   })
 
@@ -94,6 +96,34 @@ export const joinGameAction = authedAction.action(async ({ ctx }) => {
     game_id: game.id,
   }
 })
+
+export const getStarterCodeAction = authedAction.schema(
+  z.object({
+    game_id: z.string(),
+  }),
+).action(async ({ ctx, parsedInput }) => {
+  const question = await getQuestionForGame(db, parsedInput.game_id)
+
+  if (!question) {
+    throw new Error("Game or question not found")
+  }
+
+  return question.starterCode
+});
+
+export const getGameQuestionAction = authedAction.schema(
+  z.object({
+    game_id: z.string(),
+  }),
+).action(async ({ ctx, parsedInput }) => {
+  const question = await getQuestionForGame(db, parsedInput.game_id)
+
+  if (!question) {
+    throw new Error("Game or question not found")
+  }
+
+  return question
+});
 
 export const leaveGameAction = authedAction
   .schema(
@@ -145,6 +175,32 @@ export const leaveGameAction = authedAction
       await db.delete(schema.gameStates).where(cmp.eq(schema.gameStates.id, game.id))
     }
   })
+
+export const getChatHistoryForGameAction = authedAction
+  .schema(
+    z.object({
+      game_id: z.string(),
+    }),
+  )
+  .action(async ({ ctx, parsedInput }) => {
+    const playerGameSession = await db.query.playerGameSessions.findFirst({
+      where: cmp.and(
+        cmp.eq(schema.playerGameSessions.user_id, ctx.user.id),
+        cmp.eq(schema.playerGameSessions.game_id, parsedInput.game_id),
+      ),
+    })
+
+    if (!playerGameSession) {
+      throw new Error("Game not found, or you are not in this game")
+    }
+
+    const chatHistoryItems = await db.query.playerGameSessionChatHistoryItems.findMany({
+      where: cmp.eq(schema.playerGameSessionChatHistoryItems.player_game_session_id, playerGameSession.id),
+      orderBy: desc(schema.playerGameSessionChatHistoryItems.inserted_at),
+    })
+    return chatHistoryItems
+  })
+
 
 export const sendMessageInGameAction = authedAction
   .schema(
@@ -456,3 +512,14 @@ export const resetStartingCodeAction = authedAction
       })
       .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
   })
+
+
+export const getGameSessionInfoForPlayerAction = async ({ gameId }: { gameId: string }) => {
+  const user = await requireAuthUser()
+  const playerGameSession = await getSessionInfoForPlayer(db, user.id, gameId)
+  if (!playerGameSession) {
+    throw new Error("Game not found, or you are not in this game")
+  }
+
+  return playerGameSession
+}

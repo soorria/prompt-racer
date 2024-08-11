@@ -4,60 +4,69 @@ import React from "react"
 import dynamic from "next/dynamic"
 import { useMediaQuery } from "@react-hook/media-query"
 import { LayoutTemplate } from "lucide-react"
+import { Doc } from "prettier"
 
-import CodeView from "~/components/game-screen/code-view/CodeView"
+import ChatHistoryPanel from "~/components/game-screen/ChatHistoryPanel"
+import CodeView from "~/components/game-screen/CodeView"
 import { GameManagerProvider } from "~/components/game-screen/GameManagerProvider"
-import ResponsiveMultiSelectPanel from "~/components/game-screen/multi-select-panel/ResponsiveMultiSelectPanel"
-import QuestionDescription from "~/components/game-screen/question-description/QuestionDescription"
+import QuestionDescription from "~/components/game-screen/QuestionDescription"
+import ResponsiveMultiSelectPanel from "~/components/game-screen/ResponsiveMultiSelectPanel"
 import { Skeleton } from "~/components/ui/skeleton"
+import { GameWithQuestion, SessionInfo } from "~/lib/games/types"
 import { createDefaultLayout, createDefaultMobileLayout } from "~/lib/surfaces/panels/layouts"
 import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
 
 const CodeViewImpl = { key: "code", className: "bg-dracula p-4", component: <CodeView /> }
-const CodeViewImpl1 = { key: "code1", className: "bg-dracula p-4", component: <CodeView /> }
 const QuestionViewImpl = {
   key: "qdesc",
   className: "bg-card p-4",
   component: <QuestionDescription />,
 }
-const QuestionViewImpl2 = {
-  key: "qdesc2",
-  className: "bg-card p-4",
-  component: <QuestionDescription />,
+const ChatHistoryPanelImpl = {
+  key: "chat",
+  className: "bg-card",
+  component: <ChatHistoryPanel />,
 }
-const Test = {
-  key: "qdesc3",
+
+const ResponsiveLayout = {
+  key: "responsive-layout",
   className: "",
   component: (
     <ResponsiveMultiSelectPanel
       panels={[
         { ...QuestionViewImpl, title: "Question" },
-        { ...CodeViewImpl1, title: "More..." },
+        { ...ChatHistoryPanelImpl, title: "Chat log" },
       ]}
     />
   ),
 }
 
-function GamePage() {
+function GameLayout({
+  gameInfo,
+  sessionInfo,
+}: {
+  gameInfo: GameWithQuestion
+  sessionInfo: SessionInfo
+}) {
   const isMobile = useMediaQuery("(max-width: 768px)")
   const defaultDesktopLayout = createDefaultLayout({
-    leftSection: { top: CodeViewImpl, bottom: QuestionViewImpl },
-    rightSection: QuestionViewImpl2,
+    rightSection: { top: CodeViewImpl, bottom: ChatHistoryPanelImpl },
+    leftSection: QuestionViewImpl,
   })
   const defaultMobileLayout = createDefaultMobileLayout({
-    top: Test,
+    top: ResponsiveLayout,
     bottom: CodeViewImpl,
   })
   const layout = isMobile ? defaultMobileLayout : defaultDesktopLayout
 
   return (
-    <GameManagerProvider>
+    <GameManagerProvider gameInfo={gameInfo} sessionInfo={sessionInfo}>
       <PanelSkeleton layout={layout} />
     </GameManagerProvider>
   )
 }
 
-export default dynamic(() => Promise.resolve(GamePage), {
+export default dynamic(() => Promise.resolve(GameLayout), {
   loading: () => (
     <Skeleton className="grid h-full place-items-center">
       <LayoutTemplate className="h-72 w-72 animate-bounce text-white/10" />

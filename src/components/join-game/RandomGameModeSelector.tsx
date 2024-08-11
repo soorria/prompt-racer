@@ -11,11 +11,11 @@ import { Button } from "../ui/button"
 
 export default function RandomGameModeSelector() {
   const router = useRouter()
-  const { execute, isExecuting } = useAction(joinGameAction, {
+  const { execute, isExecuting, hasSucceeded } = useAction(joinGameAction, {
     onSuccess: async ({ data }) => {
       const gameId = data?.game_id
       console.log({ gameId })
-      router.push(`/game`)
+      router.push(`/game/${gameId}`)
     },
   })
 
@@ -37,6 +37,7 @@ export default function RandomGameModeSelector() {
             </p>
             <Button
               isLoading={isExecuting}
+              disabled={hasSucceeded}
               onClick={() => execute()}
               className="mt-5 w-full ring-2 ring-zinc-700"
               variant={"outline"}

@@ -94,3 +94,41 @@ export async function getGameById(tx: DBOrTransation, gameId: string) {
 
   return game
 }
+
+export async function getQuestionForGame(tx: DBOrTransation, gameId: string) {
+  return await tx.query.gameStates.findFirst({
+    where: cmp.eq(schema.gameStates.id, gameId),
+    with: {
+      question: {
+        with: {
+          testCases: {
+            where: cmp.eq(schema.questionTestCases.type, "public"),
+          },
+        }
+      },
+    },
+  })
+}
+
+export async function getSessionInfoForPlayer(tx: DBOrTransation, userId: string, gameId: string) {
+  return await tx.query.playerGameSessions.findFirst({
+    where: cmp.and(
+      cmp.eq(schema.playerGameSessions.user_id, userId),
+      cmp.eq(schema.playerGameSessions.game_id, gameId),
+    ),
+    with: {
+      submissionState: {
+        with: {
+          results: true,
+        },
+      },
+      testState: {
+        with: {
+          results: true,
+        },
+      },
+      chatHistory: true,
+      finalResult: true,
+    },
+  })
+}
