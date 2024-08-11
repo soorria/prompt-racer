@@ -2,10 +2,12 @@
 
 import { invariant } from "@epic-web/invariant"
 import { addSeconds } from "date-fns"
+import { dequal } from "dequal"
 import { count, desc } from "drizzle-orm"
 import { z } from "zod"
 
 import { authedAction } from "../actions/utils"
+import { requireAuthUser } from "../auth/user"
 import { runPythonCodeAgainstTestCases } from "../code-execution/python"
 import { cmp, db, schema } from "../db"
 import { type DBOrTransation, type DocInsert } from "../db/types"
@@ -20,13 +22,10 @@ import {
   getGamesWithStatus,
   getLatestActiveGameForUser,
   getQuestionById,
-  getQuestionForGame,
   getRandomQuestion,
   getSessionInfoForPlayer,
 } from "./queries"
-import { dequal } from 'dequal';
-import { chatHistoryItemTypeIs, getRandomGameMode } from "./utils"
-import { requireAuthUser } from "../auth/user"
+import { chatHistoryItemTypeIs, getQuestionTestCasesOrderBy, getRandomGameMode } from "./utils"
 
 async function createGame(tx: DBOrTransation) {
   const question = await getRandomQuestion(tx)
@@ -168,12 +167,14 @@ export const getChatHistoryForGameAction = authedAction
     }
 
     const chatHistoryItems = await db.query.playerGameSessionChatHistoryItems.findMany({
-      where: cmp.eq(schema.playerGameSessionChatHistoryItems.player_game_session_id, playerGameSession.id),
+      where: cmp.eq(
+        schema.playerGameSessionChatHistoryItems.player_game_session_id,
+        playerGameSession.id,
+      ),
       orderBy: desc(schema.playerGameSessionChatHistoryItems.inserted_at),
     })
     return chatHistoryItems
   })
-
 
 export const sendMessageInGameAction = authedAction
   .schema(
@@ -272,31 +273,34 @@ export const sendMessageInGameAction = authedAction
     const extractedCode = extractCodeFromRawCompletion(rawUpdatedCode)
 
     await Promise.all([
-      db.update(schema.playerGameSessionChatHistoryItems).set({
-        player_game_session_id: playerGameSession.id,
-        content: extractedCode
-          ? {
-            type: "ai",
-            rawCompletion: rawUpdatedCode,
-            parsedCompletion: {
-              state: "success",
-              maybeCode: extractedCode,
-            },
-          }
-          : {
-            type: "ai",
-            rawCompletion: rawUpdatedCode,
-            parsedCompletion: {
-              state: "error",
-              error: "Could not find code in AI completion",
-            },
-          },
-      }).where(cmp.eq(schema.playerGameSessionChatHistoryItems.id, insertedAtMessage.id)),
-      extractedCode &&
       db
-        .update(schema.playerGameSessions)
-        .set({ code: extractedCode })
-        .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
+        .update(schema.playerGameSessionChatHistoryItems)
+        .set({
+          player_game_session_id: playerGameSession.id,
+          content: extractedCode
+            ? {
+                type: "ai",
+                rawCompletion: rawUpdatedCode,
+                parsedCompletion: {
+                  state: "success",
+                  maybeCode: extractedCode,
+                },
+              }
+            : {
+                type: "ai",
+                rawCompletion: rawUpdatedCode,
+                parsedCompletion: {
+                  state: "error",
+                  error: "Could not find code in AI completion",
+                },
+              },
+        })
+        .where(cmp.eq(schema.playerGameSessionChatHistoryItems.id, insertedAtMessage.id)),
+      extractedCode &&
+        db
+          .update(schema.playerGameSessions)
+          .set({ code: extractedCode })
+          .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
     ])
   })
 
@@ -323,6 +327,7 @@ export const submitCodeAction = authedAction
                     parsedInput.submission_type === "test-run"
                       ? cmp.eq(schema.questionTestCases.type, "public")
                       : undefined,
+                  orderBy: getQuestionTestCasesOrderBy(),
                 },
               },
             },
@@ -378,14 +383,14 @@ export const submitCodeAction = authedAction
           id: schema.playerGameSubmissionStates.id,
         }),
       submissionState &&
-      db
-        .delete(schema.playerGameSubmissionStateResults)
-        .where(
-          cmp.eq(
-            schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-            submissionState.id,
+        db
+          .delete(schema.playerGameSubmissionStateResults)
+          .where(
+            cmp.eq(
+              schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+              submissionState.id,
+            ),
           ),
-        ),
     ])
 
     if (!insertedSubmissionState) {
@@ -442,9 +447,12 @@ export const submitCodeAction = authedAction
 
     await db.insert(schema.playerGameSubmissionStateResults).values(submissionResultDocs)
 
-    await db.update(schema.playerGameSubmissionStates).set({
-      status: "complete",
-    }).where(cmp.eq(schema.playerGameSubmissionStates.id, insertedSubmissionState.id))
+    await db
+      .update(schema.playerGameSubmissionStates)
+      .set({
+        status: "complete",
+      })
+      .where(cmp.eq(schema.playerGameSubmissionStates.id, insertedSubmissionState.id))
   })
 
 export const resetStartingCodeAction = authedAction
@@ -489,7 +497,6 @@ export const resetStartingCodeAction = authedAction
       })
       .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
   })
-
 
 export const getGameSessionInfoForPlayerAction = async ({ gameId }: { gameId: string }) => {
   const user = await requireAuthUser()
