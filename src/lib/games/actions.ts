@@ -24,6 +24,7 @@ import {
   getRandomQuestion,
   getSessionInfoForPlayer,
 } from "./queries"
+import { dequal } from 'dequal';
 import { chatHistoryItemTypeIs, getRandomGameMode } from "./utils"
 import { requireAuthUser } from "../auth/user"
 
@@ -96,34 +97,6 @@ export const joinGameAction = authedAction.action(async ({ ctx }) => {
     game_id: game.id,
   }
 })
-
-export const getStarterCodeAction = authedAction.schema(
-  z.object({
-    game_id: z.string(),
-  }),
-).action(async ({ ctx, parsedInput }) => {
-  const question = await getQuestionForGame(db, parsedInput.game_id)
-
-  if (!question) {
-    throw new Error("Game or question not found")
-  }
-
-  return question.starterCode
-});
-
-export const getGameQuestionAction = authedAction.schema(
-  z.object({
-    game_id: z.string(),
-  }),
-).action(async ({ ctx, parsedInput }) => {
-  const question = await getQuestionForGame(db, parsedInput.game_id)
-
-  if (!question) {
-    throw new Error("Game or question not found")
-  }
-
-  return question
-});
 
 export const leaveGameAction = authedAction
   .schema(
@@ -299,7 +272,7 @@ export const sendMessageInGameAction = authedAction
     const extractedCode = extractCodeFromRawCompletion(rawUpdatedCode)
 
     await Promise.all([
-      db.insert(schema.playerGameSessionChatHistoryItems).values({
+      db.update(schema.playerGameSessionChatHistoryItems).set({
         player_game_session_id: playerGameSession.id,
         content: extractedCode
           ? {
@@ -318,7 +291,7 @@ export const sendMessageInGameAction = authedAction
               error: "Could not find code in AI completion",
             },
           },
-      }),
+      }).where(cmp.eq(schema.playerGameSessionChatHistoryItems.id, insertedAtMessage.id)),
       extractedCode &&
       db
         .update(schema.playerGameSessions)
@@ -461,13 +434,17 @@ export const submitCodeAction = authedAction
           status: result.status === "success" ? "success" : "error",
           result: result.status === "success" ? result.result : null,
           reason: result.status === "error" ? result.reason.message : null,
-          is_correct: result.status === "success",
+          is_correct: result.status === "success" && dequal(testCase.expectedOutput, result.result),
           run_duration_ms: Math.max(Math.round(result.time), 1),
         }
       },
     )
 
     await db.insert(schema.playerGameSubmissionStateResults).values(submissionResultDocs)
+
+    await db.update(schema.playerGameSubmissionStates).set({
+      status: "complete",
+    }).where(cmp.eq(schema.playerGameSubmissionStates.id, insertedSubmissionState.id))
   })
 
 export const resetStartingCodeAction = authedAction

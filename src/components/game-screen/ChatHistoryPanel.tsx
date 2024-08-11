@@ -11,15 +11,6 @@ import { useGameManager } from "./GameManagerProvider"
 
 type MessageType = Doc<"playerGameSessionChatHistoryItems">
 
-const fakeCode = `def solution(nums, target):
-    indexes = {}
-    for i, n in enumerate(nums):
-        if n in indexes:
-            return indexes[n], i, return indexes[n], i, return indexes[n], i
-        else:
-            indexes[target - n] = i
-    return None, None`
-
 function ChatPanelMessage({
   message,
   index,
@@ -59,7 +50,7 @@ function ChatPanelMessage({
             <Bot className="h-4 w-4" />
           </div>
           <div ref={contentRef} className={clsx("overflow-auto rounded-xl bg-dracula text-xs")}>
-            <CodeRenderer code={fakeCode} language="python" />
+            <CodeRenderer code={message.content.rawCompletion} language="python" />
           </div>
         </>
       )}
@@ -87,76 +78,6 @@ function ChatPanelMessage({
   )
 }
 
-// type MessageType = {
-//   id: string;
-//   player_game_session_id: string;
-//   content: {
-//       type: "instructions";
-//       instructions: string;
-//   } | {
-//       type: "reset";
-//   } | {
-//       type: "ai";
-//       rawCompletion: string;
-//       parsedCompletion: {
-//           state: "generating";
-//           maybeCode: string;
-//       } | {
-//           ...;
-//       } | {
-//           ...;
-//       };
-//   };
-//   inserted_at: Date;
-// }
-
-const ChatPanelm: MessageType[] = [
-  {
-    id: "1",
-    player_game_session_id: "1",
-    content: {
-      type: "instructions",
-      instructions: "You are a helpful assistant.",
-    },
-    inserted_at: new Date(),
-  },
-  {
-    id: "2",
-    player_game_session_id: "1",
-    content: {
-      type: "ai",
-      rawCompletion: "Hello, how can I help you today?",
-      parsedCompletion: {
-        state: "generating",
-        maybeCode: "Hello, how can I help you today?",
-      },
-    },
-    inserted_at: new Date(),
-  },
-  {
-    id: "3",
-    player_game_session_id: "1",
-    content: {
-      type: "instructions",
-      instructions: "You are a helpful assistant.",
-    },
-    inserted_at: new Date(),
-  },
-  {
-    id: "4",
-    player_game_session_id: "1",
-    content: {
-      type: "ai",
-      rawCompletion: "Hello, how can I help you today?",
-      parsedCompletion: {
-        state: "generating",
-        maybeCode: "Hello, how can I help you today?",
-      },
-    },
-    inserted_at: new Date(),
-  },
-]
-
 export default function ChatHistoryPanel() {
   const context = useGameManager()
   const chatMessages = context.gameSessionInfo.chatHistory
@@ -176,7 +97,7 @@ export default function ChatHistoryPanel() {
     return <Skeleton className="h-full" />
   }
 
-  const messageTmp = [...chatMessages, ...ChatPanelm]
+  const messageTmp = [...chatMessages]
 
   return (
     <div className="relative h-full overflow-auto scroll-smooth rounded-xl border-2 border-white/5 bg-card">

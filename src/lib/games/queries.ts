@@ -117,11 +117,7 @@ export async function getSessionInfoForPlayer(tx: DBOrTransation, userId: string
       cmp.eq(schema.playerGameSessions.game_id, gameId),
     ),
     with: {
-      submissionState: {
-        with: {
-          results: true,
-        },
-      },
+      submissionState: true,
       testState: {
         with: {
           results: true,

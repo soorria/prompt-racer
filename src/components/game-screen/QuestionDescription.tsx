@@ -4,6 +4,7 @@ import React from "react"
 import Markdown from "react-markdown"
 
 import { Badge } from "~/components/ui/badge"
+import CodeRunning from "./CodeRunning"
 import { useGameManager } from "./GameManagerProvider"
 
 const MapfromDifficultyToBadgeVariant = {
@@ -27,6 +28,7 @@ export default function QuestionDescription() {
       <div className="text-pretty text-sm">
         <Markdown className={"prose prose-invert"}>{gameInfo.question.description}</Markdown>
       </div>
+      <CodeRunning />
     </>
   )
 }

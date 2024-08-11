@@ -13,14 +13,14 @@ export default function CodeView() {
 
   return (
     <div>
-      <CodeRenderer code={context.code} language="python" showLineNumbers />
+      <CodeRenderer code={context.gameSessionInfo.code} language="python" showLineNumbers />
       <form
         className="absolute inset-x-2 bottom-2 flex gap-2"
         action={async (formData) => {
           await context.updateCurrentCodeMutation.mutateAsync(formData.get("message") as string)
         }}
       >
-        <Input className="flex-1" />
+        <Input className="flex-1" name="message" placeholder="Enter your instructions" />
         <Button isLoading={context.updateCurrentCodeMutation.isPending} Icon={Send}>
           Send
         </Button>
