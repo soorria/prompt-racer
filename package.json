@@ -10,6 +10,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:tmp-seed": "pnpm run with-env npx tsx src/scripts/tmp-seed.ts",
+    "dev:inngest": "npx inngest-cli@latest dev --no-poll --no-discovery -u 'http://localhost:3000/api/inngest'",
     "dev": "next dev",
     "lint": "next lint",
     "format": "prettier ./**/*.{ts,tsx} --ignore-path .gitignore",
