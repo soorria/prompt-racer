@@ -4,8 +4,8 @@ import React from "react"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import ms from "ms"
 
+import type { GameWithQuestion, SessionInfo } from "~/lib/games/types"
 import { getGameSessionInfoForPlayerAction, sendMessageInGameAction } from "~/lib/games/actions"
-import { GameWithQuestion, SessionInfo } from "~/lib/games/types"
 import { createTypedContext } from "~/lib/utils/context"
 
 const [Provider, useGameManager] = createTypedContext(

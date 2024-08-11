@@ -15,7 +15,7 @@ export function createTypedContext<
   const Context = createContext<TContext | null>(null)
 
   function Provider(props: TProps & { children: React.ReactNode }) {
-    return <Context.Provider value={useContextValue(props)} children={props.children} />
+    return <Context.Provider value={useContextValue(props)}>{props.children}</Context.Provider>
   }
 
   function useOptionalTypedContext() {
