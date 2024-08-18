@@ -29,11 +29,11 @@ export default function QuestionDescription() {
       <div className="mb-1 text-2xl font-bold">{gameInfo.question.title}</div>
       <Badge
         variant={MapfromDifficultyToBadgeVariant[gameInfo.question.difficulty]}
-        className="mb-5"
+        className="mb-2"
       >
         {gameInfo.question.difficulty}
       </Badge>
-      <div className="my-6 rounded bg-primary/40 px-3 py-2">
+      <div className="mb-6 mt-3 rounded bg-primary/40 px-3 py-2">
         <h3 className="mb-2 font-medium">Win condition</h3>
         <p className="text-sm">{MapFromModeToWinConditionDescription[gameInfo.mode]}</p>
       </div>

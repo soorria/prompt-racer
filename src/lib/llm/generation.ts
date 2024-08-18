@@ -34,7 +34,7 @@ export async function streamUpdatedCode(args: {
   instructions: string
   modelId: ModelId
 }) {
-  const stream = await streamText({
+  const stream = await generateText({
     model: getAIModelProvider(args.modelId),
     temperature: 0.7,
     stopSequences: ["</code>"],

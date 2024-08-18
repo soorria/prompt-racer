@@ -279,28 +279,28 @@ export const sendMessageInGameAction = authedAction
           player_game_session_id: playerGameSession.id,
           content: extractedCode
             ? {
-                type: "ai",
-                rawCompletion: rawUpdatedCode,
-                parsedCompletion: {
-                  state: "success",
-                  maybeCode: extractedCode,
-                },
-              }
-            : {
-                type: "ai",
-                rawCompletion: rawUpdatedCode,
-                parsedCompletion: {
-                  state: "error",
-                  error: "Could not find code in AI completion",
-                },
+              type: "ai",
+              rawCompletion: rawUpdatedCode,
+              parsedCompletion: {
+                state: "success",
+                maybeCode: extractedCode,
               },
+            }
+            : {
+              type: "ai",
+              rawCompletion: rawUpdatedCode,
+              parsedCompletion: {
+                state: "error",
+                error: "Could not find code in AI completion",
+              },
+            },
         })
         .where(cmp.eq(schema.playerGameSessionChatHistoryItems.id, insertedAtMessage.id)),
       extractedCode &&
-        db
-          .update(schema.playerGameSessions)
-          .set({ code: extractedCode })
-          .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
+      db
+        .update(schema.playerGameSessions)
+        .set({ code: extractedCode })
+        .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
     ])
   })
 
@@ -383,14 +383,14 @@ export const submitCodeAction = authedAction
           id: schema.playerGameSubmissionStates.id,
         }),
       submissionState &&
-        db
-          .delete(schema.playerGameSubmissionStateResults)
-          .where(
-            cmp.eq(
-              schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-              submissionState.id,
-            ),
+      db
+        .delete(schema.playerGameSubmissionStateResults)
+        .where(
+          cmp.eq(
+            schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+            submissionState.id,
           ),
+        ),
     ])
 
     if (!insertedSubmissionState) {
