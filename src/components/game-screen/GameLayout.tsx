@@ -4,17 +4,18 @@ import React from "react"
 import dynamic from "next/dynamic"
 import { useMediaQuery } from "@react-hook/media-query"
 import { LayoutTemplate } from "lucide-react"
-import { Doc } from "prettier"
 
-import ChatHistoryPanel from "~/components/game-screen/ChatHistoryPanel"
+import type { GameWithQuestion, SessionInfo } from "~/lib/games/types"
+import { ChatHistoryPanelImpl } from "~/components/game-screen/ChatHistoryPanel"
 import CodeView from "~/components/game-screen/CodeView"
 import { GameManagerProvider } from "~/components/game-screen/GameManagerProvider"
+import MobileMultiSelectPanel from "~/components/game-screen/MobileMultiSelectPanel"
 import QuestionDescription from "~/components/game-screen/QuestionDescription"
-import ResponsiveMultiSelectPanel from "~/components/game-screen/ResponsiveMultiSelectPanel"
 import { Skeleton } from "~/components/ui/skeleton"
-import { GameWithQuestion, SessionInfo } from "~/lib/games/types"
 import { createDefaultLayout, createDefaultMobileLayout } from "~/lib/surfaces/panels/layouts"
 import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
+import MultiSelectPanel from "./MultiSelectPanel"
+import RunCodePanel from "./RunCodePanel"
 
 const CodeViewImpl = { key: "code", className: "bg-dracula p-4", component: <CodeView /> }
 const QuestionViewImpl = {
@@ -22,20 +23,34 @@ const QuestionViewImpl = {
   className: "bg-card p-4",
   component: <QuestionDescription />,
 }
-const ChatHistoryPanelImpl = {
-  key: "chat",
-  className: "bg-card",
-  component: <ChatHistoryPanel />,
+const CodeRunningViewImpl = {
+  key: "run-code",
+  className: "bg-card p-4",
+  component: <RunCodePanel />,
 }
 
-const ResponsiveLayout = {
-  key: "responsive-layout",
+const MobileLayout = {
+  key: "mobile-layout",
   className: "",
   component: (
-    <ResponsiveMultiSelectPanel
+    <MobileMultiSelectPanel
       panels={[
         { ...QuestionViewImpl, title: "Question" },
         { ...ChatHistoryPanelImpl, title: "Chat log" },
+        { ...CodeRunningViewImpl, title: "Run code" },
+      ]}
+    />
+  ),
+}
+
+const QuestionAndTestCasesImpl = {
+  key: "question-and-testcases",
+  className: "bg-card",
+  component: (
+    <MultiSelectPanel
+      panels={[
+        { ...QuestionViewImpl, title: "Question" },
+        { ...CodeRunningViewImpl, title: "Run code" },
       ]}
     />
   ),
@@ -51,10 +66,10 @@ function GameLayout({
   const isMobile = useMediaQuery("(max-width: 768px)")
   const defaultDesktopLayout = createDefaultLayout({
     rightSection: { top: CodeViewImpl, bottom: ChatHistoryPanelImpl },
-    leftSection: QuestionViewImpl,
+    leftSection: QuestionAndTestCasesImpl,
   })
   const defaultMobileLayout = createDefaultMobileLayout({
-    top: ResponsiveLayout,
+    top: MobileLayout,
     bottom: CodeViewImpl,
   })
   const layout = isMobile ? defaultMobileLayout : defaultDesktopLayout

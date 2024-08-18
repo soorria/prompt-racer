@@ -4,8 +4,8 @@ import React, { useState } from "react"
 import { invariant } from "@epic-web/invariant"
 
 import type { PanelSlot } from "~/lib/surfaces/panels/panels"
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs"
 import { cn } from "~/lib/utils"
+import AnimatedBackground from "../ui/AnimatedTabs"
 
 export type PanelSlotWithTitle = PanelSlot & { title: string }
 
@@ -23,21 +23,37 @@ export default function ResponsiveMultiSelectPanel({ panels }: { panels: PanelSl
     <div className="flex h-full flex-col">
       <div
         key={panels[selectedPanelIndex]?.key}
-        className={cn(panels[selectedPanelIndex]?.className, "flex-1 pb-20")}
+        className={cn(panels[selectedPanelIndex]?.className, "flex-1")}
         style={{ overflow: "scroll" }}
       >
         {panels[selectedPanelIndex]?.component}
       </div>
       <div className="absolute inset-x-0 bottom-0 z-10 grid place-content-center bg-gradient-to-t from-card/40 p-3">
-        <Tabs defaultValue={panels[0]?.key} onValueChange={handlePanelChange} className="w-full">
-          <TabsList className="space-x-3 rounded-full px-2 py-6 ring-2 ring-primary/50">
+        <div className="bg-card-lighter flex flex-row gap-x-2 rounded-full p-2 ring-2 ring-green-800">
+          <AnimatedBackground
+            defaultValue={selectedPanel.key}
+            className="rounded-full bg-white dark:bg-zinc-700"
+            transition={{
+              ease: "easeInOut",
+              duration: 0.2,
+            }}
+          >
             {panels.map((panel) => (
-              <TabsTrigger key={panel.key} value={panel.key} className="rounded-full p-2">
+              <button
+                key={panel.key}
+                data-id={panel.key}
+                type="button"
+                className={cn(
+                  "inline-flex w-20 items-center justify-center p-0.5 text-center text-zinc-50/50 transition-all active:scale-[0.98]",
+                  { "text-zinc-800": selectedPanel.key === panel.key },
+                )}
+                onClick={() => handlePanelChange(panel.key)}
+              >
                 {panel.title}
-              </TabsTrigger>
+              </button>
             ))}
-          </TabsList>
-        </Tabs>
+          </AnimatedBackground>
+        </div>
       </div>
     </div>
   )

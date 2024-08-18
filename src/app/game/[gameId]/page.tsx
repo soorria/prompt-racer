@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 
 import GameLayout from "~/components/game-screen/GameLayout"
 import { requireAuthUser } from "~/lib/auth/user"
-import { cmp, db, schema } from "~/lib/db"
+import { db } from "~/lib/db"
 import { getQuestionForGame, getSessionInfoForPlayer } from "~/lib/games/queries"
 
 export default async function GamePage({ params: { gameId } }: { params: { gameId: string } }) {

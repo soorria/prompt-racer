@@ -4,6 +4,7 @@ import React from "react"
 import { useRouter } from "next/navigation"
 import { Shuffle } from "lucide-react"
 import { useAction } from "next-safe-action/hooks"
+import { toast } from "sonner"
 
 import { joinGameAction } from "~/lib/games/actions"
 import { cn } from "~/lib/utils"
@@ -14,8 +15,10 @@ export default function RandomGameModeSelector() {
   const { execute, isExecuting, hasSucceeded } = useAction(joinGameAction, {
     onSuccess: async ({ data }) => {
       const gameId = data?.game_id
-      console.log({ gameId })
       router.push(`/game/${gameId}`)
+    },
+    onError: () => {
+      toast.error("Failed to join game")
     },
   })
 

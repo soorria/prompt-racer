@@ -11,8 +11,9 @@ body {
   :root {
     --background: 20 14.3% 6.1%;
     --foreground: 0 0% 95%;
-    --card: 24 9.8% 10%;
+    --card: 240, 2%, 10%;
     --card-foreground: 0 0% 95%;
+    --card-lighter: 107.27deg 3.98% 11.29%;
     --popover: 0 0% 9%;
     --popover-foreground: 0 0% 95%;
     --primary: 142.1 70.6% 45.3%;

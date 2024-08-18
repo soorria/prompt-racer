@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
 import { Send } from "lucide-react"
 
 import CodeRenderer from "../CodeRenderer"

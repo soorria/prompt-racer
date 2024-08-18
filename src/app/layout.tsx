@@ -7,6 +7,7 @@ import { Fugaz_One, Inter } from "next/font/google"
 
 import Logo from "~/components/nav-bar/Logo"
 import ProfileCard from "~/components/nav-bar/ProfileCard"
+import { Toaster } from "~/components/ui/sonner"
 import { getAuthUser } from "~/lib/auth/user"
 import Navbar from "~/lib/surfaces/navbar/Navbar"
 import { cn } from "~/lib/utils"
@@ -73,6 +74,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <Navbar leftContent={<Logo />} rightContent={<ProfileCard user={user} />} />
         {/* <TRPCReactProvider> */}
         <div className="flex-1 pt-4">{children}</div>
+        <Toaster />
         {/* </TRPCReactProvider> */}
       </body>
     </html>

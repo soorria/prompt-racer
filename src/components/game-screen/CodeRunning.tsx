@@ -1,28 +1,34 @@
-import React, { ReactNode } from "react"
-import { CheckCircle2, CornerDownRightIcon, Loader2, MinusCircleIcon, XCircle } from "lucide-react"
+import type { ReactNode } from "react"
+import React from "react"
+import {
+  CheckCircle2,
+  CornerDownRightIcon,
+  Loader2,
+  MinusCircleIcon,
+  Play,
+  UploadCloud,
+  XCircle,
+} from "lucide-react"
+import { useAction } from "next-safe-action/hooks"
 
 import { submitCodeAction } from "~/lib/games/actions"
 import { Button } from "../ui/button"
 import { useGameManager } from "./GameManagerProvider"
 
 export default function CodeRunning() {
-  const context = useGameManager()
-  console.log(context.gameSessionInfo.testState)
+  const { gameInfo, gameSessionInfo } = useGameManager()
+  const runTestAction = useAction(submitCodeAction)
+  const submitCode = useAction(submitCodeAction)
 
   return (
     <div>
-      <div className="mt-6 rounded bg-primary/40 px-3 py-2">
-        <h3 className="mb-2 font-medium">Win condition</h3>
-        <p className="text-sm">{context.gameInfo.mode}</p>
-      </div>
-
-      <div className="mb-4 mt-12">
+      <div className="mb-4">
         <h3 className="mb-2 font-medium">Test cases</h3>
         <div className="space-y-2 text-sm">
-          {context.gameInfo.question.testCases.map((testCase, i) => {
-            const result = context.gameSessionInfo.testState?.results[i]
+          {gameInfo.question.testCases.map((testCase, i) => {
+            const result = gameSessionInfo.testState?.results[i]
             let testEmoji: ReactNode
-            if (context.gameSessionInfo.testState?.status === "running") {
+            if (gameSessionInfo.testState?.status === "running") {
               testEmoji = (
                 <span title="Running test">
                   <Loader2 className="h-6 w-6 animate-spin" />
@@ -69,26 +75,27 @@ export default function CodeRunning() {
           })}
         </div>
       </div>
-      <div className="flex">
+      <div className="flex justify-between">
         <Button
-          onClick={async () => {
-            const result = await submitCodeAction({
-              game_id: context.gameInfo.id,
-              submission_type: "test-run",
-            })
-          }}
-          isLoading={context.gameSessionInfo.testState?.status === "running"}
+          onClick={() =>
+            runTestAction.execute({ game_id: gameInfo.id, submission_type: "test-run" })
+          }
+          // TODO: we need to be checking gameSessionInfo.testState.status === "running" here
+          // this way even if we leave and come back to this panel it will show its still runnning
+          disabled={submitCode.isExecuting || runTestAction.isExecuting}
+          isLoading={runTestAction.isExecuting}
+          Icon={Play}
+          variant={"outline"}
         >
-          Test run code
+          Run tests
         </Button>
         <Button
-          onClick={async () => {
-            const result = await submitCodeAction({
-              game_id: context.gameInfo.id,
-              submission_type: "submission",
-            })
-          }}
-          isLoading={context.gameSessionInfo.submissionState?.status === "running"}
+          onClick={() =>
+            submitCode.execute({ game_id: gameInfo.id, submission_type: "submission" })
+          }
+          disabled={submitCode.isExecuting || runTestAction.isExecuting}
+          isLoading={submitCode.isExecuting}
+          Icon={UploadCloud}
         >
           Submit code
         </Button>
