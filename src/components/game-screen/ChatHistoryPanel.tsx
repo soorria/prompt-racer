@@ -100,16 +100,12 @@ export default function ChatHistoryPanel() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-  // scroll to the bottom automatically when a new message is added
-  // useEffect(() => {
-  //   scrollToBottom()
-  // }, [props.messages])
   if (!chatMessages) {
     return <Skeleton className="h-full" />
   }
 
   const swapAIAndInstructions = (messages: MessageType[]) => {
-    let swappedMessages = []
+    const swappedMessages = []
 
     for (let i = 0; i < messages.length; i++) {
       const currentMessage = messages[i]
