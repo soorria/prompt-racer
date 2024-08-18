@@ -40,18 +40,31 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
   isLoading?: boolean
+  scalingOnClick?: boolean
   Icon?: React.ComponentType<{ className?: string }>
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant, size, asChild = false, isLoading = false, Icon, children, ...props },
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      isLoading = false,
+      scalingOnClick = !asChild,
+      Icon,
+      children,
+      ...props
+    },
     ref,
   ) => {
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size }), className)}
+        className={cn(buttonVariants({ variant, size }), className, {
+          "transition-transform active:scale-[0.98]": scalingOnClick,
+        })}
         ref={ref}
         disabled={isLoading || props.disabled}
         {...props}

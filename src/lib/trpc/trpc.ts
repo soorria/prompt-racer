@@ -12,6 +12,7 @@ import { ZodError } from "zod"
 
 import { db } from "~/lib/db"
 import { logger } from "~/lib/server/logger"
+import { requireAuthUser } from "../auth/user"
 
 /**
  * 1. CONTEXT
@@ -108,3 +109,8 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware)
+
+export const protectedProcedure = publicProcedure.use(t.middleware(async ({ ctx, next }) => {
+  const user = await requireAuthUser()
+  return next({ ctx: { ...ctx, user } })
+}))

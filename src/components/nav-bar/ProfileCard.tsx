@@ -24,7 +24,7 @@ export default function ProfileCard({ user }: { user: User | null }) {
         <UserAvatar user={user} />
       </PopoverTrigger>
       <PopoverContent className="p-0 py-2" align="end">
-        <LoginLogoutButton user={user} setOpen={setOpen} />
+        <LoginLogoutButton key={user?.id ?? ""} user={user} setOpen={setOpen} />
         <div className="spacer my-2 h-0.5 w-full bg-gray-200/20" />
         <Button
           asChild

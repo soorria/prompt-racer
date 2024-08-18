@@ -1,24 +1,42 @@
 import type { ReactNode } from "react"
 import React from "react"
-import {
-  CheckCircle2,
-  CornerDownRightIcon,
-  Loader2,
-  MinusCircleIcon,
-  Play,
-  UploadCloud,
-  XCircle,
-} from "lucide-react"
+import { CheckCircle2, Loader2, MinusCircleIcon, Play, UploadCloud, XCircle } from "lucide-react"
 import { useAction } from "next-safe-action/hooks"
 
 import { submitCodeAction } from "~/lib/games/actions"
+import { api } from "~/lib/trpc/react"
 import { Button } from "../ui/button"
 import { useGameManager } from "./GameManagerProvider"
 
 export default function CodeRunning() {
+  const utils = api.useUtils()
   const { gameInfo, gameSessionInfo } = useGameManager()
+
   const runTestAction = useAction(submitCodeAction)
   const submitCode = useAction(submitCodeAction)
+
+  const handleRunTests = () => {
+    utils.gameSessionInfo.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
+      oldData?.testState
+        ? {
+            ...oldData,
+            testState: { ...oldData?.testState, status: "running" },
+          }
+        : undefined,
+    )
+
+    runTestAction.execute({ game_id: gameInfo.id, submission_type: "test-run" })
+  }
+
+  const handleSubmitCode = () => {
+    utils.gameSessionInfo.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
+      oldData?.submissionState
+        ? { ...oldData, submissionState: { ...oldData.submissionState, status: "running" } }
+        : undefined,
+    )
+
+    submitCode.execute({ game_id: gameInfo.id, submission_type: "submission" })
+  }
 
   return (
     <div>
@@ -27,6 +45,7 @@ export default function CodeRunning() {
         <div className="space-y-2 text-sm">
           {gameInfo.question.testCases.map((testCase, i) => {
             const result = gameSessionInfo.testState?.results[i]
+
             let testEmoji: ReactNode
             if (gameSessionInfo.testState?.status === "running") {
               testEmoji = (
@@ -61,13 +80,8 @@ export default function CodeRunning() {
                   </span>
                 </div>
                 {result?.status === "error" && (
-                  <div className="grid gap-1" style={{ gridTemplateColumns: "1em 1fr" }}>
-                    <span className="justify-self-center">
-                      <CornerDownRightIcon className="ml-4 h-4 w-4 text-red-500" />
-                    </span>
-                    <span className="ml-4">
-                      {result.status === "error" ? `${result.reason}` : null}
-                    </span>
+                  <div className="mt-3 whitespace-pre-wrap rounded-xl bg-red-500/20 p-4 text-red-500 bg-blend-color-burn">
+                    {result.reason}
                   </div>
                 )}
               </div>
@@ -77,22 +91,19 @@ export default function CodeRunning() {
       </div>
       <div className="flex justify-between">
         <Button
-          onClick={() =>
-            runTestAction.execute({ game_id: gameInfo.id, submission_type: "test-run" })
-          }
+          onClick={handleRunTests}
           // TODO: we need to be checking gameSessionInfo.testState.status === "running" here
           // this way even if we leave and come back to this panel it will show its still runnning
           disabled={submitCode.isExecuting || runTestAction.isExecuting}
           isLoading={runTestAction.isExecuting}
+          className="border-2 border-zinc-800"
           Icon={Play}
           variant={"outline"}
         >
           Run tests
         </Button>
         <Button
-          onClick={() =>
-            submitCode.execute({ game_id: gameInfo.id, submission_type: "submission" })
-          }
+          onClick={handleSubmitCode}
           disabled={submitCode.isExecuting || runTestAction.isExecuting}
           isLoading={submitCode.isExecuting}
           Icon={UploadCloud}

@@ -28,12 +28,12 @@ export const createDefaultLayout = ({ leftSection, rightSection }: { leftSection
         panels: [
           {
             type: "panel",
-            defaultSize: 40,
+            defaultSize: 70,
             ...rightSection.top
           },
           {
             type: "panel",
-            defaultSize: 60,
+            defaultSize: 30,
             ...rightSection.bottom
           },
         ],

@@ -1,4 +1,6 @@
-import { createCallerFactory, createTRPCRouter, publicProcedure } from "./trpc"
+import { z } from "zod"
+import { getSessionInfoForPlayer } from "../games/queries"
+import { createCallerFactory, createTRPCRouter, protectedProcedure, publicProcedure } from "./trpc"
 
 /**
  * This is the primary router for your server.
@@ -7,6 +9,15 @@ import { createCallerFactory, createTRPCRouter, publicProcedure } from "./trpc"
  */
 export const appRouter = createTRPCRouter({
   demo: publicProcedure.query(() => "yo"),
+  gameSessionInfo: protectedProcedure.input(z.object({
+    game_id: z.string()
+  })).query(async ({ ctx, input }) => {
+    const sessionInfo = await getSessionInfoForPlayer(ctx.db, ctx.user.id, input.game_id)
+    if (!sessionInfo) {
+      throw new Error("Game not found")
+    }
+    return sessionInfo
+  }),
 })
 
 // export type definition of API

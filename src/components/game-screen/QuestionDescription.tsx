@@ -42,8 +42,7 @@ export default function QuestionDescription() {
       </div>
 
       <div>
-        <h3 className="mb-2 font-medium">Examples</h3>
-        <div className="mb-4 mt-12">
+        <div className="mb-4 mt-8">
           <h3 className="mb-2 font-medium">Test cases</h3>
           <div className="space-y-2 text-sm">
             {gameInfo.question.testCases.map((testCase, i) => (

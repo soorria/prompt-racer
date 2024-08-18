@@ -29,10 +29,7 @@ export default function LoginLogoutButton({
 
   const handleLogin = async () => {
     setIsLoading(true)
-    await loginWithGitHubAction().then(() => {
-      setOpen(false)
-      setIsLoading(false)
-    })
+    await loginWithGitHubAction()
   }
 
   return (

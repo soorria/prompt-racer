@@ -70,12 +70,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   return (
     <html lang="en" className={rootclass}>
-      <body className="mx-auto flex max-w-screen-4xl flex-col p-4">
+      <body className="mx-auto flex flex-col p-4">
         <Navbar leftContent={<Logo />} rightContent={<ProfileCard user={user} />} />
-        {/* <TRPCReactProvider> */}
         <div className="flex-1 pt-4">{children}</div>
         <Toaster />
-        {/* </TRPCReactProvider> */}
       </body>
     </html>
   )

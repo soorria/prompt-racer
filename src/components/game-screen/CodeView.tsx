@@ -11,6 +11,7 @@ import { useGameManager } from "./GameManagerProvider"
 export default function CodeView() {
   const context = useGameManager()
   const formRef = React.useRef<HTMLFormElement>(null)
+  context.gameSessionInfo
 
   return (
     <div>
@@ -23,8 +24,13 @@ export default function CodeView() {
           formRef.current?.reset()
         }}
       >
-        <Input className="flex-1" name="message" placeholder="Enter your instructions" />
-        <Button type="submit" isLoading={context.updateCurrentCodeMutation.isPending} Icon={Send}>
+        <Input className="flex-1 rounded-lg" name="message" placeholder="Enter your instructions" />
+        <Button
+          type="submit"
+          className="rounded-lg"
+          isLoading={context.updateCurrentCodeMutation.isPending}
+          Icon={Send}
+        >
           Send
         </Button>
       </form>

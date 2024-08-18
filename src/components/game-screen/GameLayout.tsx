@@ -36,8 +36,8 @@ const MobileLayout = {
     <MobileMultiSelectPanel
       panels={[
         { ...QuestionViewImpl, title: "Question" },
-        { ...ChatHistoryPanelImpl, title: "Chat log" },
         { ...CodeRunningViewImpl, title: "Run code" },
+        { ...ChatHistoryPanelImpl, title: "Chat log" },
       ]}
     />
   ),
@@ -50,7 +50,7 @@ const QuestionAndTestCasesImpl = {
     <MultiSelectPanel
       panels={[
         { ...QuestionViewImpl, title: "Question" },
-        { ...CodeRunningViewImpl, title: "Run code" },
+        { ...ChatHistoryPanelImpl, title: "Chat log" },
       ]}
     />
   ),
@@ -65,7 +65,7 @@ function GameLayout({
 }) {
   const isMobile = useMediaQuery("(max-width: 768px)")
   const defaultDesktopLayout = createDefaultLayout({
-    rightSection: { top: CodeViewImpl, bottom: ChatHistoryPanelImpl },
+    rightSection: { top: CodeViewImpl, bottom: CodeRunningViewImpl },
     leftSection: QuestionAndTestCasesImpl,
   })
   const defaultMobileLayout = createDefaultMobileLayout({
