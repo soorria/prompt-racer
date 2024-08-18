@@ -5,21 +5,21 @@ import { TestTubeDiagonal } from "lucide-react"
 import Markdown from "react-markdown"
 
 import { Badge } from "~/components/ui/badge"
-import CodeRunning from "./CodeRunning"
+import { type Doc } from "~/lib/db/types"
 import { useGameManager } from "./GameManagerProvider"
 
 const MapfromDifficultyToBadgeVariant = {
   easy: "green",
   medium: "yellow",
   hard: "red",
-} as const
+} satisfies Record<Doc<"questions">["difficulty"], "green" | "yellow" | "red">
 
 const MapFromModeToWinConditionDescription = {
   "fastest-player": "The fastest player to submit the correct answer wins!",
   "fastest-code": "The code that runs the fastest wins!",
   "shortest-code": "The fewest amount of lines/characters of code wins!",
   "fewest-characters-to-llm": "The fewest characters able to generate the correct answer wins!",
-} as const
+} satisfies Record<Doc<"gameStates">["mode"], string>
 
 export default function QuestionDescription() {
   const { gameInfo } = useGameManager()
