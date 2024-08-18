@@ -1,7 +1,8 @@
 import type { Doc } from "../db/types"
+import type { ChatHistoryItemContentType, ChatHistoryItemContentWithType } from "./schemas"
+import { orderBy, schema } from "../db"
 import { randomElement } from "../utils/random"
 import { GAME_MODES } from "./constants"
-import type { ChatHistoryItemContentType, ChatHistoryItemContentWithType } from "./schemas"
 
 export function getRandomGameMode() {
   return randomElement(GAME_MODES)
@@ -14,4 +15,8 @@ export function chatHistoryItemTypeIs<Type extends ChatHistoryItemContentType>(
   content: ChatHistoryItemContentWithType<Type>
 } {
   return item.content.type === type
+}
+
+export function getQuestionTestCasesOrderBy() {
+  return orderBy.asc(schema.questionTestCases.id)
 }

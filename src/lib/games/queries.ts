@@ -6,6 +6,7 @@ import { count } from "drizzle-orm"
 import { requireAuthUser } from "../auth/user"
 import { cmp, orderBy, schema } from "../db"
 import { type DBOrTransation, type Doc } from "../db/types"
+import { getQuestionTestCasesOrderBy } from "./utils"
 
 // TODO: cursor-based pagination
 export async function getCurrentUserGames(tx: DBOrTransation) {
@@ -103,8 +104,9 @@ export async function getQuestionForGame(tx: DBOrTransation, gameId: string) {
         with: {
           testCases: {
             where: cmp.eq(schema.questionTestCases.type, "public"),
+            orderBy: getQuestionTestCasesOrderBy(),
           },
-        }
+        },
       },
     },
   })
@@ -123,7 +125,9 @@ export async function getSessionInfoForPlayer(tx: DBOrTransation, userId: string
           results: true,
         },
       },
-      chatHistory: true,
+      chatHistory: {
+        orderBy: orderBy.asc(schema.playerGameSessionChatHistoryItems.inserted_at),
+      },
       finalResult: true,
     },
   })
