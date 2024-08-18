@@ -9,7 +9,7 @@ export default function Navbar({
   return (
     <nav
       className={cn(
-        "flex h-20 flex-row items-center justify-between overflow-hidden rounded-xl bg-card p-3 sm:p-5",
+        "flex h-20 flex-shrink-0 flex-row items-center justify-between overflow-hidden rounded-xl bg-card p-3 sm:p-5",
       )}
     >
       {leftContent}
