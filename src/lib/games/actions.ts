@@ -267,7 +267,7 @@ export const sendMessageInGameAction = authedAction
     })
 
     // TODO: streaming
-    const rawUpdatedCode = await result.text
+    const rawUpdatedCode = result.text
     console.timeLog(insertedAtMessage.id, "streamed code done")
 
     const extractedCode = extractCodeFromRawCompletion(rawUpdatedCode)
