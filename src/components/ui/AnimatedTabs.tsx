@@ -2,7 +2,7 @@
 
 import type { Transition } from "framer-motion"
 import type { ReactElement } from "react"
-import { Children, cloneElement, useEffect, useId, useState } from "react"
+import { Children, cloneElement, useId } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 
 import { cn } from "~/lib/utils"
@@ -12,69 +12,61 @@ type ChildrenType = {
   "data-checked"?: string
 } & React.HTMLAttributes<HTMLElement>
 
-type AnimatedBackgroundProps = {
+type AnimatedTabInteraction = "hover" | "click"
+type AnimatedBackgroundProps<Interaction extends AnimatedTabInteraction> = {
   children: ReactElement<ChildrenType>[] | ReactElement<ChildrenType>
-  defaultValue?: string
-  onValueChange?: (newActiveId: string | null) => void
+  value?: string
+  onChange?: (newActiveId: Interaction extends "hover" ? string | null : string) => void
   className?: string
   transition?: Transition
-  enableHover?: boolean
+  interaction: Interaction
 }
 
-export default function AnimatedBackground({
+export default function AnimatedTabs<Interaction extends AnimatedTabInteraction>({
   children,
-  defaultValue,
-  onValueChange,
+  value,
+  onChange,
   className,
   transition,
-  enableHover = false,
-}: AnimatedBackgroundProps) {
-  const [activeId, setActiveId] = useState<string | null>(null)
+  interaction,
+}: AnimatedBackgroundProps<Interaction>) {
   const uniqueId = useId()
 
   const handleSetActiveId = (id: string | null) => {
-    setActiveId(id)
-
-    if (onValueChange) {
-      onValueChange(id)
-    }
+    // todo: make types not bad
+    onChange?.(id!)
   }
-
-  useEffect(() => {
-    if (defaultValue !== undefined) {
-      setActiveId(defaultValue)
-    }
-  }, [defaultValue])
 
   return Children.map(children, (child, index) => {
     const id = child.props["data-id"]
 
-    const interactionProps = enableHover
-      ? {
-          onMouseEnter: () => handleSetActiveId(id),
-          onMouseLeave: () => handleSetActiveId(null),
-        }
-      : {
-          onClick: () => handleSetActiveId(id),
-        }
+    const interactionProps =
+      interaction === "hover"
+        ? {
+            onMouseEnter: () => handleSetActiveId(id),
+            onMouseLeave: () => handleSetActiveId(null),
+          }
+        : {
+            onClick: () => handleSetActiveId(id),
+          }
 
     return cloneElement(
       child,
       {
         key: index,
         className: cn("relative inline-flex", child.props.className),
-        "aria-selected": activeId === id,
-        "data-checked": activeId === id ? "true" : "false",
+        "aria-selected": value === id,
+        "data-checked": value === id ? "true" : "false",
         ...interactionProps,
       },
       <>
         <AnimatePresence initial={false}>
-          {activeId === id && (
+          {value === id && (
             <motion.div
               layoutId={`background-${uniqueId}`}
               className={cn("absolute inset-0", className)}
               transition={transition}
-              initial={{ opacity: defaultValue ? 1 : 0 }}
+              initial={{ opacity: value ? 1 : 0 }}
               animate={{
                 opacity: 1,
               }}
