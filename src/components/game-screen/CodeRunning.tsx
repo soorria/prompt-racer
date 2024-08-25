@@ -96,7 +96,6 @@ export default function CodeRunning() {
           // this way even if we leave and come back to this panel it will show its still runnning
           disabled={submitCode.isExecuting || runTestAction.isExecuting}
           isLoading={runTestAction.isExecuting}
-          className="border-2 border-zinc-800"
           Icon={Play}
           variant={"outline"}
         >

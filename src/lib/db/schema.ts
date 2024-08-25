@@ -299,7 +299,9 @@ export const playerGameSessions = pgTable(
 
     final_result_id: customTypes.primaryKeyReference("final_result_id"),
 
-    updated_at: timestamp("updated_at").defaultNow(),
+    updated_at: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
   },
   (table) => {
     return {

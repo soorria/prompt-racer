@@ -1,3 +1,5 @@
+"use client"
+
 import type { Jsx } from "hast-util-to-jsx-runtime"
 import type { ComponentProps } from "react"
 import type { Syntax } from "refractor"
@@ -34,7 +36,6 @@ const CodeDisplayContent = ({ code, language }: Pick<CodeDisplayProps, "code" | 
 }
 
 const CodeRenderer = ({ preProps, codeProps, showLineNumbers, ...rest }: CodeDisplayProps) => {
-  rest.code = rest.code.replace(/\\n/g, "\n")
   const lines = rest.code.split("\n")
 
   return (
