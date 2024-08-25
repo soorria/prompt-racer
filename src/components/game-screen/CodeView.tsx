@@ -14,7 +14,12 @@ export default function CodeView() {
 
   return (
     <div>
-      <CodeRenderer code={context.gameSessionInfo.code} language="python" showLineNumbers />
+      <CodeRenderer
+        code={context.gameSessionInfo.code}
+        language="python"
+        showLineNumbers
+        isGeneratingCode={context.isGeneratingCode}
+      />
       <form
         ref={formRef}
         className="absolute inset-x-2 bottom-2 flex gap-2"

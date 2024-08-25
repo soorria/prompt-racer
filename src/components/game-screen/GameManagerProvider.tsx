@@ -37,7 +37,7 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
         code: completion.completion ?? gameSessionQuery.data.code,
       },
       updateCurrentCodeMutation,
-      completion,
+      isGeneratingCode: completion.isLoading,
     }
   },
 )

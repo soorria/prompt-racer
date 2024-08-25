@@ -22,6 +22,7 @@ type CodeDisplayProps = {
   code: string
   language: "python"
   showLineNumbers?: boolean
+  isGeneratingCode?: boolean
   preProps?: ComponentProps<"pre">
   codeProps?: ComponentProps<"code">
 }
@@ -35,7 +36,13 @@ const CodeDisplayContent = ({ code, language }: Pick<CodeDisplayProps, "code" | 
   return <>{rendered}</>
 }
 
-const CodeRenderer = ({ preProps, codeProps, showLineNumbers, ...rest }: CodeDisplayProps) => {
+const CodeRenderer = ({
+  preProps,
+  codeProps,
+  showLineNumbers,
+  isGeneratingCode,
+  ...rest
+}: CodeDisplayProps) => {
   const lines = rest.code.split("\n")
 
   return (
@@ -52,7 +59,9 @@ const CodeRenderer = ({ preProps, codeProps, showLineNumbers, ...rest }: CodeDis
       )}
       <code
         {...codeProps}
-        className={cn("block w-max px-3", codeProps?.className)}
+        className={cn("block w-max px-3", codeProps?.className, {
+          "animate-pulse": isGeneratingCode,
+        })}
         ref={codeProps?.ref}
       >
         <CodeDisplayContent {...rest} />
