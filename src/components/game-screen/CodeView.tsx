@@ -13,16 +13,17 @@ export default function CodeView() {
   const formRef = useRef<HTMLFormElement>(null)
 
   return (
-    <div>
+    <>
       <CodeRenderer
         code={context.gameSessionInfo.code}
         language="python"
         showLineNumbers
         isGeneratingCode={context.isGeneratingCode}
       />
+
       <form
         ref={formRef}
-        className="absolute inset-x-2 bottom-2 flex gap-2"
+        className="sticky inset-x-0 bottom-0 flex gap-2"
         action={async (formData) => {
           await context.updateCurrentCodeMutation.mutateAsync(formData.get("message") as string)
           formRef.current?.reset()
@@ -38,6 +39,6 @@ export default function CodeView() {
           Send
         </Button>
       </form>
-    </div>
+    </>
   )
 }
