@@ -1,20 +1,19 @@
 import { invariant } from "@epic-web/invariant"
 
-import type { ModelId, ModelName, ModelProvider } from "./constants"
+import type { ExtractModelDetails, ModelId, ModelName, ModelProvider } from "./constants"
 import { MODEL_MAP } from "./constants"
 
-export function parseModelId<T extends ModelId>(
-  modelId: T,
-): {
-  provider: ModelProvider
-  model: ModelName<ModelProvider>
-} {
+export function parseModelId<Id extends ModelId>(modelId: Id): ExtractModelDetails<Id> {
   const [provider, model] = modelId.split("::")
+
   invariant(provider && model, "Invalid model id")
   const modelNamesForProvider = MODEL_MAP[provider as ModelProvider]
-  invariant(modelNamesForProvider, "Invalid model provider")
-  invariant(modelNamesForProvider[model as ModelName<ModelProvider>], "Invalid model name")
-  return { provider: provider as ModelProvider, model: model as ModelName<ModelProvider> }
+  invariant(
+    modelNamesForProvider?.[model as ModelName<ModelProvider>],
+    "Invalid model provider or name",
+  )
+
+  return { provider, model } as ExtractModelDetails<Id>
 }
 
 export function extractCodeFromRawCompletion(content: string) {

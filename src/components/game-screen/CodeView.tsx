@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import { useRef } from "react"
 import { Send } from "lucide-react"
 
 import CodeRenderer from "../CodeRenderer"
@@ -10,8 +10,7 @@ import { useGameManager } from "./GameManagerProvider"
 
 export default function CodeView() {
   const context = useGameManager()
-  const formRef = React.useRef<HTMLFormElement>(null)
-  context.gameSessionInfo
+  const formRef = useRef<HTMLFormElement>(null)
 
   return (
     <div>

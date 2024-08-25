@@ -2,9 +2,10 @@
 
 import { useEffect } from "react"
 import { useMutation } from "@tanstack/react-query"
+import { useCompletion } from "ai/react"
 
 import type { GameStateWithQuestion, PlayerGameSession } from "~/lib/games/types"
-import { sendMessageInGameAction } from "~/lib/games/actions"
+import { extractCodeFromRawCompletion } from "~/lib/llm/utils"
 import { createBrowserClient } from "~/lib/supabase/browser"
 import { api } from "~/lib/trpc/react"
 import { createTypedContext } from "~/lib/utils/context"
@@ -19,16 +20,24 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
       initialState: props.initialGameState,
     })
 
+    const completion = useGenerateUpdatedCode({
+      gameId: gameSessionQuery.data.game_id,
+    })
+
     const updateCurrentCodeMutation = useMutation({
-      mutationFn: (code: string) =>
-        sendMessageInGameAction({ game_id: gameSessionQuery.data.game_id, instructions: code }),
+      mutationFn: (code: string) => completion.complete(code),
+      // ? may not need w/ the realtime stuff
       onSuccess: () => gameSessionQuery.refetch(),
     })
 
     return {
       gameInfo: gameStateQuery.data,
-      gameSessionInfo: gameSessionQuery.data,
+      gameSessionInfo: {
+        ...gameSessionQuery.data,
+        code: completion.completion ?? gameSessionQuery.data.code,
+      },
       updateCurrentCodeMutation,
+      completion,
     }
   },
 )
@@ -142,4 +151,18 @@ function useGameSessionForUser({ initialSession }: { initialSession: PlayerGameS
   }, [supabase, sessionId, gameId, utils])
 
   return gameSessionInfoQuery
+}
+
+function useGenerateUpdatedCode(props: { gameId: string }) {
+  const completion = useCompletion({
+    api: "/api/game/send-message",
+    body: {
+      gameId: props.gameId,
+    },
+  })
+
+  return {
+    ...completion,
+    completion: extractCodeFromRawCompletion(completion.completion),
+  }
 }

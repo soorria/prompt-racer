@@ -1,7 +1,6 @@
 "use server"
 
 import { invariant } from "@epic-web/invariant"
-import { addSeconds } from "date-fns"
 import { dequal } from "dequal"
 import { count, desc } from "drizzle-orm"
 import { z } from "zod"
@@ -11,11 +10,9 @@ import { runPythonCodeAgainstTestCases } from "../code-execution/python"
 import { cmp, db, schema } from "../db"
 import { type DBOrTransation, type DocInsert } from "../db/types"
 import { inngest } from "../inngest/client"
-import { streamUpdatedCode } from "../llm/generation"
-import { extractCodeFromRawCompletion } from "../llm/utils"
 import { logger } from "../server/logger"
 import { randomElement } from "../utils/random"
-import { CODE_SUBMISSION_TIMEOUT, DEFAULT_GAME_DURATIONS, LLM_PROMPTING_TIMEOUT } from "./constants"
+import { CODE_SUBMISSION_TIMEOUT, DEFAULT_GAME_DURATIONS } from "./constants"
 import {
   getGameById,
   getGamesWithStatus,
@@ -23,7 +20,7 @@ import {
   getQuestionById,
   getRandomQuestion,
 } from "./queries"
-import { chatHistoryItemTypeIs, getQuestionTestCasesOrderBy, getRandomGameMode } from "./utils"
+import { getQuestionTestCasesOrderBy, getRandomGameMode } from "./utils"
 
 async function createGame(tx: DBOrTransation) {
   const question = await getRandomQuestion(tx)
@@ -172,129 +169,6 @@ export const getChatHistoryForGameAction = authedAction
       orderBy: desc(schema.playerGameSessionChatHistoryItems.inserted_at),
     })
     return chatHistoryItems
-  })
-
-export const sendMessageInGameAction = authedAction
-  .schema(
-    z.object({
-      game_id: z.string(),
-      instructions: z.string().min(1).max(40),
-    }),
-  )
-  .action(async ({ ctx, parsedInput }) => {
-    const playerGameSession = await db.query.playerGameSessions.findFirst({
-      where: cmp.and(
-        cmp.eq(schema.playerGameSessions.user_id, ctx.user.id),
-        cmp.eq(schema.playerGameSessions.game_id, parsedInput.game_id),
-      ),
-      with: {
-        game: true,
-      },
-    })
-
-    if (!playerGameSession) {
-      throw new Error("Game not found, or you are not in this game")
-    }
-
-    const { game } = playerGameSession
-
-    if (game.status !== "inProgress") {
-      throw new Error("Game is not in progress")
-    }
-
-    const lastPromptedAt = playerGameSession.last_prompted_at
-    if (lastPromptedAt) {
-      const lastPromptedAtMs = lastPromptedAt.getTime()
-      const now = Date.now()
-      const msSinceLastPrompt = now - lastPromptedAtMs
-      if (msSinceLastPrompt < LLM_PROMPTING_TIMEOUT) {
-        throw new Error(
-          `Need to wait ${LLM_PROMPTING_TIMEOUT - msSinceLastPrompt}ms before prompting again`,
-        )
-      }
-    }
-
-    const insertedItems = await db
-      .insert(schema.playerGameSessionChatHistoryItems)
-      .values([
-        {
-          player_game_session_id: playerGameSession.id,
-          content: {
-            type: "instructions",
-            instructions: parsedInput.instructions,
-          },
-          inserted_at: new Date(),
-        },
-        {
-          player_game_session_id: playerGameSession.id,
-          content: {
-            type: "ai",
-            rawCompletion: "",
-            parsedCompletion: {
-              state: "generating",
-              maybeCode: "",
-            },
-          },
-          // TODO: figure out a better solution lol
-          inserted_at: addSeconds(new Date(), 1),
-        },
-      ])
-      .returning()
-
-    const insertedAtMessage = insertedItems.find((item) => chatHistoryItemTypeIs(item, "ai"))
-
-    if (!insertedAtMessage) {
-      throw new Error("Failed to insert message")
-    }
-
-    await db
-      .update(schema.playerGameSessions)
-      .set({
-        last_prompted_at: new Date(),
-      })
-      .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
-
-    const result = await streamUpdatedCode({
-      existingCode: playerGameSession.code,
-      instructions: parsedInput.instructions,
-      modelId: playerGameSession.model,
-    })
-
-    // TODO: streaming
-    const rawUpdatedCode = result.text
-
-    const extractedCode = extractCodeFromRawCompletion(rawUpdatedCode)
-
-    await Promise.all([
-      db
-        .update(schema.playerGameSessionChatHistoryItems)
-        .set({
-          player_game_session_id: playerGameSession.id,
-          content: extractedCode
-            ? {
-                type: "ai",
-                rawCompletion: rawUpdatedCode,
-                parsedCompletion: {
-                  state: "success",
-                  maybeCode: extractedCode,
-                },
-              }
-            : {
-                type: "ai",
-                rawCompletion: rawUpdatedCode,
-                parsedCompletion: {
-                  state: "error",
-                  error: "Could not find code in AI completion",
-                },
-              },
-        })
-        .where(cmp.eq(schema.playerGameSessionChatHistoryItems.id, insertedAtMessage.id)),
-      extractedCode &&
-        db
-          .update(schema.playerGameSessions)
-          .set({ code: extractedCode })
-          .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
-    ])
   })
 
 export const submitCodeAction = authedAction

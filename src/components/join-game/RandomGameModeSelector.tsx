@@ -15,7 +15,7 @@ export default function RandomGameModeSelector() {
   const { execute, isExecuting, hasSucceeded } = useAction(joinGameAction, {
     onSuccess: async ({ data }) => {
       const gameId = data?.game_id
-      router.push(`/game/${gameId}`)
+      router.push(`/games/play/${gameId}`)
     },
     onError: () => {
       toast.error("Failed to join game")

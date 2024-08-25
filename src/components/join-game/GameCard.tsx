@@ -15,7 +15,7 @@ const GAME_MODES_WITH_STYLES = {
 export default function GameCard({ gameMode }: { gameMode: GameMode }) {
   return (
     <Link
-      href={`/game/test-game`}
+      href={`/games/play/test-game`}
       className={cn(
         "grid place-items-center rounded-xl bg-card fill-white p-9 text-center transition-all hover:scale-105",
         GAME_MODES_WITH_STYLES[gameMode],

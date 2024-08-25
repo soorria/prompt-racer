@@ -1,5 +1,6 @@
-import { type NextRequest } from 'next/server'
-import { updateSupabaseSessionInMiddleware } from './lib/supabase/middleware'
+import { type NextRequest } from "next/server"
+
+import { updateSupabaseSessionInMiddleware } from "~/lib/supabase/middleware"
 
 export async function middleware(request: NextRequest) {
   return await updateSupabaseSessionInMiddleware(request)
@@ -14,7 +15,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/join-game',
-    '/game'
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 }

@@ -3,7 +3,7 @@ import "server-only"
 import type { LanguageModel } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
 import { invariant } from "@epic-web/invariant"
-import { generateText, streamText } from "ai"
+import { streamText } from "ai"
 
 import { env } from "~/env"
 import { type ModelId } from "./constants"
@@ -26,15 +26,17 @@ function getAIModelProvider(modelId: ModelId): LanguageModel {
     return getOpenAIModel(model)
   }
 
-  throw new Error(`Unsupported model provider: ${provider as string}`)
+  const exhaustiveCheck: never = provider
+  throw new Error(`Unsupported model provider: ${exhaustiveCheck as string}`)
 }
 
 export async function streamUpdatedCode(args: {
   existingCode: string
   instructions: string
   modelId: ModelId
+  onFinish?: Parameters<typeof streamText>[0]["onFinish"]
 }) {
-  const stream = await generateText({
+  const stream = await streamText({
     model: getAIModelProvider(args.modelId),
     temperature: 0.7,
     stopSequences: ["</code>"],
@@ -65,6 +67,7 @@ UPDATED CODE:
 `.trim(),
       },
     ],
+    onFinish: args.onFinish,
   })
 
   return stream
