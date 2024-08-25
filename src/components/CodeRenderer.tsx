@@ -59,8 +59,10 @@ const CodeRenderer = ({
       )}
       <code
         {...codeProps}
-        className={cn("-ml-4 block w-max pr-3", codeProps?.className, {
+        className={cn("block w-max pr-3", codeProps?.className, {
           "animate-pulse": isGeneratingCode,
+          "-ml-4": showLineNumbers,
+          "p-3": !showLineNumbers,
         })}
         ref={codeProps?.ref}
       >

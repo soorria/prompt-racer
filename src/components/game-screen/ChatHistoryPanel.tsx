@@ -2,12 +2,11 @@ import { useEffect, useRef } from "react"
 import { invariant } from "@epic-web/invariant"
 import { useAutoAnimate } from "@formkit/auto-animate/react"
 import clsx from "clsx"
-import { Bot, ChevronsDown } from "lucide-react"
+import { Bot } from "lucide-react"
 
 import { type Doc } from "~/lib/db/types"
 import { cn } from "~/lib/utils"
 import CodeRenderer from "../CodeRenderer"
-import { Button } from "../ui/button"
 import { Skeleton } from "../ui/skeleton"
 import { useGameManager } from "./GameManagerProvider"
 
@@ -61,7 +60,14 @@ function ChatPanelMessage({
             ref={contentRef}
             className={clsx("mb-8 overflow-auto rounded-xl bg-dracula text-xs")}
           >
-            <CodeRenderer code={message.content.rawCompletion} language="python" />
+            <CodeRenderer
+              code={
+                message.content.parsedCompletion.state === "error"
+                  ? "TODO: handle error"
+                  : message.content.parsedCompletion.maybeCode
+              }
+              language="python"
+            />
           </div>
         </>
       )}
