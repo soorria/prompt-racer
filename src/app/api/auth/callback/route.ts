@@ -3,6 +3,8 @@ import { NextResponse } from "next/server"
 import { upsertProfile as upsertUserProfile } from "~/lib/auth/profile"
 import { createServerClient } from "~/lib/supabase/server"
 
+export const runtime = "edge"
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
 

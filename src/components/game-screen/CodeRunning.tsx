@@ -16,7 +16,7 @@ export default function CodeRunning() {
   const submitCode = useAction(submitCodeAction)
 
   const handleRunTests = () => {
-    utils.gameSessionInfo.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
+    utils.games.getPlayerGameSession.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
       oldData?.testState
         ? {
             ...oldData,
@@ -29,7 +29,7 @@ export default function CodeRunning() {
   }
 
   const handleSubmitCode = () => {
-    utils.gameSessionInfo.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
+    utils.games.getPlayerGameSession.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
       oldData?.submissionState
         ? { ...oldData, submissionState: { ...oldData.submissionState, status: "running" } }
         : undefined,

@@ -7,7 +7,6 @@ import { count, desc } from "drizzle-orm"
 import { z } from "zod"
 
 import { authedAction } from "../actions/utils"
-import { requireAuthUser } from "../auth/user"
 import { runPythonCodeAgainstTestCases } from "../code-execution/python"
 import { cmp, db, schema } from "../db"
 import { type DBOrTransation, type DocInsert } from "../db/types"
@@ -23,7 +22,6 @@ import {
   getLatestActiveGameForUser,
   getQuestionById,
   getRandomQuestion,
-  getSessionInfoForPlayer,
 } from "./queries"
 import { chatHistoryItemTypeIs, getQuestionTestCasesOrderBy, getRandomGameMode } from "./utils"
 
@@ -279,28 +277,28 @@ export const sendMessageInGameAction = authedAction
           player_game_session_id: playerGameSession.id,
           content: extractedCode
             ? {
-              type: "ai",
-              rawCompletion: rawUpdatedCode,
-              parsedCompletion: {
-                state: "success",
-                maybeCode: extractedCode,
-              },
-            }
+                type: "ai",
+                rawCompletion: rawUpdatedCode,
+                parsedCompletion: {
+                  state: "success",
+                  maybeCode: extractedCode,
+                },
+              }
             : {
-              type: "ai",
-              rawCompletion: rawUpdatedCode,
-              parsedCompletion: {
-                state: "error",
-                error: "Could not find code in AI completion",
+                type: "ai",
+                rawCompletion: rawUpdatedCode,
+                parsedCompletion: {
+                  state: "error",
+                  error: "Could not find code in AI completion",
+                },
               },
-            },
         })
         .where(cmp.eq(schema.playerGameSessionChatHistoryItems.id, insertedAtMessage.id)),
       extractedCode &&
-      db
-        .update(schema.playerGameSessions)
-        .set({ code: extractedCode })
-        .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
+        db
+          .update(schema.playerGameSessions)
+          .set({ code: extractedCode })
+          .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
     ])
   })
 
@@ -383,14 +381,14 @@ export const submitCodeAction = authedAction
           id: schema.playerGameSubmissionStates.id,
         }),
       submissionState &&
-      db
-        .delete(schema.playerGameSubmissionStateResults)
-        .where(
-          cmp.eq(
-            schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-            submissionState.id,
+        db
+          .delete(schema.playerGameSubmissionStateResults)
+          .where(
+            cmp.eq(
+              schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+              submissionState.id,
+            ),
           ),
-        ),
     ])
 
     if (!insertedSubmissionState) {
@@ -497,13 +495,3 @@ export const resetStartingCodeAction = authedAction
       })
       .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
   })
-
-export const getGameSessionInfoForPlayerAction = async ({ gameId }: { gameId: string }) => {
-  const user = await requireAuthUser()
-  const playerGameSession = await getSessionInfoForPlayer(db, user.id, gameId)
-  if (!playerGameSession) {
-    throw new Error("Game not found, or you are not in this game")
-  }
-
-  return playerGameSession
-}

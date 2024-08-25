@@ -298,12 +298,15 @@ export const playerGameSessions = pgTable(
     last_prompted_at: timestamp("last_prompted_at"),
 
     final_result_id: customTypes.primaryKeyReference("final_result_id"),
+
+    updated_at: timestamp("updated_at").defaultNow(),
   },
   (table) => {
     return {
       user_id_game_id_idx: index("player_game_sessions_user_id_game_id_idx")
         .on(table.user_id, table.game_id)
         .concurrently(),
+      game_id_idx: index("player_game_sessions_game_id_idx").on(table.game_id).concurrently(),
     }
   },
 )
@@ -360,6 +363,7 @@ export const gameStates = pgTable(
     end_time: timestamp("end_time"),
     waiting_for_players_duration_ms: integer("waiting_for_players_duration_ms").notNull(),
     in_progress_duration_ms: integer("in_progress_duration_ms").notNull(),
+    updated_at: timestamp("updated_at").defaultNow(),
   },
   (table) => {
     return {

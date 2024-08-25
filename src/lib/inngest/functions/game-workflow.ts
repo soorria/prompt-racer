@@ -1,6 +1,6 @@
 import type { InngestEvents } from "~/lib/inngest/client"
 import { FINALIZING_SUBMISSION_BUFFER_TIME } from "~/lib/games/constants"
-import { advanceGameToStatus, finalizeGame } from "~/lib/games/internal-action"
+import { advanceGameToStatus, finalizeGame } from "~/lib/games/internal-actions"
 import { inngest } from "~/lib/inngest/client"
 
 export const gameWorkflowFunction = inngest.createFunction(
