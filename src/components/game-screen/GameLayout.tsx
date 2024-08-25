@@ -5,7 +5,7 @@ import dynamic from "next/dynamic"
 import { useMediaQuery } from "@react-hook/media-query"
 import { LayoutTemplate } from "lucide-react"
 
-import type { GameWithQuestion, SessionInfo } from "~/lib/games/types"
+import type { GameStateWithQuestion, PlayerGameSession } from "~/lib/games/types"
 import { ChatHistoryPanelImpl } from "~/components/game-screen/ChatHistoryPanel"
 import CodeView from "~/components/game-screen/CodeView"
 import { GameManagerProvider } from "~/components/game-screen/GameManagerProvider"
@@ -60,8 +60,8 @@ function GameLayout({
   gameInfo,
   sessionInfo,
 }: {
-  gameInfo: GameWithQuestion
-  sessionInfo: SessionInfo
+  gameInfo: GameStateWithQuestion
+  sessionInfo: PlayerGameSession
 }) {
   const isMobile = useMediaQuery("(max-width: 768px)")
   const defaultDesktopLayout = createDefaultLayout({
@@ -75,7 +75,7 @@ function GameLayout({
   const layout = isMobile ? defaultMobileLayout : defaultDesktopLayout
 
   return (
-    <GameManagerProvider gameInfo={gameInfo} sessionInfo={sessionInfo}>
+    <GameManagerProvider initialGameState={gameInfo} initialPlayerSession={sessionInfo}>
       <PanelSkeleton layout={layout} />
     </GameManagerProvider>
   )

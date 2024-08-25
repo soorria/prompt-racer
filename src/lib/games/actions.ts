@@ -7,7 +7,6 @@ import { count, desc } from "drizzle-orm"
 import { z } from "zod"
 
 import { authedAction } from "../actions/utils"
-import { requireAuthUser } from "../auth/user"
 import { runPythonCodeAgainstTestCases } from "../code-execution/python"
 import { cmp, db, schema } from "../db"
 import { type DBOrTransation, type DocInsert } from "../db/types"
@@ -23,7 +22,6 @@ import {
   getLatestActiveGameForUser,
   getQuestionById,
   getRandomQuestion,
-  getSessionInfoForPlayer,
 } from "./queries"
 import { chatHistoryItemTypeIs, getQuestionTestCasesOrderBy, getRandomGameMode } from "./utils"
 
@@ -245,8 +243,6 @@ export const sendMessageInGameAction = authedAction
 
     const insertedAtMessage = insertedItems.find((item) => chatHistoryItemTypeIs(item, "ai"))
 
-    console.log({ insertedAtMessage, insertedItems })
-
     if (!insertedAtMessage) {
       throw new Error("Failed to insert message")
     }
@@ -258,8 +254,6 @@ export const sendMessageInGameAction = authedAction
       })
       .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
 
-    console.time(insertedAtMessage.id)
-    console.timeLog(insertedAtMessage.id, "streamed code")
     const result = await streamUpdatedCode({
       existingCode: playerGameSession.code,
       instructions: parsedInput.instructions,
@@ -268,7 +262,6 @@ export const sendMessageInGameAction = authedAction
 
     // TODO: streaming
     const rawUpdatedCode = result.text
-    console.timeLog(insertedAtMessage.id, "streamed code done")
 
     const extractedCode = extractCodeFromRawCompletion(rawUpdatedCode)
 
@@ -279,28 +272,28 @@ export const sendMessageInGameAction = authedAction
           player_game_session_id: playerGameSession.id,
           content: extractedCode
             ? {
-              type: "ai",
-              rawCompletion: rawUpdatedCode,
-              parsedCompletion: {
-                state: "success",
-                maybeCode: extractedCode,
-              },
-            }
+                type: "ai",
+                rawCompletion: rawUpdatedCode,
+                parsedCompletion: {
+                  state: "success",
+                  maybeCode: extractedCode,
+                },
+              }
             : {
-              type: "ai",
-              rawCompletion: rawUpdatedCode,
-              parsedCompletion: {
-                state: "error",
-                error: "Could not find code in AI completion",
+                type: "ai",
+                rawCompletion: rawUpdatedCode,
+                parsedCompletion: {
+                  state: "error",
+                  error: "Could not find code in AI completion",
+                },
               },
-            },
         })
         .where(cmp.eq(schema.playerGameSessionChatHistoryItems.id, insertedAtMessage.id)),
       extractedCode &&
-      db
-        .update(schema.playerGameSessions)
-        .set({ code: extractedCode })
-        .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
+        db
+          .update(schema.playerGameSessions)
+          .set({ code: extractedCode })
+          .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
     ])
   })
 
@@ -383,14 +376,14 @@ export const submitCodeAction = authedAction
           id: schema.playerGameSubmissionStates.id,
         }),
       submissionState &&
-      db
-        .delete(schema.playerGameSubmissionStateResults)
-        .where(
-          cmp.eq(
-            schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-            submissionState.id,
+        db
+          .delete(schema.playerGameSubmissionStateResults)
+          .where(
+            cmp.eq(
+              schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+              submissionState.id,
+            ),
           ),
-        ),
     ])
 
     if (!insertedSubmissionState) {
@@ -412,8 +405,6 @@ export const submitCodeAction = authedAction
       playerGameSession.code,
       testCases.map((testCase) => testCase.args),
     )
-
-    console.log(runResults)
 
     const submissionResultDocs: DocInsert<"playerGameSubmissionStateResults">[] = testCases.map(
       (testCase, index) => {
@@ -445,15 +436,24 @@ export const submitCodeAction = authedAction
       },
     )
 
-    await db.insert(schema.playerGameSubmissionStateResults).values(submissionResultDocs)
-
-    await db
-      .update(schema.playerGameSubmissionStates)
-      .set({
-        status: "complete",
-      })
-      .where(cmp.eq(schema.playerGameSubmissionStates.id, insertedSubmissionState.id))
+    await Promise.all([
+      db.insert(schema.playerGameSubmissionStateResults).values(submissionResultDocs),
+      db
+        .update(schema.playerGameSubmissionStates)
+        .set({
+          status: "complete",
+        })
+        .where(cmp.eq(schema.playerGameSubmissionStates.id, insertedSubmissionState.id)),
+      triggerPlayerGameSessionUpdate(db, playerGameSession.id),
+    ])
   })
+
+async function triggerPlayerGameSessionUpdate(tx: DBOrTransation, playerGameSessionId: string) {
+  return await tx
+    .update(schema.playerGameSessions)
+    .set({ updated_at: new Date() })
+    .where(cmp.eq(schema.playerGameSessions.id, playerGameSessionId))
+}
 
 export const resetStartingCodeAction = authedAction
   .schema(
@@ -497,13 +497,3 @@ export const resetStartingCodeAction = authedAction
       })
       .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
   })
-
-export const getGameSessionInfoForPlayerAction = async ({ gameId }: { gameId: string }) => {
-  const user = await requireAuthUser()
-  const playerGameSession = await getSessionInfoForPlayer(db, user.id, gameId)
-  if (!playerGameSession) {
-    throw new Error("Game not found, or you are not in this game")
-  }
-
-  return playerGameSession
-}

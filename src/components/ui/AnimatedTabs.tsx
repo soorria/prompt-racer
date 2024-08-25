@@ -62,7 +62,7 @@ export default function AnimatedBackground({
       child,
       {
         key: index,
-        className: cn("relative inline-flex"),
+        className: cn("relative inline-flex", child.props.className),
         "aria-selected": activeId === id,
         "data-checked": activeId === id ? "true" : "false",
         ...interactionProps,
@@ -84,7 +84,7 @@ export default function AnimatedBackground({
             />
           )}
         </AnimatePresence>
-        <span className="z-10">{child}</span>
+        <span className="z-10">{child.props.children}</span>
       </>,
     )
   })

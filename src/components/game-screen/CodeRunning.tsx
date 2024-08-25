@@ -16,7 +16,7 @@ export default function CodeRunning() {
   const submitCode = useAction(submitCodeAction)
 
   const handleRunTests = () => {
-    utils.gameSessionInfo.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
+    utils.games.getPlayerGameSession.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
       oldData?.testState
         ? {
             ...oldData,
@@ -29,7 +29,7 @@ export default function CodeRunning() {
   }
 
   const handleSubmitCode = () => {
-    utils.gameSessionInfo.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
+    utils.games.getPlayerGameSession.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
       oldData?.submissionState
         ? { ...oldData, submissionState: { ...oldData.submissionState, status: "running" } }
         : undefined,
@@ -96,7 +96,6 @@ export default function CodeRunning() {
           // this way even if we leave and come back to this panel it will show its still runnning
           disabled={submitCode.isExecuting || runTestAction.isExecuting}
           isLoading={runTestAction.isExecuting}
-          className="border-2 border-zinc-800"
           Icon={Play}
           variant={"outline"}
         >

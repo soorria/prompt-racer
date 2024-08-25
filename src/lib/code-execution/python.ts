@@ -29,7 +29,7 @@ export async function runPythonCodeAgainstTestCases(code: string, argsList: unkn
   })
 
   if (!response.ok) {
-    logger.debug(await response.text())
+    logger.error(await response.text())
     throw new Error(`Failed to run code`)
   }
 

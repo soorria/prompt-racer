@@ -96,7 +96,7 @@ export async function getGameById(tx: DBOrTransation, gameId: string) {
   return game
 }
 
-export async function getQuestionForGame(tx: DBOrTransation, gameId: string) {
+export async function getGameStateWithQuestion(tx: DBOrTransation, gameId: string) {
   return await tx.query.gameStates.findFirst({
     where: cmp.eq(schema.gameStates.id, gameId),
     with: {
