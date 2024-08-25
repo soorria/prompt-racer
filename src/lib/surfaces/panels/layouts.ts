@@ -53,12 +53,12 @@ export const createDefaultMobileLayout = ({ top, bottom }: { top: PanelSlot, bot
     panels: [
       {
         type: "panel",
-        defaultSize: 70,
+        defaultSize: 30,
         ...top
       },
       {
         type: "panel",
-        defaultSize: 30,
+        defaultSize: 70,
         ...bottom
       },
     ],

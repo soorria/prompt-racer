@@ -17,7 +17,11 @@ import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
 import MultiSelectPanel from "./MultiSelectPanel"
 import RunCodePanel from "./RunCodePanel"
 
-const CodeViewImpl = { key: "code", className: "bg-dracula p-4", component: <CodeView /> }
+const CodeViewImpl = {
+  key: "code",
+  className: "bg-dracula p-4 flex flex-col",
+  component: <CodeView />,
+}
 const QuestionViewImpl = {
   key: "qdesc",
   className: "bg-card p-4",
@@ -69,8 +73,8 @@ function GameLayout({
     leftSection: QuestionAndTestCasesImpl,
   })
   const defaultMobileLayout = createDefaultMobileLayout({
-    top: MobileLayout,
-    bottom: CodeViewImpl,
+    top: CodeViewImpl,
+    bottom: MobileLayout,
   })
   const layout = isMobile ? defaultMobileLayout : defaultDesktopLayout
 

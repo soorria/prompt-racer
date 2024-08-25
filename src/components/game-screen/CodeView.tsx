@@ -23,7 +23,7 @@ export default function CodeView() {
 
       <form
         ref={formRef}
-        className="sticky inset-x-0 bottom-0 flex gap-2"
+        className="sticky inset-x-0 bottom-0 flex shrink-0 gap-2"
         action={async (formData) => {
           await context.updateCurrentCodeMutation.mutateAsync(formData.get("message") as string)
           formRef.current?.reset()

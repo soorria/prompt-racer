@@ -1,8 +1,13 @@
-import { type NextRequest } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 
 import { updateSupabaseSessionInMiddleware } from "~/lib/supabase/middleware"
 
+const publicRoutes = ["/auth/login", "/auth/callback", "/"]
+
 export async function middleware(request: NextRequest) {
+  if (publicRoutes.includes(request.nextUrl.pathname)) {
+    return NextResponse.next()
+  }
   return await updateSupabaseSessionInMiddleware(request)
 }
 

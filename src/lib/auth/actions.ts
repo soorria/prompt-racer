@@ -7,7 +7,7 @@ import { action } from "../actions/utils"
 import { logger } from "../server/logger"
 import { createServerClient } from "../supabase/server"
 
-export const loginWithGitHubAction = action.action(async ({}) => {
+export const loginWithGitHubAction = action.action(async ({ }) => {
   const sb = createServerClient()
 
   const referrer = headers().get("referer")
