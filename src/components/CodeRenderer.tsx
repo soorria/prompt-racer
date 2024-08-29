@@ -55,19 +55,19 @@ const CodeRenderer = ({
       )}
     >
       {showLineNumbers && (
-        <div className="sticky left-0 top-0 -ml-4 -translate-x-4 select-none bg-dracula/80 pl-8 pr-4 pt-0 text-right text-gray-500 backdrop-blur-sm">
+        <div className="sticky left-0 top-0 -ml-4 -translate-x-4 select-none bg-dracula/80 pl-4 pr-2 pt-0 text-right text-gray-500 backdrop-blur-sm">
           {lines.map((_, i) => (
             <div key={i}>{i + 1}</div>
           ))}
         </div>
       )}
       <code
-        {...codeProps}
         className={cn("block w-max pr-3", codeProps?.className, {
           "animate-pulse": isGeneratingCode,
           "-ml-4": showLineNumbers,
           "p-3": !showLineNumbers,
         })}
+        {...codeProps}
         ref={codeProps?.ref}
       >
         <CodeDisplayContent {...rest} />

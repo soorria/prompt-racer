@@ -8,6 +8,12 @@ import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { useGameManager } from "./GameManagerProvider"
 
+export const CodeViewImpl = {
+  key: "code",
+  className: "bg-dracula p-2 sm:p-4 flex flex-col",
+  component: <CodeView />,
+}
+
 export default function CodeView() {
   const context = useGameManager()
   const formRef = useRef<HTMLFormElement>(null)
@@ -17,7 +23,9 @@ export default function CodeView() {
       <CodeRenderer
         code={context.gameSessionInfo.code}
         language="python"
-        showLineNumbers
+        preProps={{ className: "py-0 sm:py-2" }}
+        codeProps={{ className: "pr-0 p-2 sm:p-0 text-xs sm:text-base" }}
+        showLineNumbers={!context.isMobile}
         isGeneratingCode={context.isGeneratingCode}
       />
 
@@ -32,11 +40,12 @@ export default function CodeView() {
         <Input className="flex-1 rounded-lg" name="message" placeholder="Enter your instructions" />
         <Button
           type="submit"
-          className="rounded-lg"
+          className="rounded-lg px-2"
           isLoading={context.updateCurrentCodeMutation.isPending}
-          Icon={Send}
+          Icon={!context.isMobile ? Send : undefined}
         >
-          Send
+          {context.isMobile && <Send className="h-5 w-5" />}
+          {!context.isMobile && <>Send</>}
         </Button>
       </form>
     </>

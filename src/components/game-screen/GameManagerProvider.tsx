@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { useMediaQuery } from "@react-hook/media-query"
 import { useMutation } from "@tanstack/react-query"
 import { useCompletion } from "ai/react"
 
@@ -9,9 +10,12 @@ import { extractCodeFromRawCompletion } from "~/lib/llm/utils"
 import { createBrowserClient } from "~/lib/supabase/browser"
 import { api } from "~/lib/trpc/react"
 import { createTypedContext } from "~/lib/utils/context"
+import { MOBILE_VIEWPORT } from "./GameLayout"
 
 export const [GameManagerProvider, useGameManager] = createTypedContext(
   (props: { initialGameState: GameStateWithQuestion; initialPlayerSession: PlayerGameSession }) => {
+    const isMobile = useMediaQuery(MOBILE_VIEWPORT)
+
     const gameSessionQuery = useGameSessionForUser({
       initialSession: props.initialPlayerSession,
     })
@@ -31,6 +35,7 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
     })
 
     return {
+      isMobile,
       gameInfo: gameStateQuery.data,
       gameSessionInfo: {
         ...gameSessionQuery.data,

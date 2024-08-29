@@ -16,11 +16,7 @@ export default function ProfileCard({ user }: { user: User | null }) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        className={cn("flex items-center justify-center space-x-3 rounded-full p-2", {
-          "ring-2 ring-zinc-400/20": !user,
-        })}
-      >
+      <PopoverTrigger className={cn("flex items-center justify-center space-x-3 rounded-full")}>
         <UserAvatar user={user} />
       </PopoverTrigger>
       <PopoverContent className="p-0 py-2" align="end">
