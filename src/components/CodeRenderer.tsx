@@ -48,7 +48,11 @@ const CodeRenderer = ({
   return (
     <pre
       {...preProps}
-      className={cn("relative flex flex-1 py-2", { "pl-4": showLineNumbers }, preProps?.className)}
+      className={cn(
+        "relative flex w-max flex-1 py-2",
+        { "pl-4": showLineNumbers },
+        preProps?.className,
+      )}
     >
       {showLineNumbers && (
         <div className="sticky left-0 top-0 -ml-4 -translate-x-4 select-none bg-dracula/80 pl-8 pr-4 pt-0 text-right text-gray-500 backdrop-blur-sm">
