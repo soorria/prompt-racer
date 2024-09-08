@@ -27,7 +27,15 @@ type CountdownResult = {
 const ONE_MINUTE_MS = 60 * 1000
 
 function getSplitTimeDiff(now: number, endTime: number) {
+  if (now > endTime) {
+    return {
+      minutes: 0,
+      seconds: 0,
+    }
+  }
+
   const diffMs = endTime - now
+
   return {
     minutes: Math.floor(diffMs / ONE_MINUTE_MS),
     seconds: Math.floor((diffMs % ONE_MINUTE_MS) / 1000),
@@ -47,6 +55,7 @@ function useCountdown(endTime: number): CountdownResult {
           seconds: 0,
         })
         clearInterval(intervalId)
+        return
       }
 
       setTimeRemaining((currentEndTime) => {
@@ -74,7 +83,7 @@ function AnimatedNumber({ value }: { value: number }) {
   const digits = formatted.split("")
   return digits.map((digit, i) => {
     return (
-      <AnimatePresence mode="wait" key={i}>
+      <AnimatePresence mode="wait" key={i} initial={false}>
         <motion.div
           key={digit}
           initial={{
