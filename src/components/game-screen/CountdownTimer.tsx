@@ -83,7 +83,7 @@ function AnimatedNumber({ value }: { value: number }) {
   const digits = formatted.split("")
   return digits.map((digit, i) => {
     return (
-      <AnimatePresence mode="wait" key={i} initial={false}>
+      <AnimatePresence mode="popLayout" key={i} initial={false}>
         <motion.div
           key={digit}
           initial={{
