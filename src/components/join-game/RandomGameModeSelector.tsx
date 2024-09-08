@@ -3,22 +3,20 @@
 import React from "react"
 import { useRouter } from "next/navigation"
 import { Shuffle } from "lucide-react"
-import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 
-import { joinGameAction } from "~/lib/games/actions"
+import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
 import { Button } from "../ui/button"
 
 export default function RandomGameModeSelector() {
   const router = useRouter()
-  const { execute, isExecuting, hasSucceeded } = useAction(joinGameAction, {
-    onSuccess: async ({ data }) => {
-      const gameId = data?.game_id
-      router.push(`/games/play/${gameId}`)
+  const joinGame = api.games.join.useMutation({
+    onSuccess: async ({ game_id }) => {
+      router.push(`/games/play/${game_id}`)
     },
-    onError: () => {
-      toast.error("Failed to join game")
+    onError: (error) => {
+      toast.error(`Failed to join game: ${error.message}`)
     },
   })
 
@@ -39,9 +37,9 @@ export default function RandomGameModeSelector() {
               Start the game, and see what mode you get!
             </p>
             <Button
-              isLoading={isExecuting}
-              disabled={hasSucceeded}
-              onClick={() => execute()}
+              isLoading={joinGame.isPending}
+              disabled={joinGame.isSuccess}
+              onClick={() => joinGame.mutate()}
               className="mt-5 w-full ring-2 ring-zinc-700"
               variant={"outline"}
             >

@@ -34,6 +34,8 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
       onSuccess: () => gameSessionQuery.refetch(),
     })
 
+    const submitCodeMutation = api.games.submitCode.useMutation()
+
     return {
       isMobile,
       gameInfo: gameStateQuery.data,
@@ -43,6 +45,7 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
       },
       updateCurrentCodeMutation,
       isGeneratingCode: completion.isLoading,
+      submitCodeMutation,
     }
   },
 )
@@ -54,7 +57,7 @@ function useGameState({ initialState }: { initialState: GameStateWithQuestion })
 
   const gameStateQuery = api.games.getGameStateWithQuestion.useQuery(
     { game_id: gameId },
-    { initialData: initialState },
+    { initialData: initialState, refetchOnWindowFocus: true },
   )
 
   const supabase = createBrowserClient()

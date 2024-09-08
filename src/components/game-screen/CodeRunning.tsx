@@ -1,19 +1,14 @@
 import type { ReactNode } from "react"
 import React from "react"
 import { CheckCircle2, Loader2, MinusCircleIcon, Play, UploadCloud, XCircle } from "lucide-react"
-import { useAction } from "next-safe-action/hooks"
 
-import { submitCodeAction } from "~/lib/games/actions"
 import { api } from "~/lib/trpc/react"
 import { Button } from "../ui/button"
 import { useGameManager } from "./GameManagerProvider"
 
 export default function CodeRunning() {
   const utils = api.useUtils()
-  const { gameInfo, gameSessionInfo } = useGameManager()
-
-  const runTestAction = useAction(submitCodeAction)
-  const submitCode = useAction(submitCodeAction)
+  const { gameInfo, gameSessionInfo, submitCodeMutation } = useGameManager()
 
   const handleRunTests = () => {
     utils.games.getPlayerGameSession.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
@@ -25,7 +20,7 @@ export default function CodeRunning() {
         : undefined,
     )
 
-    runTestAction.execute({ game_id: gameInfo.id, submission_type: "test-run" })
+    submitCodeMutation.mutate({ game_id: gameInfo.id, submission_type: "test-run" })
   }
 
   const handleSubmitCode = () => {
@@ -35,7 +30,7 @@ export default function CodeRunning() {
         : undefined,
     )
 
-    submitCode.execute({ game_id: gameInfo.id, submission_type: "submission" })
+    submitCodeMutation.mutate({ game_id: gameInfo.id, submission_type: "submission" })
   }
 
   return (
@@ -94,8 +89,11 @@ export default function CodeRunning() {
           onClick={handleRunTests}
           // TODO: we need to be checking gameSessionInfo.testState.status === "running" here
           // this way even if we leave and come back to this panel it will show its still runnning
-          disabled={submitCode.isExecuting || runTestAction.isExecuting}
-          isLoading={runTestAction.isExecuting}
+          disabled={submitCodeMutation.isPending}
+          isLoading={
+            submitCodeMutation.isPending &&
+            submitCodeMutation.variables.submission_type === "test-run"
+          }
           Icon={Play}
           variant={"outline"}
         >
@@ -103,8 +101,11 @@ export default function CodeRunning() {
         </Button>
         <Button
           onClick={handleSubmitCode}
-          disabled={submitCode.isExecuting || runTestAction.isExecuting}
-          isLoading={submitCode.isExecuting}
+          disabled={submitCodeMutation.isPending}
+          isLoading={
+            submitCodeMutation.isPending &&
+            submitCodeMutation.variables.submission_type === "submission"
+          }
           Icon={UploadCloud}
         >
           Submit code
