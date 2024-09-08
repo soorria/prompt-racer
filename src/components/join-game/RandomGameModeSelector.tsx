@@ -3,7 +3,6 @@
 import React from "react"
 import { useRouter } from "next/navigation"
 import { Shuffle } from "lucide-react"
-import { toast } from "sonner"
 
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
@@ -14,9 +13,6 @@ export default function RandomGameModeSelector() {
   const joinGame = api.games.join.useMutation({
     onSuccess: async ({ game_id }) => {
       router.push(`/games/play/${game_id}`)
-    },
-    onError: (error) => {
-      toast.error(`Failed to join game: ${error.message}`)
     },
   })
 
