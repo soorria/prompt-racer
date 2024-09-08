@@ -96,7 +96,7 @@ export async function getGameById(tx: DBOrTransation, gameId: string) {
   return game
 }
 
-export async function getGameStateWithQuestion(tx: DBOrTransation, gameId: string) {
+export async function getInGameState(tx: DBOrTransation, gameId: string) {
   return await tx.query.gameStates.findFirst({
     where: cmp.eq(schema.gameStates.id, gameId),
     with: {
@@ -107,6 +107,12 @@ export async function getGameStateWithQuestion(tx: DBOrTransation, gameId: strin
             orderBy: getQuestionTestCasesOrderBy(),
           },
         },
+      },
+      players: {
+        with: {
+          user: true,
+        },
+        columns: {},
       },
     },
   })

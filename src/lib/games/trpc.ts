@@ -10,8 +10,8 @@ import { type DBOrTransation, type DocInsert } from "~/lib/db/types"
 import { CODE_SUBMISSION_TIMEOUT, DEFAULT_GAME_DURATIONS } from "~/lib/games/constants"
 import {
   getGameById,
-  getGameStateWithQuestion,
   getGamesWithStatus,
+  getInGameState,
   getLatestActiveGameForUser,
   getQuestionById,
   getRandomQuestion,
@@ -45,7 +45,7 @@ export const gameRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const gameState = await getGameStateWithQuestion(ctx.db, input.game_id)
+      const gameState = await getInGameState(ctx.db, input.game_id)
       if (!gameState) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
       }

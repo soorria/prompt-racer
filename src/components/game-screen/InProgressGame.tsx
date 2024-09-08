@@ -5,9 +5,7 @@ import dynamic from "next/dynamic"
 import { useMediaQuery } from "@react-hook/media-query"
 import { LayoutTemplate } from "lucide-react"
 
-import type { GameStateWithQuestion, PlayerGameSession } from "~/lib/games/types"
 import { ChatHistoryPanelImpl } from "~/components/game-screen/ChatHistoryPanel"
-import { GameManagerProvider } from "~/components/game-screen/GameManagerProvider"
 import MobileMultiSelectPanel from "~/components/game-screen/MobileMultiSelectPanel"
 import QuestionDescription from "~/components/game-screen/QuestionDescription"
 import { Skeleton } from "~/components/ui/skeleton"
@@ -57,13 +55,7 @@ const QuestionAndTestCasesImpl = {
   ),
 }
 
-function GameLayout({
-  gameInfo,
-  sessionInfo,
-}: {
-  gameInfo: GameStateWithQuestion
-  sessionInfo: PlayerGameSession
-}) {
+function InProgressGameImpl() {
   const isMobile = useMediaQuery(MOBILE_VIEWPORT)
   const defaultDesktopLayout = createDefaultLayout({
     rightSection: { top: CodeViewImpl, bottom: CodeRunningViewImpl },
@@ -75,14 +67,10 @@ function GameLayout({
   })
   const layout = isMobile ? defaultMobileLayout : defaultDesktopLayout
 
-  return (
-    <GameManagerProvider initialGameState={gameInfo} initialPlayerSession={sessionInfo}>
-      <PanelSkeleton layout={layout} />
-    </GameManagerProvider>
-  )
+  return <PanelSkeleton layout={layout} />
 }
 
-export default dynamic(() => Promise.resolve(GameLayout), {
+export const InProgressGame = dynamic(() => Promise.resolve(InProgressGameImpl), {
   loading: () => (
     <Skeleton className="grid h-full place-items-center">
       <LayoutTemplate className="h-72 w-72 animate-bounce text-white/10" />

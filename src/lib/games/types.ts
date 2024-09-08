@@ -1,7 +1,5 @@
-import { type getGameStateWithQuestion, type getSessionInfoForPlayer } from "./queries"
+import { type getInGameState, type getSessionInfoForPlayer } from "./queries"
 
-export type GameStateWithQuestion = NonNullable<
-  Awaited<ReturnType<typeof getGameStateWithQuestion>>
->
+export type InGameState = NonNullable<Awaited<ReturnType<typeof getInGameState>>>
 
 export type PlayerGameSession = NonNullable<Awaited<ReturnType<typeof getSessionInfoForPlayer>>>

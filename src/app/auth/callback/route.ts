@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
     if (!error) {
       if (data.user) {
-        await upsertUserProfile(data.user.id)
+        await upsertUserProfile(data.user)
       }
 
       const forwardedHost = request.headers.get("x-forwarded-host") // original origin before load balancer

@@ -2,18 +2,23 @@
 
 import { useEffect } from "react"
 import { useMediaQuery } from "@react-hook/media-query"
+import { type User } from "@supabase/supabase-js"
 import { useMutation } from "@tanstack/react-query"
 import { useCompletion } from "ai/react"
 
-import type { GameStateWithQuestion, PlayerGameSession } from "~/lib/games/types"
+import type { InGameState, PlayerGameSession } from "~/lib/games/types"
 import { extractCodeFromRawCompletion } from "~/lib/llm/utils"
 import { createBrowserClient } from "~/lib/supabase/browser"
 import { api } from "~/lib/trpc/react"
 import { createTypedContext } from "~/lib/utils/context"
-import { MOBILE_VIEWPORT } from "./GameLayout"
+import { MOBILE_VIEWPORT } from "./InProgressGame"
 
 export const [GameManagerProvider, useGameManager] = createTypedContext(
-  (props: { initialGameState: GameStateWithQuestion; initialPlayerSession: PlayerGameSession }) => {
+  (props: {
+    initialGameState: InGameState
+    initialPlayerSession: PlayerGameSession
+    user: User
+  }) => {
     const isMobile = useMediaQuery(MOBILE_VIEWPORT)
 
     const gameSessionQuery = useGameSessionForUser({
@@ -36,6 +41,8 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
 
     const submitCodeMutation = api.games.submitCode.useMutation()
 
+    const leaveGameMutation = api.games.leave.useMutation()
+
     return {
       isMobile,
       gameInfo: gameStateQuery.data,
@@ -46,11 +53,13 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
       updateCurrentCodeMutation,
       isGeneratingCode: completion.isLoading,
       submitCodeMutation,
+      leaveGameMutation,
+      user: props.user,
     }
   },
 )
 
-function useGameState({ initialState }: { initialState: GameStateWithQuestion }) {
+function useGameState({ initialState }: { initialState: InGameState }) {
   const utils = api.useUtils()
 
   const gameId = initialState.id
