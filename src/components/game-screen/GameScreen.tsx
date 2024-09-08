@@ -2,6 +2,8 @@
 
 import { notFound, redirect } from "next/navigation"
 
+import GameLoadingPage from "~/app/games/play/[gameId]/loading"
+import { ClientOnly } from "../ClientOnly"
 import { useGameManager } from "./GameManagerProvider"
 import { InProgressGame } from "./InProgressGame"
 import { Lobby } from "./Lobby"
@@ -14,7 +16,11 @@ export function GameScreen() {
   }
 
   if (gameInfo.status === "inProgress") {
-    return <InProgressGame />
+    return (
+      <ClientOnly fallback={<GameLoadingPage />}>
+        <InProgressGame />
+      </ClientOnly>
+    )
   }
 
   if (gameInfo.status === "finalising") {
