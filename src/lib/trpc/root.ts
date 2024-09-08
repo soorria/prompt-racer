@@ -1,4 +1,4 @@
-import { gameRouter } from "./routers/games"
+import { gameRouter } from "../games/trpc"
 import { createCallerFactory, createTRPCRouter } from "./trpc"
 
 /**
