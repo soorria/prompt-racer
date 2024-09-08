@@ -8,7 +8,9 @@ import { Skeleton } from "~/components/ui/skeleton"
 import { validateUniqueKeys } from "./panels"
 
 const PanelSkeleton = ({ layout }: { layout: GroupPanelSchema }) => {
-  validateUniqueKeys(layout)
+  if (process.env.NODE_ENV === "development") {
+    validateUniqueKeys(layout)
+  }
 
   const onLayout = (sizes: number[]) => {
     document.cookie = `react-resizable-panels:${layout.key}=${JSON.stringify(sizes)}`
