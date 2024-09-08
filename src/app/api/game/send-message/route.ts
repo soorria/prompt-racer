@@ -15,6 +15,7 @@ export const POST = async (request: Request) => {
 
     return stream.toDataStreamResponse()
   } catch (e) {
+    // TODO: better error handling
     throw new Response("Invalid request body", {
       status: 400,
     })

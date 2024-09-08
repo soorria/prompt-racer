@@ -1,4 +1,6 @@
 import { defaultShouldDehydrateQuery, QueryClient } from "@tanstack/react-query"
+import { TRPCClientError } from "@trpc/client"
+import { toast } from "sonner"
 import SuperJSON from "superjson"
 
 export const createQueryClient = () =>
@@ -16,6 +18,15 @@ export const createQueryClient = () =>
       },
       hydrate: {
         deserializeData: SuperJSON.deserialize,
+      },
+      mutations: {
+        onError(error) {
+          if (error instanceof TRPCClientError) {
+            toast.error(error.message)
+          } else {
+            toast.error(`Unexpected error: ${error.message}`)
+          }
+        },
       },
     },
   })
