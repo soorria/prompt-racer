@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 
-type Props = {
-  endTime: number
-}
-
-export function CountdownTimer({ endTime }: Props) {
+export function CountdownTimer({ endTime }: { endTime: number }) {
   const { minutes, seconds } = useCountdown(endTime)
 
   return (
@@ -26,12 +22,9 @@ type CountdownResult = {
 
 const ONE_MINUTE_MS = 60 * 1000
 
-function getSplitTimeDiff(now: number, endTime: number) {
+function getSplitTimeDiff({ now, endTime }: { now: number; endTime: number }) {
   if (now > endTime) {
-    return {
-      minutes: 0,
-      seconds: 0,
-    }
+    return { minutes: 0, seconds: 0 }
   }
 
   const diffMs = endTime - now
@@ -43,23 +36,22 @@ function getSplitTimeDiff(now: number, endTime: number) {
 }
 
 function useCountdown(endTime: number): CountdownResult {
-  const [timeRemaining, setTimeRemaining] = useState(() => getSplitTimeDiff(endTime, Date.now()))
+  const [timeRemaining, setTimeRemaining] = useState(() =>
+    getSplitTimeDiff({ now: Date.now(), endTime }),
+  )
 
   useEffect(() => {
     const intervalId = setInterval(() => {
       const currentTime = Date.now()
 
-      if (currentTime < endTime) {
-        setTimeRemaining({
-          minutes: 0,
-          seconds: 0,
-        })
+      if (endTime < currentTime) {
+        setTimeRemaining({ minutes: 0, seconds: 0 })
         clearInterval(intervalId)
         return
       }
 
       setTimeRemaining((currentEndTime) => {
-        const newEndTime = getSplitTimeDiff(endTime, currentTime)
+        const newEndTime = getSplitTimeDiff({ now: currentTime, endTime })
 
         if (
           newEndTime.minutes === currentEndTime.minutes &&
