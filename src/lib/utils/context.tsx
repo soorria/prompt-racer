@@ -3,8 +3,7 @@ import { createContext, use } from "react"
 
 export function createTypedContext<
   TContext,
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  TProps extends Record<string, unknown> = {},
+  TProps extends Record<string, unknown> = Record<never, never>,
 >(
   useContextValue: (props: TProps) => TContext,
 ): [
