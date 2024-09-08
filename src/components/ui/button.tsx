@@ -74,7 +74,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
           ) : (
             Icon && (
-              <span className="mr-2">
+              <span className={cn({ "mr-2": children })}>
                 <Icon className="h-5 w-5" />
               </span>
             )

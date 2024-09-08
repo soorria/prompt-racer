@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { useMediaQuery } from "@react-hook/media-query"
 
-import { MOBILE_VIEWPORT } from "../game-screen/GameLayout"
+import { MOBILE_VIEWPORT } from "../game-screen/InProgressGame"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./dialog"
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "./drawer"
 

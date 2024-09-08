@@ -66,13 +66,12 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const rootclass = cn(Fugaz.variable, fontSans.variable, "h-[100svh]")
-  const user = await getAuthUser()
 
   return (
     <html lang="en" className={rootclass}>
       <body>
         <main className="mx-auto flex h-full w-full flex-col p-4 pt-0">
-          <div className="flex-1 pt-4">{children}</div>
+          <div className="flex-1">{children}</div>
           <Toaster />
         </main>
       </body>
