@@ -17,7 +17,7 @@ export default function ProfileCard({ user }: { user: User | null }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger className={cn("flex items-center justify-center space-x-3 rounded-full")}>
-        <UserAvatar user={user} />
+        <UserAvatar imageUrl={user?.user_metadata?.avatar_url as string} />
       </PopoverTrigger>
       <PopoverContent className="p-0 py-2" align="end">
         <LoginLogoutButton key={user?.id ?? ""} user={user} setOpen={setOpen} />

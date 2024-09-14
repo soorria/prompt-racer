@@ -2,15 +2,14 @@ import { invariant } from "@epic-web/invariant"
 
 import { type Doc, type DocInsert } from "~/lib/db/types"
 import { INTEGER_RANGE } from "../db/constants"
-import { objectMap } from "../utils/object"
 
 export type PlayerGameSessionToSort = Doc<"playerGameSessions"> & {
   chatHistory: Doc<"playerGameSessionChatHistoryItems">[]
   submissionState:
-    | (Doc<"playerGameSubmissionStates"> & {
-        results: Doc<"playerGameSubmissionStateResults">[]
-      })
-    | null
+  | (Doc<"playerGameSubmissionStates"> & {
+    results: Doc<"playerGameSubmissionStateResults">[]
+  })
+  | null
 }
 
 type SortablePlayerGameSession = PlayerGameSessionToSort & {
@@ -56,15 +55,15 @@ const getPlayerPositions = (
           numPassing === 0
             ? config.worstScore
             : config.getScore(
-                {
-                  ...session,
-                  submissionState: {
-                    ...session.submissionState,
-                    results: passing,
-                  },
+              {
+                ...session,
+                submissionState: {
+                  ...session.submissionState,
+                  results: passing,
                 },
-                gameState,
-              ),
+              },
+              gameState,
+            ),
       }
     })
     .sort((a, b) => {

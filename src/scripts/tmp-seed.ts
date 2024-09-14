@@ -1,6 +1,8 @@
 import { invariant } from "@epic-web/invariant"
 
 import { db, schema } from "~/lib/db"
+import { faker } from '@faker-js/faker'
+import type { Doc } from "~/lib/db/types"
 
 async function main() {
   const [testSource] = await db
@@ -37,6 +39,25 @@ async function main() {
       expectedOutput: 2,
     },
   ])
+
+  const fakeUsers: Doc<'users'>[] = []
+  for (let i = 0; i < 100; i++) {
+    const name = faker.person.firstName()
+    fakeUsers.push({
+      id: faker.string.uuid(),
+      wins: Math.round(Math.random() * 100),
+      name: name,
+      profile_image_url: faker.image.avatar(),
+    })
+  }
+
+  await db.insert(schema.users).values(fakeUsers)
 }
 
-main().finally(() => process.exit(0))
+void main().then(() => {
+  console.log('✅ Finished seeding!');
+}).catch(e => {
+  console.log('❌ Failed to seed users')
+  console.error(e)
+  process.exit(1)
+}).finally(() => process.exit(0))
