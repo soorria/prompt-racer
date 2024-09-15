@@ -96,31 +96,31 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
           <tr>
             <th
               scope="col"
-              className="sticky top-0 z-10 rounded-tl-xl border-b border-gray-700 bg-zinc-800 bg-opacity-25 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter sm:pl-6 lg:pl-8"
+              className="sticky top-0 z-10 rounded-tl-xl border-b border-gray-700 bg-zinc-800 bg-opacity-25 px-3 py-3.5 text-left text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
             >
-              <span className="sr-only sm:not-sr-only">Global </span>Rank
+              Rank
             </th>
             <th
               scope="col"
-              className="sticky top-0 z-10 border-b border-gray-700 bg-zinc-800 bg-opacity-25 px-3 py-3.5 text-left text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
+              className="sticky top-0 z-10 border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-left text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
             >
               Player
             </th>
             <th
               scope="col"
-              className="sticky top-0 z-10 border-b border-gray-700 bg-zinc-800 bg-opacity-25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
+              className="sticky top-0 z-10 border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
             >
               {ORDERING_DETAILS.wins.label}
             </th>
             <th
               scope="col"
-              className="sticky top-0 z-10 border-b border-gray-700 bg-zinc-800 bg-opacity-25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
+              className="sticky top-0 z-10 border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
             >
               {ORDERING_DETAILS["games-played"].label}
             </th>
             <th
               scope="col"
-              className="sticky top-0 z-10 rounded-tr-xl border-b border-gray-700 bg-zinc-800 bg-opacity-25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
+              className="sticky top-0 z-10 rounded-tr-xl border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
             >
               {ORDERING_DETAILS["win-rate"].label}
             </th>
@@ -132,60 +132,90 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
             "--initial-step": 4,
           }}
         >
-          {users.map((player, idx) => (
-            <tr
-              key={player.id}
-              style={{
-                "--step-num": idx.toString(),
-              }}
-            >
-              <td
-                className={cn(
-                  { "border-b border-gray-700/25": idx !== users.length - 1 },
-                  "whitespace-nowrap py-4 pl-4 text-sm font-medium text-gray-200 sm:pl-6 lg:pl-8",
-                )}
-              >
-                {idx}
-              </td>
+          {users.map((player, idx) => {
+            const isNotLastRow = idx !== users.length - 1
 
-              {[
-                {
-                  value: (
-                    <span className="flex items-center gap-1.5">
-                      <UserAvatar
-                        imageUrl={player.profile_image_url}
-                        name={player.name}
-                        size="xs"
-                      />
-                      {player.name}
-                    </span>
-                  ),
-                  align: "left",
-                },
-                { value: ORDERING_DETAILS.wins.getValue(player), align: "right" },
-                { value: ORDERING_DETAILS["games-played"].getValue(player), align: "right" },
-                { value: ORDERING_DETAILS["win-rate"].getValue(player), align: "right" },
-              ].map(({ value, align }, valueIdx) => {
-                return (
-                  <td
-                    key={valueIdx}
-                    className={cn(
-                      {
-                        "border-b border-gray-700/25": idx !== users.length - 1,
-                        "text-left": align === "left",
-                        "text-right": align === "right",
-                      },
-                      "whitespace-nowrap px-3 py-4 text-sm tabular-nums text-gray-400",
-                    )}
-                  >
-                    {value}
-                  </td>
-                )
-              })}
-            </tr>
-          ))}
+            return (
+              <tr
+                key={player.id}
+                style={{
+                  "--step-num": idx.toString(),
+                }}
+                className="transition-colors duration-500 hover:bg-zinc-800/25 hover:duration-75"
+              >
+                <td
+                  className={cn(
+                    { "border-b border-gray-700/25": isNotLastRow },
+                    "whitespace-nowrap py-4 pl-3 text-sm font-medium text-gray-200",
+                  )}
+                >
+                  {idx}
+                </td>
+
+                {[
+                  {
+                    value: <LeaderboardTablePlayerName player={player} />,
+                    align: "left",
+                  },
+                  { value: ORDERING_DETAILS.wins.getValue(player), align: "right" },
+                  { value: ORDERING_DETAILS["games-played"].getValue(player), align: "right" },
+                  { value: ORDERING_DETAILS["win-rate"].getValue(player), align: "right" },
+                ].map(({ value, align }, valueIdx) => {
+                  return (
+                    <td
+                      key={valueIdx}
+                      className={cn(
+                        {
+                          "border-b border-gray-700/25": isNotLastRow,
+                          "text-left": align === "left",
+                          "text-right": align === "right",
+                        },
+                        "whitespace-nowrap px-3 py-4 text-sm tabular-nums text-gray-400",
+                      )}
+                    >
+                      {value}
+                    </td>
+                  )
+                })}
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
+  )
+}
+
+function LeaderboardTablePlayerName({ player }: { player: Doc<"users"> }) {
+  const commonClasses = {
+    root: "flex items-center gap-1.5",
+  }
+  const classes = {
+    ...(player.github_username
+      ? {
+          text: "group-hover/link:text-white underline transition",
+        }
+      : {}),
+    ...commonClasses,
+  }
+
+  const children = (
+    <>
+      <UserAvatar key="img" imageUrl={player.profile_image_url} name={player.name} size="xs" />
+      <span className={classes.text}>{player.name}</span>
+    </>
+  )
+
+  if (!player.github_username) {
+    return <span className={classes.root}>{children}</span>
+  }
+
+  return (
+    <a
+      href={`https://github.com/${player.github_username}`}
+      className={cn(classes.root, "group/link")}
+    >
+      {children}
+    </a>
   )
 }

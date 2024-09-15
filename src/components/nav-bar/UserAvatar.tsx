@@ -20,10 +20,12 @@ export default function UserAvatar({
   name,
   imageUrl,
   size = "sm",
+  className,
 }: {
   name: string | undefined
   imageUrl: string | undefined | null
   size?: UserAvatarSize
+  className?: string
 }) {
   const sizeClasses: Record<UserAvatarSize, string> = {
     xs: "h-4 w-4",
@@ -42,6 +44,7 @@ export default function UserAvatar({
         size === "md",
       "h-32 w-4 -translate-x-2 -translate-y-14 group-hover:translate-x-28 group-hover:translate-y-5":
         size === "lg",
+      hidden: size === "xs",
     },
   )
 
@@ -49,6 +52,7 @@ export default function UserAvatar({
     <div
       className={cn(
         "group relative overflow-hidden rounded-full transition-transform hover:shadow-xl",
+        className,
       )}
     >
       <Avatar className={cn("rounded-full", sizeClasses[size])}>
