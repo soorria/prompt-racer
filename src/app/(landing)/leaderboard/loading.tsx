@@ -3,9 +3,13 @@ import { Skeleton } from "~/components/ui/skeleton"
 export default function LeaderboardPageLoading() {
   return (
     <div>
+      <h1 className="mt-8 text-center text-3xl font-bold tracking-tight sm:text-4xl">
+        Leaderboard
+      </h1>
+
       {/* Loading state for LeaderboardHighlight */}
       <div className="my-10 flex justify-center">
-        <div className="flex w-full items-end justify-center space-x-4">
+        <div className="flex w-full items-center justify-center space-x-4">
           <Skeleton className="h-36 w-1/4 rounded-lg" /> {/* Placeholder for rank 2 */}
           <Skeleton className="h-40 w-1/3 rounded-lg" /> {/* Placeholder for rank 1 */}
           <Skeleton className="h-36 w-1/4 rounded-lg" /> {/* Placeholder for rank 3 */}
