@@ -1,7 +1,4 @@
 import "@total-typescript/ts-reset"
-
-import { TRPCReactProvider } from "~/lib/trpc/react"
-
 import "@total-typescript/ts-reset/dom"
 import "~/styles/globals.css"
 
@@ -69,12 +66,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en" className={rootclass}>
       <body>
-        <TRPCReactProvider>
-          <main className="mx-auto flex h-full w-full flex-col p-4 pt-0">
-            <div className="flex-1">{children}</div>
-            <Toaster />
-          </main>
-        </TRPCReactProvider>
+        <main className="mx-auto flex h-full w-full flex-col p-4 pt-0">
+          <div className="flex-1">{children}</div>
+          <Toaster />
+        </main>
       </body>
     </html>
   )
