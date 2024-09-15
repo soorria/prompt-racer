@@ -74,6 +74,16 @@ export async function finalizeGame(gameId: string) {
     }
   }
 
+  await Promise.all([
+    playerGameSessions.map((session) =>
+      db.update(schema.users).set({
+        gamesPlayed: sql`${schema.users.gamesPlayed} + 1`
+      }).where(
+        cmp.eq(schema.users.id, session.user_id)
+      )
+    ),
+  ])
+
   await db
     .update(schema.gameStates)
     .set({

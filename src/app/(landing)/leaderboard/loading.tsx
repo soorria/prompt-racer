@@ -1,12 +1,18 @@
-import LeaderboardHighlight from "~/components/leaderboard-screen/LeaderboardHighlight"
-import { api } from "~/lib/trpc/server"
-import { cn } from "~/lib/utils"
+import { Skeleton } from "~/components/ui/skeleton"
 
-export default async function LeaderboardPage() {
-  const users = await api.leaderboard.getLeaderboard()
+export default function LeaderboardPageLoading() {
   return (
     <div>
-      <LeaderboardHighlight players={users.slice(0, 3)} />
+      {/* Loading state for LeaderboardHighlight */}
+      <div className="my-10 flex justify-center">
+        <div className="flex w-full items-end justify-center space-x-4">
+          <Skeleton className="h-36 w-1/4 rounded-lg" /> {/* Placeholder for rank 2 */}
+          <Skeleton className="h-40 w-1/3 rounded-lg" /> {/* Placeholder for rank 1 */}
+          <Skeleton className="h-36 w-1/4 rounded-lg" /> {/* Placeholder for rank 3 */}
+        </div>
+      </div>
+
+      {/* Loading state for the table */}
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mt-8 flow-root">
           <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
@@ -35,31 +41,16 @@ export default async function LeaderboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((player, idx) => (
-                    <tr key={player.id}>
-                      <td
-                        className={cn(
-                          { "border-b border-gray-700/25": idx !== users.length - 1 },
-                          "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-200 sm:pl-6 lg:pl-8",
-                        )}
-                      >
-                        {idx + 1}
+                  {Array.from({ length: 10 }).map((_, idx) => (
+                    <tr key={idx}>
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-200 sm:pl-6 lg:pl-8">
+                        <Skeleton className="h-5 w-10" />
                       </td>
-                      <td
-                        className={cn(
-                          { "border-b border-gray-700/25": idx !== users.length - 1 },
-                          "whitespace-nowrap px-3 py-4 text-sm text-gray-400",
-                        )}
-                      >
-                        {player.name}
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-400">
+                        <Skeleton className="h-5 w-32" />
                       </td>
-                      <td
-                        className={cn(
-                          { "border-b border-gray-700/25": idx !== users.length - 1 },
-                          "whitespace-nowrap px-3 py-4 text-sm text-gray-400",
-                        )}
-                      >
-                        {player.wins}
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-400">
+                        <Skeleton className="h-5 w-10" />
                       </td>
                     </tr>
                   ))}

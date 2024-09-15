@@ -1,27 +1,21 @@
 
 import { createTRPCRouter, publicProcedure } from "~/lib/trpc/trpc"
 import { orderBy, schema } from "../db"
-import { z } from "zod"
 
+// Sort by descending wins
+// If tied, sort by games played ascending
+// If tied, sort by created_at descending (newer players higher)
 export const leaderboardRouter = createTRPCRouter({
-  getLeaderboard: publicProcedure.input(z.object({
-    limit: z.number().min(1).max(10),
-    cursor: z.number().nullish(),
-  })).query(async ({ ctx, input }) => {
-    const limit = input.limit ?? 10;
-    const { cursor } = input;
-
-    const users = await ctx.db.query.users.findMany({
-      orderBy: [orderBy.desc(schema.users.wins), orderBy.asc(schema.users.name)],
-      limit: limit + 1,
-      offset: cursor ?? 0,
-    })
-
-    const hasNextPage = users.length > limit;
-
-    return {
-      users: hasNextPage ? users.slice(0, limit) : users,
-      cursor: hasNextPage ? (cursor ?? 0) : null,
-    }
-  }),
+  getLeaderboard: publicProcedure
+    .query(async ({ ctx }) => {
+      const users = await ctx.db.query.users.findMany({
+        orderBy: [
+          orderBy.desc(schema.users.wins),
+          orderBy.asc(schema.users.gamesPlayed),
+          orderBy.desc(schema.users.created_at)
+        ],
+        limit: 100,
+      })
+      return users
+    }),
 })

@@ -28,8 +28,10 @@ export const users = pgTable(
      */
     id: customTypes.primaryKeyWithoutDefault("id"),
     wins: integer("wins").default(0).notNull(),
+    gamesPlayed: integer("games_played").default(0).notNull(),
     name: text("name").notNull(),
     profile_image_url: text("profile_image_url"),
+    created_at: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => {
     return {

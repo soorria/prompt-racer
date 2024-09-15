@@ -46,8 +46,10 @@ async function main() {
     fakeUsers.push({
       id: faker.string.uuid(),
       wins: Math.round(Math.random() * 100),
+      gamesPlayed: Math.round(Math.random() * 200),
       name: name,
       profile_image_url: faker.image.avatar(),
+      created_at: faker.date.past(),
     })
   }
 

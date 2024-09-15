@@ -6,7 +6,7 @@ import UserAvatar from "../nav-bar/UserAvatar"
 import { Avatar } from "../ui/avatar"
 
 type LeaderboardTopThreeProps = {
-  players: [Doc<"users"> | undefined, Doc<"users"> | undefined, Doc<"users"> | undefined]
+  players: Doc<"users">[]
 }
 
 const PlayerCard = ({
@@ -21,12 +21,34 @@ const PlayerCard = ({
   if (!player) {
     return (
       <div
-        className={cn("flex flex-col items-center justify-center rounded-lg bg-gray-700 p-4", {
-          "h-full": isGold,
-          "h-[90%]": !isGold,
-        })}
+        className={cn(
+          "flex flex-col items-center justify-center rounded-lg bg-gray-700 p-4",
+          isGold ? "h-full" : "h-[90%]",
+        )}
       >
-        <p className="text-gray-400">Player not found</p>
+        <p className="text-gray-400">This could be you!</p>
+      </div>
+    )
+  }
+
+  if (isGold) {
+    return (
+      <div
+        key={player.id}
+        className="flex h-full w-[33%] flex-col items-center rounded-lg bg-yellow-900 p-4"
+      >
+        <div className="mb-2 flex flex-col items-center space-y-2">
+          <Trophy className="h-8 w-8 text-yellow-400" />
+          <Avatar className="h-20 w-20">
+            <UserAvatar size="lg" imageUrl={player.profile_image_url} />
+          </Avatar>
+        </div>
+        <p className="max-w-full overflow-hidden text-ellipsis text-nowrap text-xl font-semibold">
+          {player.name}
+        </p>
+        <p className="text-sm text-gray-400">Rank #{rank}</p>
+        <p className="mt-2 text-2xl font-bold">{player.wins}</p>
+        <p className="text-sm text-gray-400">wins</p>
       </div>
     )
   }
@@ -34,31 +56,19 @@ const PlayerCard = ({
   return (
     <div
       key={player.id}
-      className={`flex flex-col items-center rounded-lg ${
-        isGold ? "bg-yellow-900" : "bg-gray-700"
-      } p-4`}
-      style={{ width: isGold ? "33%" : "28%", height: isGold ? "full" : "90%" }}
+      className="flex h-[90%] w-[28%] flex-col items-center rounded-lg bg-gray-700 p-4"
     >
       <div className="mb-2 flex flex-col items-center space-y-2">
-        {rank === 1 ? (
-          <Trophy className="h-8 w-8 text-yellow-400" />
-        ) : (
-          <Medal className={`h-6 w-6 ${rank === 2 ? "text-gray-300" : "text-amber-600"}`} />
-        )}
-        <Avatar className={cn(isGold ? "h-20 w-20" : "h-16 w-16")}>
-          <UserAvatar size={isGold ? "lg" : "md"} imageUrl={player.profile_image_url} />
+        <Medal className="h-6 w-6 text-gray-300" />
+        <Avatar className="h-16 w-16">
+          <UserAvatar size="md" imageUrl={player.profile_image_url} />
         </Avatar>
       </div>
-      <p
-        className={cn(
-          isGold ? "text-xl" : "text-lg",
-          "max-w-full overflow-hidden text-ellipsis text-nowrap font-semibold",
-        )}
-      >
+      <p className="max-w-full overflow-hidden text-ellipsis text-nowrap text-lg font-semibold">
         {player.name}
       </p>
       <p className="text-sm text-gray-400">Rank #{rank}</p>
-      <p className={`mt-2 text-${isGold ? "2xl" : "xl"} font-bold`}>{player.wins}</p>
+      <p className="mt-2 text-xl font-bold">{player.wins}</p>
       <p className="text-sm text-gray-400">wins</p>
     </div>
   )
