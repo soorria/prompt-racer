@@ -143,7 +143,7 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
           <tr>
             <th
               scope="col"
-              className="sticky top-0 z-10 rounded-tl-xl border-b border-gray-700 bg-zinc-800 bg-opacity-25 py-3.5 pl-3 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter sm:pr-3"
+              className="sticky top-0 z-10 w-5 rounded-tl-xl border-b border-gray-700 bg-zinc-800 bg-opacity-25 py-3.5 pl-3 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter sm:pr-3"
             >
               <span aria-hidden>#</span>
               <span className="sr-only">Rank</span>
@@ -199,7 +199,7 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
                 <td
                   className={cn(
                     { "border-b border-gray-700/25": isNotLastRow },
-                    "whitespace-nowrap py-4 text-right text-sm font-medium text-gray-200 transition-colors duration-500 group-hover/row:duration-75 sm:pr-3",
+                    "whitespace-nowrap py-4 pl-3 text-right text-sm font-medium text-gray-200 transition-colors duration-500 group-hover/row:duration-75 sm:pr-3",
                     classes.rankCell,
                   )}
                 >

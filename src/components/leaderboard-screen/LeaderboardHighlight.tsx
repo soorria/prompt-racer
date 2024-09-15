@@ -10,6 +10,8 @@ type LeaderboardTopThreeProps = {
   ordering: LeaderboardOrdering
 }
 
+const numberFormatter = new Intl.NumberFormat("en")
+
 export const ORDERING_DETAILS: Record<
   LeaderboardOrdering,
   {
@@ -19,7 +21,7 @@ export const ORDERING_DETAILS: Record<
 > = {
   "games-played": {
     label: "Games Played",
-    getValue: (player) => player.gamesPlayed,
+    getValue: (player) => numberFormatter.format(player.gamesPlayed),
   },
   "win-rate": {
     label: "Win Rate",
@@ -27,7 +29,7 @@ export const ORDERING_DETAILS: Record<
   },
   wins: {
     label: "Wins",
-    getValue: (player) => player.wins,
+    getValue: (player) => numberFormatter.format(player.wins),
   },
 }
 
