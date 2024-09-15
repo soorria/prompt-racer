@@ -1,10 +1,18 @@
 import { invariant } from "@epic-web/invariant"
+import { faker } from "@faker-js/faker"
 
-import { db, schema } from "~/lib/db"
-import { faker } from '@faker-js/faker'
 import type { Doc } from "~/lib/db/types"
+import { cmp, db, schema } from "~/lib/db"
 
-async function main() {
+async function getAISourceId() {
+  const source = await db.query.questionSources.findFirst({
+    where: cmp.eq(schema.questionSources.type, "ai"),
+  })
+
+  if (source) {
+    return source.id
+  }
+
   const [testSource] = await db
     .insert(schema.questionSources)
     .values({
@@ -13,10 +21,16 @@ async function main() {
     .returning()
   invariant(testSource, "test source should have been created")
 
+  return testSource.id
+}
+
+async function main() {
+  const sourceId = await getAISourceId()
+
   const [question] = await db
     .insert(schema.questions)
     .values({
-      source_id: testSource.id,
+      source_id: sourceId,
       title: "TEST QUESTION",
       description: "identity function",
       difficulty: "easy",
@@ -40,7 +54,7 @@ async function main() {
     },
   ])
 
-  const fakeUsers: Doc<'users'>[] = []
+  const fakeUsers: Doc<"users">[] = []
   for (let i = 0; i < 100; i++) {
     const name = faker.person.firstName()
     fakeUsers.push({
@@ -56,10 +70,13 @@ async function main() {
   await db.insert(schema.users).values(fakeUsers)
 }
 
-void main().then(() => {
-  console.log('✅ Finished seeding!');
-}).catch(e => {
-  console.log('❌ Failed to seed users')
-  console.error(e)
-  process.exit(1)
-}).finally(() => process.exit(0))
+void main()
+  .then(() => {
+    console.log("✅ Finished seeding!")
+  })
+  .catch((e) => {
+    console.log("❌ Failed to seed users")
+    console.error(e)
+    process.exit(1)
+  })
+  .finally(() => process.exit(0))

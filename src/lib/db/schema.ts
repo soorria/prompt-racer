@@ -73,7 +73,7 @@ export const questionTestCases = pgTable(
       .references(() => questions.id),
     type: questionTestCaseTypeEnum("type").notNull(),
     args: jsonb("args").notNull().$type<unknown[]>(),
-    expectedOutput: jsonb("expected_output").notNull(),
+    expectedOutput: jsonb("expected_output"),
   },
   (table) => {
     return {
