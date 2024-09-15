@@ -5,11 +5,7 @@ import "~/styles/globals.css"
 import { type Metadata } from "next"
 import { Fugaz_One, Inter } from "next/font/google"
 
-import Logo from "~/components/nav-bar/Logo"
-import ProfileCard from "~/components/nav-bar/ProfileCard"
 import { Toaster } from "~/components/ui/sonner"
-import { getAuthUser } from "~/lib/auth/user"
-import Navbar from "~/lib/surfaces/navbar/Navbar"
 import { cn } from "~/lib/utils"
 
 const fontSans = Inter({ subsets: ["latin"], variable: "--font-sans" })

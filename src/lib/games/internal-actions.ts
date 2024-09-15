@@ -74,6 +74,16 @@ export async function finalizeGame(gameId: string) {
     }
   }
 
+  await Promise.all([
+    playerGameSessions.map((session) =>
+      db.update(schema.users).set({
+        gamesPlayed: sql`${schema.users.gamesPlayed} + 1`
+      }).where(
+        cmp.eq(schema.users.id, session.user_id)
+      )
+    ),
+  ])
+
   await db
     .update(schema.gameStates)
     .set({
@@ -171,28 +181,28 @@ export async function sendMessageInGame(gameId: string, instructions: string) {
             player_game_session_id: playerGameSession.id,
             content: extractedCode
               ? {
-                  type: "ai",
-                  rawCompletion: rawUpdatedCode,
-                  parsedCompletion: {
-                    state: "success",
-                    maybeCode: extractedCode,
-                  },
-                }
-              : {
-                  type: "ai",
-                  rawCompletion: rawUpdatedCode,
-                  parsedCompletion: {
-                    state: "error",
-                    error: "Could not find code in AI completion",
-                  },
+                type: "ai",
+                rawCompletion: rawUpdatedCode,
+                parsedCompletion: {
+                  state: "success",
+                  maybeCode: extractedCode,
                 },
+              }
+              : {
+                type: "ai",
+                rawCompletion: rawUpdatedCode,
+                parsedCompletion: {
+                  state: "error",
+                  error: "Could not find code in AI completion",
+                },
+              },
           })
           .where(cmp.eq(schema.playerGameSessionChatHistoryItems.id, insertedAtMessage.id)),
         extractedCode &&
-          db
-            .update(schema.playerGameSessions)
-            .set({ code: extractedCode })
-            .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
+        db
+          .update(schema.playerGameSessions)
+          .set({ code: extractedCode })
+          .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
       ])
     },
   })

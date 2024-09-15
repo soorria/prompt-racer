@@ -1,4 +1,5 @@
 import { gameRouter } from "../games/trpc"
+import { leaderboardRouter } from "../leaderboard/trpc"
 import { createCallerFactory, createTRPCRouter } from "./trpc"
 
 /**
@@ -8,6 +9,7 @@ import { createCallerFactory, createTRPCRouter } from "./trpc"
  */
 export const appRouter = createTRPCRouter({
   games: gameRouter,
+  leaderboard: leaderboardRouter,
 })
 
 // export type definition of API

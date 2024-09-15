@@ -1,35 +1,54 @@
-import type { User } from "@supabase/supabase-js"
 import React from "react"
-import { UserRound } from "lucide-react"
+import BoringAvatar from "boring-avatars"
 
 import { cn } from "~/lib/utils"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
-type Props = {
-  user: User | null
-}
+export default function UserAvatar({
+  name,
+  imageUrl,
+  size = "sm",
+}: {
+  name: string | undefined
+  imageUrl: string | undefined | null
+  size?: "sm" | "md" | "lg"
+}) {
+  const sizeClasses = {
+    sm: "h-6 w-6",
+    md: "h-16 w-16",
+    lg: "h-20 w-20",
+  }
 
-export default function UserAvatar({ user }: Props) {
+  // Fancy line animation classes
   const lineClasses = cn(
-    "absolute rotate-45 bg-white/70 transition-all duration-300",
-    "h-12 w-3 -translate-x-2 -translate-y-6 group-hover:translate-x-9 group-hover:translate-y-3",
+    "absolute left-0 top-0 rotate-45 bg-white/70 blur-sm transition-transform duration-300",
+    {
+      "h-12 w-3 -translate-x-2 -translate-y-6 group-hover:translate-x-9 group-hover:translate-y-3":
+        size === "sm",
+      "h-20 w-4 -translate-x-4 -translate-y-12 group-hover:translate-x-16 group-hover:translate-y-5":
+        size === "md",
+      "h-32 w-4 -translate-x-2 -translate-y-14 group-hover:translate-x-28 group-hover:translate-y-5":
+        size === "lg",
+    },
   )
 
   return (
     <div
-      className={cn("group relative overflow-hidden rounded-full transition-all hover:shadow-xl", {
-        user: "hover:scale-105",
-      })}
-    >
-      {user && <div className={lineClasses}></div>}
-      {user && typeof user.user_metadata.avatar_url === "string" ? (
-        // don't care about optimal images for the profile image
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={user.user_metadata.avatar_url} alt="avatar" className="h-8 w-8 rounded-full" />
-      ) : (
-        <div className="grid h-8 w-8 place-items-center rounded-full bg-gray-200">
-          <UserRound className="mt-1 h-8 w-8 stroke-zinc-400" />
-        </div>
+      className={cn(
+        "group relative overflow-hidden rounded-full transition-transform hover:shadow-xl",
       )}
+    >
+      <Avatar className={cn("rounded-full", sizeClasses[size])}>
+        <AvatarImage
+          src={imageUrl ?? undefined}
+          alt={`${name}'s avatar`}
+          className={"group-hover:scale-105"}
+        />
+        <AvatarFallback className="h-full w-full">
+          <BoringAvatar name={name} variant="beam" />
+        </AvatarFallback>
+      </Avatar>
+      <div className={lineClasses}></div>
     </div>
   )
 }
