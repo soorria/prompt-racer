@@ -11,8 +11,8 @@ export const DEFAULT_GAME_DURATIONS = {
 
 export type GameMode = (typeof GAME_MODES)[number]
 export const GAME_MODES = [
-  "fastest-code",
   "fastest-player",
+  "fastest-code",
   "shortest-code",
   "fewest-characters-to-llm",
 ] as const
