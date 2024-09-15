@@ -6,6 +6,11 @@ import { count } from "drizzle-orm"
 import { requireAuthUser } from "../auth/user"
 import { cmp, orderBy, schema } from "../db"
 import { type DBOrTransation, type Doc } from "../db/types"
+import {
+  type InGameState,
+  type NotWaitingForPlayersGameState,
+  type WaitingForPlayersGameState,
+} from "./types"
 import { getQuestionTestCasesOrderBy } from "./utils"
 
 // TODO: cursor-based pagination
@@ -96,8 +101,11 @@ export async function getGameById(tx: DBOrTransation, gameId: string) {
   return game
 }
 
-export async function getInGameState(tx: DBOrTransation, gameId: string) {
-  return await tx.query.gameStates.findFirst({
+export async function getInGameState(
+  tx: DBOrTransation,
+  gameId: string,
+): Promise<InGameState | undefined> {
+  const gameState = await tx.query.gameStates.findFirst({
     where: cmp.eq(schema.gameStates.id, gameId),
     with: {
       question: {
@@ -116,6 +124,15 @@ export async function getInGameState(tx: DBOrTransation, gameId: string) {
       },
     },
   })
+
+  if (gameState?.status === "waitingForPlayers") {
+    return {
+      ...gameState,
+      question: null,
+    } as WaitingForPlayersGameState
+  }
+
+  return gameState as NotWaitingForPlayersGameState | undefined
 }
 
 export async function getSessionInfoForPlayer(tx: DBOrTransation, userId: string, gameId: string) {

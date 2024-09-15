@@ -2,9 +2,64 @@ import type { ReactNode } from "react"
 import React from "react"
 import { CheckCircle2, Loader2, MinusCircleIcon, Play, UploadCloud, XCircle } from "lucide-react"
 
+import { type PlayerGameSession, type QuestionWithTestCases } from "~/lib/games/types"
 import { api } from "~/lib/trpc/react"
 import { Button } from "../ui/button"
 import { useGameManager } from "./GameManagerProvider"
+
+function QuestionTestCaseResults(props: {
+  question: QuestionWithTestCases
+  testState: PlayerGameSession["testState"]
+}) {
+  return (
+    <div className="space-y-2 text-sm">
+      {props.question.testCases.map((testCase, i) => {
+        const result = props.testState?.results[i]
+
+        let testEmoji: ReactNode
+        if (props.testState?.status === "running") {
+          testEmoji = (
+            <span title="Running test">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </span>
+          )
+        } else if (result) {
+          testEmoji = (
+            <span title={result.status === "success" ? "Test passed" : "Test failed"}>
+              {result.status === "success" && result.is_correct ? (
+                <CheckCircle2 className="h-6 w-6 rounded-full bg-primary text-black" />
+              ) : (
+                <XCircle className="h-6 w-6 rounded-full bg-red-500 text-black" />
+              )}
+            </span>
+          )
+        } else {
+          testEmoji = (
+            <span className="grayscale" title="No tests run">
+              <MinusCircleIcon className="h-6 w-6 rounded-full bg-primary text-black" />
+            </span>
+          )
+        }
+        return (
+          <div key={i} className="whitespace-pre-wrap font-mono">
+            <div className="flex items-center gap-2">
+              <span className="justify-self-center">{testEmoji}</span>
+              <span>
+                solution({testCase.args.map((a) => JSON.stringify(a)).join(", ")}) =={" "}
+                {JSON.stringify(testCase.expectedOutput)}
+              </span>
+            </div>
+            {result?.status === "error" && (
+              <div className="mt-3 whitespace-pre-wrap rounded-xl bg-red-500/20 p-4 text-red-500 bg-blend-color-burn">
+                {result.reason}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 export default function CodeRunning() {
   const utils = api.useUtils()
@@ -37,52 +92,12 @@ export default function CodeRunning() {
     <div>
       <div className="mb-4">
         <h3 className="mb-2 font-medium">Test cases</h3>
-        <div className="space-y-2 text-sm">
-          {gameInfo.question.testCases.map((testCase, i) => {
-            const result = gameSessionInfo.testState?.results[i]
-
-            let testEmoji: ReactNode
-            if (gameSessionInfo.testState?.status === "running") {
-              testEmoji = (
-                <span title="Running test">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                </span>
-              )
-            } else if (result) {
-              testEmoji = (
-                <span title={result.status === "success" ? "Test passed" : "Test failed"}>
-                  {result.status === "success" && result.is_correct ? (
-                    <CheckCircle2 className="h-6 w-6 rounded-full bg-primary text-black" />
-                  ) : (
-                    <XCircle className="h-6 w-6 rounded-full bg-red-500 text-black" />
-                  )}
-                </span>
-              )
-            } else {
-              testEmoji = (
-                <span className="grayscale" title="No tests run">
-                  <MinusCircleIcon className="h-6 w-6 rounded-full bg-primary text-black" />
-                </span>
-              )
-            }
-            return (
-              <div key={i} className="whitespace-pre-wrap font-mono">
-                <div className="flex items-center gap-2">
-                  <span className="justify-self-center">{testEmoji}</span>
-                  <span>
-                    solution({testCase.args.map((a) => JSON.stringify(a)).join(", ")}) =={" "}
-                    {JSON.stringify(testCase.expectedOutput)}
-                  </span>
-                </div>
-                {result?.status === "error" && (
-                  <div className="mt-3 whitespace-pre-wrap rounded-xl bg-red-500/20 p-4 text-red-500 bg-blend-color-burn">
-                    {result.reason}
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
+        {gameInfo.question ? (
+          <QuestionTestCaseResults
+            question={gameInfo.question}
+            testState={gameSessionInfo.testState}
+          />
+        ) : null}
       </div>
       <div className="flex justify-between">
         <Button

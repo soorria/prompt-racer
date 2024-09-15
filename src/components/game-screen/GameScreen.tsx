@@ -18,7 +18,7 @@ export function GameScreen() {
   if (gameInfo.status === "inProgress") {
     return (
       <ClientOnly fallback={<GameLayoutLoadingPage />}>
-        <InProgressGame />
+        <InProgressGame gameInfo={gameInfo} />
       </ClientOnly>
     )
   }

@@ -1,8 +1,5 @@
 import ms from "ms"
 
-import { type Doc } from "../db/types"
-
-
 export type KebabToPascalCase<T extends string> = T extends `${infer F}-${infer R}`
   ? `${F}${Capitalize<KebabToPascalCase<R>>}`
   : Capitalize<T>
@@ -12,13 +9,13 @@ export const DEFAULT_GAME_DURATIONS = {
   inProgress: ms("5m"),
 }
 
-export type GameMode = Doc<"gameStates">["mode"]
+export type GameMode = (typeof GAME_MODES)[number]
 export const GAME_MODES = [
   "fastest-code",
   "fastest-player",
   "shortest-code",
   "fewest-characters-to-llm",
-] as const satisfies GameMode[]
+] as const
 export const GAME_MODES_WITH_TITLES = {
   "fastest-code": "Fastest Code",
   "fastest-player": "Fastest Player",

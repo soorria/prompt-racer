@@ -11,6 +11,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core"
 
+import { GAME_MODES } from "../games/constants"
 import { type ChatHistoryItemContent } from "../games/schemas"
 import { type ModelId } from "../llm/constants"
 
@@ -346,12 +347,7 @@ export const gameStatusEnum = pgEnum("game_state", [
   "cancelled",
 ])
 
-export const gameModeEnum = pgEnum("game_mode", [
-  "fastest-player",
-  "fastest-code",
-  "shortest-code",
-  "fewest-characters-to-llm",
-])
+export const gameModeEnum = pgEnum("game_mode", GAME_MODES)
 
 export const gameStates = pgTable(
   "game_states",
