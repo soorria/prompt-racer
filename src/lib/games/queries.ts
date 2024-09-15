@@ -107,6 +107,9 @@ export async function getInGameState(
 ): Promise<InGameState | undefined> {
   const gameState = await tx.query.gameStates.findFirst({
     where: cmp.eq(schema.gameStates.id, gameId),
+    columns: {
+      question_id: false,
+    },
     with: {
       question: {
         with: {
