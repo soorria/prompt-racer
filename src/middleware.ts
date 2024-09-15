@@ -1,17 +1,30 @@
-import { NextResponse, type NextRequest } from "next/server"
+import type { MiddlewareConfig, NextRequest } from "next/server"
+import { NextResponse } from "next/server"
 
 import { updateSupabaseSessionInMiddleware } from "~/lib/supabase/middleware"
 
-const publicRoutes = ["/auth/login", "/auth/callback", "/", "/leaderboard"]
+const publicRoutes = ["/auth/login", "/auth/callback", "/", /^\/leaderboard(\/[^/]*)?$/]
 
 export async function middleware(request: NextRequest) {
-  if (publicRoutes.includes(request.nextUrl.pathname)) {
+  if (
+    publicRoutes.some((route) => {
+      if (typeof route === "string") {
+        return request.nextUrl.pathname === route
+      }
+      console.log(
+        request.nextUrl.pathname,
+        request.nextUrl.pathname.match(route),
+        route.test(request.nextUrl.pathname),
+      )
+      return route.test(request.nextUrl.pathname)
+    })
+  ) {
     return NextResponse.next()
   }
   return await updateSupabaseSessionInMiddleware(request)
 }
 
-export const config = {
+export const config: MiddlewareConfig = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
