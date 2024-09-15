@@ -1,4 +1,5 @@
-import { relations } from "drizzle-orm"
+import type { SQL } from "drizzle-orm"
+import { relations, sql } from "drizzle-orm"
 import {
   boolean,
   index,
@@ -6,6 +7,7 @@ import {
   jsonb,
   pgEnum,
   pgTable,
+  real,
   text,
   timestamp,
   uuid,
@@ -28,15 +30,32 @@ export const users = pgTable(
      * Supabase auth user id
      */
     id: customTypes.primaryKeyWithoutDefault("id"),
-    wins: integer("wins").default(0).notNull(),
-    gamesPlayed: integer("games_played").default(0).notNull(),
     name: text("name").notNull(),
     profile_image_url: text("profile_image_url"),
-    created_at: timestamp("created_at").notNull().defaultNow(),
+
+    github_username: text("github_username"),
+
+    wins: integer("wins").default(0).notNull(),
+    gamesPlayed: integer("games_played").default(0).notNull(),
+    winRate: real("win_rate").generatedAlwaysAs(
+      (): SQL =>
+        sql`case when ${users.gamesPlayed} = 0 then 0 else least((${users.wins}::real / ${users.gamesPlayed}), 1.0) end`,
+    ),
+
+    inserted_at: timestamp("inserted_at").notNull().defaultNow(),
   },
   (table) => {
     return {
-      wins_idx: index("user_wins_idx").on(table.wins.desc()).concurrently(),
+      wins_idx: index("user_wins_games_played_inserted_at_idx")
+        .on(table.wins.desc(), table.gamesPlayed.asc(), table.inserted_at.desc())
+        .concurrently(),
+      games_played_idx: index("user_games_played_inserted_at_idx")
+        .on(table.gamesPlayed.desc(), table.inserted_at.desc())
+        .concurrently(),
+
+      win_rate_idx: index("user_win_rate_wins_inserted_at_idx")
+        .on(table.winRate.desc(), table.wins.desc(), table.inserted_at.desc())
+        .concurrently(),
     }
   },
 )

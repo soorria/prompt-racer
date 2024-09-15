@@ -3,7 +3,7 @@ import { Skeleton } from "~/components/ui/skeleton"
 export default function LeaderboardPageLoading() {
   return (
     <div>
-      <h1 className="mt-8 text-center text-3xl font-bold tracking-tight sm:text-4xl">
+      <h1 className="my-16 text-center text-5xl font-bold tracking-tight sm:text-4xl">
         Leaderboard
       </h1>
 

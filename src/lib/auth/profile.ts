@@ -13,12 +13,28 @@ function getNameFromAuthUser(authUser: User) {
   return "Anonymous"
 }
 
+function getProfileImageFromAuthUser(authUser: User) {
+  const { user_metadata } = authUser
+
+  return user_metadata?.avatar_url as string | undefined
+}
+
+function getGithubUsernameFromAuthUser(authUser: User) {
+  const { identities } = authUser
+  return identities?.find((identity) => identity.provider === "github")?.identity_data
+    ?.user_name as string | undefined
+}
+
 export async function upsertProfile(authUser: User) {
+  const githubUsername = getGithubUsernameFromAuthUser(authUser)
+
   await db
     .insert(schema.users)
     .values({
       id: authUser.id,
       name: getNameFromAuthUser(authUser),
+      profile_image_url: getProfileImageFromAuthUser(authUser),
+      github_username: githubUsername,
     })
     .onConflictDoNothing()
 }

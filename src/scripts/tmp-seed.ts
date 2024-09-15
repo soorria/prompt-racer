@@ -1,7 +1,7 @@
 import { invariant } from "@epic-web/invariant"
 import { faker } from "@faker-js/faker"
 
-import type { Doc } from "~/lib/db/types"
+import type { Doc, DocInsert } from "~/lib/db/types"
 import { cmp, db, schema } from "~/lib/db"
 
 async function getAISourceId() {
@@ -54,7 +54,7 @@ async function main() {
     },
   ])
 
-  const fakeUsers: Doc<"users">[] = []
+  const fakeUsers: DocInsert<"users">[] = []
   for (let i = 0; i < 100; i++) {
     const name = faker.person.firstName()
     fakeUsers.push({
@@ -63,7 +63,7 @@ async function main() {
       gamesPlayed: Math.round(Math.random() * 200),
       name: name,
       profile_image_url: faker.image.avatar(),
-      created_at: faker.date.past(),
+      inserted_at: faker.date.past(),
     })
   }
 

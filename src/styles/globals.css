@@ -85,9 +85,9 @@ body {
 .slide-in > * {
   --step-num: 0;
   --_initial-step: var(--initial-step, 0);
-  /* --step-delay: 500ms; */
   --_step-delay: var(--step-delay, 100ms);
-  animation: slide-in var(--slide-duration, 0.5s) both 1;
+  animation: slide-in both 1;
+  animation-duration: var(--slide-duration, 0.5s);
   animation-delay: calc((var(--step-num) + var(--_initial-step)) * var(--_step-delay));
 
   @media (prefers-reduced-motion: reduce) {
