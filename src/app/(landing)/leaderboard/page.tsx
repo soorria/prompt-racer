@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { redirect } from "next/navigation"
@@ -6,6 +7,7 @@ import type { LeaderboardOrdering } from "~/lib/leaderboard/trpc"
 import LeaderboardHighlight, {
   ORDERING_DETAILS,
 } from "~/components/leaderboard-screen/LeaderboardHighlight"
+import { LazyLeaderboardWinnerConfetti } from "~/components/leaderboard-screen/LeaderboardWinnerConfetti.lazy"
 import LocalDate from "~/components/LocalDate"
 import UserAvatar from "~/components/nav-bar/UserAvatar"
 import { getAuthUser } from "~/lib/auth/user"
@@ -14,17 +16,16 @@ import { leaderboardOrderingSchema } from "~/lib/leaderboard/trpc"
 import { api } from "~/lib/trpc/server"
 import { cn } from "~/lib/utils"
 
-const LeaderboardWinnerConfetti = dynamic(
-  () =>
-    import("~/components/leaderboard-screen/LeaderboardWinnerConfetti").then(
-      (mod) => mod.LeaderboardWinnerConfetti,
-    ),
-  {
-    ssr: false,
-  },
-)
-
 export const revalidate = 60
+
+async function Confetti(props: { leaderUserId: string | undefined }) {
+  const currentUser = await getAuthUser()
+  const currentUserIsLeader = Boolean(
+    props.leaderUserId && currentUser && props.leaderUserId === currentUser.id,
+  )
+
+  return currentUserIsLeader ? <LazyLeaderboardWinnerConfetti /> : null
+}
 
 export default async function LeaderboardPage(props: {
   params: {
@@ -33,16 +34,9 @@ export default async function LeaderboardPage(props: {
 }) {
   const ordering = resolveOrderingOrRedirect(props.params.ordering)
 
-  const [leaderboard, currentUser] = await Promise.all([
-    api.leaderboard.getLeaderboard({
-      ordering: ordering,
-    }),
-    getAuthUser(),
-  ])
-
-  const currentUserIsLeader = Boolean(
-    leaderboard[0] && currentUser && leaderboard[0].id === currentUser.id,
-  )
+  const leaderboard = await api.leaderboard.getLeaderboard({
+    ordering: ordering,
+  })
 
   const TABS: { title: string; ordering: LeaderboardOrdering }[] = [
     {
@@ -65,7 +59,9 @@ export default async function LeaderboardPage(props: {
         Leaderboard
       </h1>
 
-      {currentUserIsLeader && <LeaderboardWinnerConfetti />}
+      <Suspense>
+        <Confetti leaderUserId={leaderboard[0]?.id} />
+      </Suspense>
 
       <div className="flex justify-center gap-2 sm:my-24">
         {TABS.map((tab, index) => (

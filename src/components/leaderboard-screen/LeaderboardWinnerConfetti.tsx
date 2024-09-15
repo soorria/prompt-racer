@@ -1,7 +1,7 @@
 "use client"
 
 import type JSConfetti from "js-confetti"
-import { useEffect } from "react"
+import { ReactNode, useEffect } from "react"
 import { ArchiveX, PartyPopper } from "lucide-react"
 
 import { DRACULA_COLORS } from "~/lib/colors/constants"
@@ -9,7 +9,7 @@ import { useLocalStorage } from "~/lib/utils/use-local-storage.client-only"
 import { Button } from "../ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 
-export function LeaderboardWinnerConfetti() {
+export function LeaderboardWinnerConfetti(): ReactNode {
   const [confettiEnabled, setConfettiEnabled] = useLocalStorage("promptracer:confettiEnabled", true)
 
   useEffect(() => {
