@@ -4,6 +4,18 @@ import BoringAvatar from "boring-avatars"
 import { cn } from "~/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
+type UserAvatarSize = "xs" | "sm" | "md" | "lg"
+
+const FALLBACK_AVATAR_COLORS = [
+  "#8BE9FD",
+  "#50FA7B",
+  "#FFB86C",
+  "#FF79C6",
+  "#BD93F9",
+  "#FF5555",
+  "#F1FA8C",
+]
+
 export default function UserAvatar({
   name,
   imageUrl,
@@ -11,9 +23,10 @@ export default function UserAvatar({
 }: {
   name: string | undefined
   imageUrl: string | undefined | null
-  size?: "sm" | "md" | "lg"
+  size?: UserAvatarSize
 }) {
-  const sizeClasses = {
+  const sizeClasses: Record<UserAvatarSize, string> = {
+    xs: "h-4 w-4",
     sm: "h-6 w-6",
     md: "h-16 w-16",
     lg: "h-20 w-20",
@@ -45,7 +58,7 @@ export default function UserAvatar({
           className={"group-hover:scale-105"}
         />
         <AvatarFallback className="h-full w-full">
-          <BoringAvatar name={name} variant="beam" />
+          <BoringAvatar name={name} variant="beam" colors={FALLBACK_AVATAR_COLORS} />
         </AvatarFallback>
       </Avatar>
       <div className={lineClasses}></div>

@@ -6,6 +6,7 @@ import LeaderboardHighlight, {
   ORDERING_DETAILS,
 } from "~/components/leaderboard-screen/LeaderboardHighlight"
 import LocalDate from "~/components/LocalDate"
+import UserAvatar from "~/components/nav-bar/UserAvatar"
 import { type Doc } from "~/lib/db/types"
 import { leaderboardOrderingSchema } from "~/lib/leaderboard/trpc"
 import { api } from "~/lib/trpc/server"
@@ -141,14 +142,26 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
               <td
                 className={cn(
                   { "border-b border-gray-700/25": idx !== users.length - 1 },
-                  "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-200 sm:pl-6 lg:pl-8",
+                  "whitespace-nowrap py-4 pl-4 text-sm font-medium text-gray-200 sm:pl-6 lg:pl-8",
                 )}
               >
                 {idx}
               </td>
 
               {[
-                { value: player.name, align: "left" },
+                {
+                  value: (
+                    <span className="flex items-center gap-1.5">
+                      <UserAvatar
+                        imageUrl={player.profile_image_url}
+                        name={player.name}
+                        size="xs"
+                      />
+                      {player.name}
+                    </span>
+                  ),
+                  align: "left",
+                },
                 { value: ORDERING_DETAILS.wins.getValue(player), align: "right" },
                 { value: ORDERING_DETAILS["games-played"].getValue(player), align: "right" },
                 { value: ORDERING_DETAILS["win-rate"].getValue(player), align: "right" },
