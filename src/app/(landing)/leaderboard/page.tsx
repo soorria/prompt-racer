@@ -6,9 +6,9 @@ import type { LeaderboardOrdering } from "~/lib/leaderboard/trpc"
 import LeaderboardHighlight, {
   ORDERING_DETAILS,
 } from "~/components/leaderboard-screen/LeaderboardHighlight"
+import LeaderboardTablePlayerName from "~/components/leaderboard-screen/LeaderboardTablePlayerName"
 import { LazyLeaderboardWinnerConfetti } from "~/components/leaderboard-screen/LeaderboardWinnerConfetti.lazy"
 import LocalDate from "~/components/LocalDate"
-import UserAvatar from "~/components/nav-bar/UserAvatar"
 import { getAuthUser } from "~/lib/auth/user"
 import { type Doc } from "~/lib/db/types"
 import { leaderboardOrderingSchema } from "~/lib/leaderboard/trpc"
@@ -17,7 +17,7 @@ import { cn } from "~/lib/utils"
 
 export const revalidate = 60
 
-async function Confetti(props: { leaderUserId: string | undefined }) {
+export async function Confetti(props: { leaderUserId: string | undefined }) {
   const currentUser = await getAuthUser()
   const currentUserIsLeader = Boolean(
     props.leaderUserId && currentUser && props.leaderUserId === currentUser.id,
@@ -80,7 +80,15 @@ export default async function LeaderboardPage(props: {
         </div>
       </div>
 
-      <LeaderboardHighlight players={leaderboard.slice(0, 3)} ordering={ordering} />
+      <LeaderboardHighlight
+        players={leaderboard.slice(0, 3).map((p) => ({
+          ...p,
+          winCondition: {
+            label: ORDERING_DETAILS[ordering].label,
+            value: `${ORDERING_DETAILS[ordering].getValue(p)}`,
+          },
+        }))}
+      />
 
       {leaderboard.length ? <LeaderboardTable users={leaderboard} /> : null}
 
@@ -91,7 +99,7 @@ export default async function LeaderboardPage(props: {
   )
 }
 
-const positionRowClasses = {
+export const positionRowClasses = {
   0: {
     row: "hover:bg-yellow-700/25",
     rankCell: "group-hover/row:text-yellow-400",
@@ -116,14 +124,14 @@ const positionRowClasses = {
   }
 >
 
-function getPositionClassKey(position: number): keyof typeof positionRowClasses {
+export function getPositionClassKey(position: number): keyof typeof positionRowClasses {
   if (position <= 2) {
     return position as keyof typeof positionRowClasses
   }
   return "3+"
 }
 
-function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
+export function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
   return (
     <div className="-mx-4 mt-16 flow-root overflow-x-scroll px-4">
       <table
@@ -230,42 +238,6 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
         </tbody>
       </table>
     </div>
-  )
-}
-
-function LeaderboardTablePlayerName({ player }: { player: Doc<"users"> }) {
-  const commonClasses = {
-    root: "flex items-center gap-1.5",
-  }
-  const classes = {
-    ...(player.github_username
-      ? {
-          text: "group-hover/link:text-white underline transition",
-        }
-      : {}),
-    ...commonClasses,
-  }
-
-  const children = (
-    <>
-      <UserAvatar key="img" imageUrl={player.profile_image_url} name={player.name} size="xs" />
-      <span className={classes.text}>{player.name}</span>
-    </>
-  )
-
-  if (!player.github_username) {
-    return <span className={classes.root}>{children}</span>
-  }
-
-  return (
-    <a
-      href={`https://github.com/${player.github_username}`}
-      rel="noopener noreferrer"
-      target="_blank"
-      className={cn(classes.root, "group/link")}
-    >
-      {children}
-    </a>
   )
 }
 

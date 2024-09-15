@@ -6,8 +6,7 @@ import { cn } from "~/lib/utils"
 import UserAvatar from "../nav-bar/UserAvatar"
 
 type LeaderboardTopThreeProps = {
-  players: Doc<"users">[]
-  ordering: LeaderboardOrdering
+  players: (Doc<"users"> & { winCondition: { label: string; value: string } })[]
 }
 
 const numberFormatter = new Intl.NumberFormat("en")
@@ -36,11 +35,11 @@ export const ORDERING_DETAILS: Record<
 const PlayerCard = ({
   player,
   rank,
-  ordering,
+  winCondition,
 }: {
   player: Doc<"users"> | undefined
   rank: number
-  ordering: LeaderboardOrdering
+  winCondition: { label: string; value: string } | undefined
 }) => {
   const isGold = rank === 0
 
@@ -52,12 +51,10 @@ const PlayerCard = ({
           isGold ? "bg-gray-700" : "bg-gray-800",
         )}
       >
-        <p className="text-gray-400">This could be you!</p>
+        <p className="text-gray-400">Vacant</p>
       </div>
     )
   }
-
-  const { label, getValue } = ORDERING_DETAILS[ordering]
 
   if (isGold) {
     return (
@@ -75,14 +72,16 @@ const PlayerCard = ({
         {/* Player Name and Rank in a single row on mobile, stacked on larger screens */}
         <div className="flex h-full w-full flex-col justify-between gap-4 sm:w-auto sm:flex-col sm:items-center sm:text-center">
           <div className="grid w-full flex-row place-content-center items-center gap-2 max-sm:grid-cols-[1fr_auto] sm:flex-col">
-            <p className="max-w-full truncate text-2xl font-semibold">{player.name}</p>
+            <p className="max-w-full truncate text-lg font-semibold sm:text-2xl">{player.name}</p>
             <p className="text-base text-gray-300">Rank #{rank}</p>
           </div>
 
           {/* Wins at the bottom on all screens */}
           <div>
-            <p className="text-center text-xl font-bold">{getValue(player)}</p>
-            <p className="text-center text-sm text-gray-300">{label.toLowerCase()}</p>
+            <p className="text-left text-lg font-bold sm:text-center sm:text-xl">
+              {winCondition?.label}
+            </p>
+            <p className="text-left text-sm text-gray-300 sm:text-center">{winCondition?.value}</p>
           </div>
         </div>
       </div>
@@ -105,34 +104,40 @@ const PlayerCard = ({
       {/* Player Name and Rank in a single row on mobile, stacked on larger screens */}
       <div className="flex h-full w-full flex-col justify-between gap-4 sm:w-auto sm:flex-col sm:items-center sm:text-center">
         <div className="grid w-full flex-row place-content-center items-center gap-2 max-sm:grid-cols-[1fr_auto] sm:flex-col">
-          <p className="max-w-full truncate text-lg font-semibold">{player.name}</p>
+          <p className="text-md max-w-full truncate font-semibold sm:text-lg">{player.name}</p>
           <p className="text-sm text-gray-400">Rank #{rank}</p>
         </div>
 
         {/* Wins at the bottom on all screens */}
         <div>
-          <p className="text-center text-xl font-bold">{getValue(player)}</p>
-          <p className="text-center text-sm text-gray-400">{label.toLowerCase()}</p>
+          <p className="text-left text-lg font-bold sm:text-center sm:text-xl">
+            {winCondition?.label}
+          </p>
+          <p className="text-left text-sm text-gray-400 sm:text-center">{winCondition?.value}</p>
         </div>
       </div>
     </div>
   )
 }
 
-export default function LeaderboardHighlight({ players, ordering }: LeaderboardTopThreeProps) {
+export default function LeaderboardHighlight({ players }: LeaderboardTopThreeProps) {
   return (
-    <div className="my-10">
-      <div className="slide-in flex min-h-72 w-full flex-col gap-3 sm:grid sm:grid-flow-col-dense sm:grid-cols-3 sm:items-center sm:gap-0">
+    <div className="my-5 sm:my-10">
+      <div
+        className={cn(
+          "slide-in minw-full flex min-h-72 flex-col gap-3 sm:grid sm:grid-flow-col-dense sm:grid-cols-3 sm:items-center sm:gap-0",
+        )}
+      >
         <div className="relative z-10 h-full w-full sm:col-start-2">
           <div className="h-full sm:scale-110">
-            <PlayerCard player={players[0]} rank={0} ordering={ordering} />
+            <PlayerCard player={players[0]} rank={0} winCondition={players[0]?.winCondition} />
           </div>
         </div>
         <div className="h-[90%] w-full">
-          <PlayerCard player={players[1]} rank={1} ordering={ordering} />
+          <PlayerCard player={players[1]} rank={1} winCondition={players[1]?.winCondition} />
         </div>
         <div className="h-[90%] w-full">
-          <PlayerCard player={players[2]} rank={2} ordering={ordering} />
+          <PlayerCard player={players[2]} rank={2} winCondition={players[2]?.winCondition} />
         </div>
       </div>
     </div>

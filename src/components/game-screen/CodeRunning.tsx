@@ -49,6 +49,11 @@ function QuestionTestCaseResults(props: {
                 {JSON.stringify(testCase.expectedOutput)}
               </span>
             </div>
+            {result?.status === "success" && !result.is_correct && (
+              <div className="mt-3 whitespace-pre-wrap rounded-xl bg-red-500/20 p-4 text-red-500 bg-blend-color-burn">
+                Output: {JSON.stringify(result.result)}
+              </div>
+            )}
             {result?.status === "error" && (
               <div className="mt-3 whitespace-pre-wrap rounded-xl bg-red-500/20 p-4 text-red-500 bg-blend-color-burn">
                 {result.reason}

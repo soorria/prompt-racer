@@ -1,6 +1,6 @@
 import { invariant } from "@epic-web/invariant"
 
-import { type Doc, type DocInsert } from "~/lib/db/types"
+import { type Doc } from "~/lib/db/types"
 import { INTEGER_RANGE } from "../db/constants"
 
 export type PlayerGameSessionToSort = Doc<"playerGameSessions"> & {
@@ -10,6 +10,7 @@ export type PlayerGameSessionToSort = Doc<"playerGameSessions"> & {
     results: Doc<"playerGameSubmissionStateResults">[]
   })
   | null
+  user: Doc<"users">
 }
 
 type SortablePlayerGameSession = PlayerGameSessionToSort & {
@@ -37,10 +38,10 @@ type GameModeFinalizationConfig = {
 
 const getPlayerPositions = (
   gameState: Doc<"gameStates">,
-  sessiosn: PlayerGameSessionToSort[],
+  sessions: PlayerGameSessionToSort[],
   config: GameModeFinalizationConfig,
 ): PlayerPostionsMap => {
-  const sorted = sessiosn
+  const sorted = sessions
     .filter(
       (session): session is SortablePlayerGameSession =>
         session.submissionState !== null && session.submissionState?.status === "complete",
@@ -146,11 +147,12 @@ export const getPlayerPostionsForGameMode = (
     finalizationConfig,
   )
 
-  return playerGameSessions.map((session): DocInsert<"playerGameSessionFinalResults"> => {
+  return playerGameSessions.map((session) => {
     return {
       player_game_session_id: session.id,
       position: positions[session.user_id]?.position ?? playerGameSessions.length + 2,
       score: positions[session.user_id]?.score ?? 0,
+      user: session.user,
     }
   })
 }

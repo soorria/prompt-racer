@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 
 import { updateSupabaseSessionInMiddleware } from "~/lib/supabase/middleware"
 
-const publicRoutes = ["/auth/login", "/auth/callback", "/", /^\/leaderboard(\/[^/]*)?$/]
+const publicRoutes = ["/auth/login", "/auth/callback", "/", /^\/leaderboard(\/[^/]*)?$/, '/api/inngest']
 
 export async function middleware(request: NextRequest) {
   if (

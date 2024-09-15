@@ -1,7 +1,8 @@
 "use client"
 
 import type JSConfetti from "js-confetti"
-import { ReactNode, useEffect } from "react"
+import type { ReactNode } from "react"
+import { useEffect } from "react"
 import { ArchiveX, PartyPopper } from "lucide-react"
 
 import { DRACULA_COLORS } from "~/lib/colors/constants"
@@ -9,7 +10,7 @@ import { useLocalStorage } from "~/lib/utils/use-local-storage.client-only"
 import { Button } from "../ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 
-export function LeaderboardWinnerConfetti(): ReactNode {
+export function LeaderboardWinnerConfetti({ tiggerOnce }: { tiggerOnce?: boolean }): ReactNode {
   const [confettiEnabled, setConfettiEnabled] = useLocalStorage("promptracer:confettiEnabled", true)
 
   useEffect(() => {
@@ -28,28 +29,33 @@ export function LeaderboardWinnerConfetti(): ReactNode {
       })
     }
 
-    const interval = setInterval(() => {
-      if (safe) {
-        doConfetti()
-      }
-    }, 750)
-
     async function doThings() {
       const { default: JSConfetti } = await import("js-confetti")
+
       if (safe) {
         confetti = new JSConfetti()
         doConfetti()
       }
     }
 
-    void doThings()
+    if (tiggerOnce) {
+      void doThings()
+    } else {
+      const interval = setInterval(() => {
+        if (safe) {
+          doConfetti()
+        }
+      }, 750)
 
-    return () => {
-      safe = false
-      clearInterval(interval)
-      lastConfetti?.then(() => confetti?.destroyCanvas())
+      void doThings()
+
+      return () => {
+        safe = false
+        clearInterval(interval)
+        void lastConfetti?.then(() => confetti?.destroyCanvas())
+      }
     }
-  }, [confettiEnabled])
+  }, [confettiEnabled, tiggerOnce])
 
   return (
     <Tooltip>
