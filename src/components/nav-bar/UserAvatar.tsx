@@ -2,19 +2,10 @@ import React from "react"
 import BoringAvatar from "boring-avatars"
 
 import { cn } from "~/lib/utils"
+import { DRACULA_COLORS } from "../../lib/colors/constants"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
 type UserAvatarSize = "xs" | "sm" | "md" | "lg"
-
-const FALLBACK_AVATAR_COLORS = [
-  "#8BE9FD",
-  "#50FA7B",
-  "#FFB86C",
-  "#FF79C6",
-  "#BD93F9",
-  "#FF5555",
-  "#F1FA8C",
-]
 
 export default function UserAvatar({
   name,
@@ -62,7 +53,7 @@ export default function UserAvatar({
           className={"group-hover:scale-105"}
         />
         <AvatarFallback className="h-full w-full">
-          <BoringAvatar name={name} variant="beam" colors={FALLBACK_AVATAR_COLORS} />
+          <BoringAvatar name={name} variant="beam" colors={DRACULA_COLORS} />
         </AvatarFallback>
       </Avatar>
       <div className={lineClasses}></div>

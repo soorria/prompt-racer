@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
@@ -7,10 +8,21 @@ import LeaderboardHighlight, {
 } from "~/components/leaderboard-screen/LeaderboardHighlight"
 import LocalDate from "~/components/LocalDate"
 import UserAvatar from "~/components/nav-bar/UserAvatar"
+import { getAuthUser } from "~/lib/auth/user"
 import { type Doc } from "~/lib/db/types"
 import { leaderboardOrderingSchema } from "~/lib/leaderboard/trpc"
 import { api } from "~/lib/trpc/server"
 import { cn } from "~/lib/utils"
+
+const LeaderboardWinnerConfetti = dynamic(
+  () =>
+    import("~/components/leaderboard-screen/LeaderboardWinnerConfetti").then(
+      (mod) => mod.LeaderboardWinnerConfetti,
+    ),
+  {
+    ssr: false,
+  },
+)
 
 export const revalidate = 60
 
@@ -19,17 +31,18 @@ export default async function LeaderboardPage(props: {
     ordering?: string
   }
 }) {
-  const parseResult = leaderboardOrderingSchema.safeParse(props.params.ordering)
+  const ordering = resolveOrderingOrRedirect(props.params.ordering)
 
-  if (!parseResult.success) {
-    return redirect("/leaderboard/wins")
-  }
+  const [leaderboard, currentUser] = await Promise.all([
+    api.leaderboard.getLeaderboard({
+      ordering: ordering,
+    }),
+    getAuthUser(),
+  ])
 
-  const ordering = parseResult.data
-
-  const users = await api.leaderboard.getLeaderboard({
-    ordering: parseResult.data,
-  })
+  const currentUserIsLeader = Boolean(
+    leaderboard[0] && currentUser && leaderboard[0].id === currentUser.id,
+  )
 
   const TABS: { title: string; ordering: LeaderboardOrdering }[] = [
     {
@@ -47,10 +60,12 @@ export default async function LeaderboardPage(props: {
   ]
 
   return (
-    <div>
+    <div className="mx-auto max-w-screen-lg">
       <h1 className="my-16 text-center text-5xl font-bold tracking-tight sm:text-4xl">
         Leaderboard
       </h1>
+
+      {currentUserIsLeader && <LeaderboardWinnerConfetti />}
 
       <div className="flex justify-center gap-2 sm:my-24">
         {TABS.map((tab, index) => (
@@ -72,15 +87,47 @@ export default async function LeaderboardPage(props: {
         ))}
       </div>
 
-      <LeaderboardHighlight players={users.slice(0, 3)} ordering={ordering} />
+      <LeaderboardHighlight players={leaderboard.slice(0, 3)} ordering={ordering} />
 
-      {users.length ? <LeaderboardTable users={users} /> : null}
+      {leaderboard.length ? <LeaderboardTable users={leaderboard} /> : null}
 
       <div className="mb-8 mt-24 text-center text-sm text-zinc-400">
         Last updated at <LocalDate date={new Date()} />
       </div>
     </div>
   )
+}
+
+const positionRowClasses = {
+  0: {
+    row: "hover:bg-yellow-700/25",
+    rankCell: "group-hover/row:text-yellow-400",
+  },
+  1: {
+    row: "hover:bg-gray-600/25",
+    rankCell: "group-hover/row:text-gray-300",
+  },
+  2: {
+    row: "hover:bg-orange-900/25",
+    rankCell: "group-hover/row:text-orange-400",
+  },
+  "3+": {
+    row: "hover:bg-zinc-800/25",
+    rankCell: "",
+  },
+} satisfies Record<
+  PropertyKey,
+  {
+    row: string
+    rankCell: string
+  }
+>
+
+function getPositionClassKey(position: number): keyof typeof positionRowClasses {
+  if (position <= 2) {
+    return position as keyof typeof positionRowClasses
+  }
+  return "3+"
 }
 
 function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
@@ -96,9 +143,10 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
           <tr>
             <th
               scope="col"
-              className="sticky top-0 z-10 rounded-tl-xl border-b border-gray-700 bg-zinc-800 bg-opacity-25 px-3 py-3.5 text-left text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
+              className="sticky top-0 z-10 rounded-tl-xl border-b border-gray-700 bg-zinc-800 bg-opacity-25 py-3.5 pl-3 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter sm:pr-3"
             >
-              Rank
+              <span aria-hidden>#</span>
+              <span className="sr-only">Rank</span>
             </th>
             <th
               scope="col"
@@ -135,18 +183,24 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
           {users.map((player, idx) => {
             const isNotLastRow = idx !== users.length - 1
 
+            const classes = positionRowClasses[getPositionClassKey(idx)]
+
             return (
               <tr
                 key={player.id}
                 style={{
                   "--step-num": idx.toString(),
                 }}
-                className="transition-colors duration-500 hover:bg-zinc-800/25 hover:duration-75"
+                className={cn(
+                  "group/row tabular-nums transition-colors duration-500 hover:duration-75",
+                  classes.row,
+                )}
               >
                 <td
                   className={cn(
                     { "border-b border-gray-700/25": isNotLastRow },
-                    "whitespace-nowrap py-4 pl-3 text-sm font-medium text-gray-200",
+                    "whitespace-nowrap py-4 text-right text-sm font-medium text-gray-200 transition-colors duration-500 group-hover/row:duration-75 sm:pr-3",
+                    classes.rankCell,
                   )}
                 >
                   {idx}
@@ -170,7 +224,7 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
                           "text-left": align === "left",
                           "text-right": align === "right",
                         },
-                        "whitespace-nowrap px-3 py-4 text-sm tabular-nums text-gray-400",
+                        "whitespace-nowrap px-3 py-4 text-sm text-gray-400",
                       )}
                     >
                       {value}
@@ -213,9 +267,21 @@ function LeaderboardTablePlayerName({ player }: { player: Doc<"users"> }) {
   return (
     <a
       href={`https://github.com/${player.github_username}`}
+      rel="noopener noreferrer"
+      target="_blank"
       className={cn(classes.root, "group/link")}
     >
       {children}
     </a>
   )
+}
+
+function resolveOrderingOrRedirect(ordering: string | undefined) {
+  const parseResult = leaderboardOrderingSchema.safeParse(ordering ?? "wins")
+
+  if (!parseResult.success) {
+    return redirect("/leaderboard/wins")
+  }
+
+  return parseResult.data
 }

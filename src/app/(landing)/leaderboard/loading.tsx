@@ -2,7 +2,7 @@ import { Skeleton } from "~/components/ui/skeleton"
 
 export default function LeaderboardPageLoading() {
   return (
-    <div>
+    <div className="mx-auto max-w-screen-lg">
       <h1 className="my-16 text-center text-5xl font-bold tracking-tight sm:text-4xl">
         Leaderboard
       </h1>
