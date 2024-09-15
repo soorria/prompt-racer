@@ -2,6 +2,8 @@ import LeaderboardHighlight from "~/components/leaderboard-screen/LeaderboardHig
 import { api } from "~/lib/trpc/server"
 import { cn } from "~/lib/utils"
 
+export const revalidate = 60
+
 export default async function LeaderboardPage() {
   const users = await api.leaderboard.getLeaderboard()
   return (
