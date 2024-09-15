@@ -1,5 +1,4 @@
 import { Suspense } from "react"
-import dynamic from "next/dynamic"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
@@ -55,32 +54,30 @@ export default async function LeaderboardPage(props: {
 
   return (
     <div className="mx-auto max-w-screen-lg">
-      <h1 className="my-16 text-center text-5xl font-bold tracking-tight sm:text-4xl">
-        Leaderboard
-      </h1>
-
       <Suspense>
         <Confetti leaderUserId={leaderboard[0]?.id} />
       </Suspense>
 
-      <div className="flex justify-center gap-2 sm:my-24">
-        {TABS.map((tab, index) => (
-          <Link
-            key={index}
-            data-id={tab.ordering}
-            type="button"
-            className={cn(
-              "inline-flex w-fit items-center justify-center px-2 text-center transition-all hover:underline active:scale-[0.98]",
-              {
-                "text-zinc-50/50": tab.ordering !== ordering,
-                "text-white underline": tab.ordering === ordering,
-              },
-            )}
-            href={`/leaderboard/${tab.ordering}`}
-          >
-            {tab.title}
-          </Link>
-        ))}
+      <div className="my-8 flex justify-center">
+        <div className="place-content-center sm:grid">
+          <nav aria-label="Tabs" className="flex space-x-4">
+            {TABS.map((tab) => (
+              <Link
+                key={tab.ordering}
+                href={`/leaderboard/${tab.ordering}`}
+                aria-current={tab.ordering === ordering ? "page" : undefined}
+                className={cn(
+                  tab.ordering === ordering
+                    ? "bg-primary text-white"
+                    : "text-gray-400 hover:text-white",
+                  "rounded-md px-3 py-2 text-sm font-medium transition-all",
+                )}
+              >
+                {tab.title}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </div>
 
       <LeaderboardHighlight players={leaderboard.slice(0, 3)} ordering={ordering} />

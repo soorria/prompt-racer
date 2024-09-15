@@ -27,6 +27,9 @@ export default async function Home() {
               >
                 Play Now
               </Link>
+              <Link href={"/leaderboard"} className="text-sm font-semibold leading-6 text-zinc-300">
+                Leaderboard <span aria-hidden="true">→</span>
+              </Link>
             </div>
           </div>
           <div className="mx-auto mt-16 flex flex-1 sm:mt-24 lg:mr-0 lg:mt-12">
