@@ -1,4 +1,5 @@
 import LeaderboardHighlight from "~/components/leaderboard-screen/LeaderboardHighlight"
+import LocalDate from "~/components/LocalDate"
 import { api } from "~/lib/trpc/server"
 import { cn } from "~/lib/utils"
 
@@ -6,8 +7,12 @@ export const revalidate = 60
 
 export default async function LeaderboardPage() {
   const users = await api.leaderboard.getLeaderboard()
+
   return (
     <div>
+      <h1 className="mt-8 text-center text-3xl font-bold tracking-tight sm:text-4xl">
+        Leaderboard
+      </h1>
       <LeaderboardHighlight players={users.slice(0, 3)} />
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mt-8 flow-root">
@@ -30,9 +35,15 @@ export default async function LeaderboardPage() {
                     </th>
                     <th
                       scope="col"
-                      className="sticky top-0 z-10 rounded-tr-xl border-b border-gray-700 bg-zinc-800 bg-opacity-25 px-3 py-3.5 text-left text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
+                      className="sticky top-0 z-10 border-b border-gray-700 bg-zinc-800 bg-opacity-25 px-3 py-3.5 text-left text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
                     >
                       Wins
+                    </th>
+                    <th
+                      scope="col"
+                      className="sticky top-0 z-10 rounded-tr-xl border-b border-gray-700 bg-zinc-800 bg-opacity-25 px-3 py-3.5 text-left text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
+                    >
+                      Games Played
                     </th>
                   </tr>
                 </thead>
@@ -63,6 +74,14 @@ export default async function LeaderboardPage() {
                       >
                         {player.wins}
                       </td>
+                      <td
+                        className={cn(
+                          { "border-b border-gray-700/25": idx !== users.length - 1 },
+                          "whitespace-nowrap px-3 py-4 text-sm text-gray-400",
+                        )}
+                      >
+                        {player.gamesPlayed}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -70,6 +89,9 @@ export default async function LeaderboardPage() {
             </div>
           </div>
         </div>
+      </div>
+      <div className="my-8 text-center text-sm text-zinc-400">
+        Last updated at <LocalDate date={new Date()} />
       </div>
     </div>
   )

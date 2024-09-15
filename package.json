@@ -38,6 +38,7 @@
     "@trpc/server": "^11.0.0-rc.446",
     "@types/cookie": "^0.6.0",
     "ai": "^3.3.0",
+    "boring-avatars": "^1.11.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",

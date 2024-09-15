@@ -1,6 +1,5 @@
 "use client"
 
-import type { User } from "@supabase/supabase-js"
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { LogIn, LogOut } from "lucide-react"
@@ -9,10 +8,10 @@ import { loginWithGitHubAction, logoutAction } from "~/lib/auth/actions"
 import { Button } from "../ui/button"
 
 export default function LoginLogoutButton({
-  user,
+  isAuthenticated,
   setOpen,
 }: {
-  user: User | null
+  isAuthenticated: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const router = useRouter()
@@ -34,7 +33,7 @@ export default function LoginLogoutButton({
 
   return (
     <>
-      {user ? (
+      {isAuthenticated ? (
         <Button
           variant={"ghost"}
           disabled={isLoading}

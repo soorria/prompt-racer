@@ -62,6 +62,9 @@ dependencies:
   ai:
     specifier: ^3.3.0
     version: 3.3.0(react@18.3.1)(svelte@4.2.18)(vue@3.4.35)(zod@3.23.8)
+  boring-avatars:
+    specifier: ^1.11.1
+    version: 1.11.1
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -2542,6 +2545,10 @@ packages:
   /binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
+
+  /boring-avatars@1.11.1:
+    resolution: {integrity: sha512-SLOgRIXEsIUS6BkE5r6mI6l5ec0E1rhDL9WuVufye8BJj2S/C8xpjFy7M0uxBahLmC5hoAtmmN+YpMWkOyx1AA==}
+    dev: false
 
   /brace-expansion@1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==}
