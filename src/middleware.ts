@@ -11,11 +11,6 @@ export async function middleware(request: NextRequest) {
       if (typeof route === "string") {
         return request.nextUrl.pathname === route
       }
-      console.log(
-        request.nextUrl.pathname,
-        request.nextUrl.pathname.match(route),
-        route.test(request.nextUrl.pathname),
-      )
       return route.test(request.nextUrl.pathname)
     })
   ) {
