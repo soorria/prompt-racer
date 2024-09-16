@@ -10,7 +10,7 @@ import { useLocalStorage } from "~/lib/utils/use-local-storage.client-only"
 import { Button } from "../ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 
-export function LeaderboardWinnerConfetti({ tiggerOnce }: { tiggerOnce?: boolean }): ReactNode {
+export function LeaderboardWinnerConfetti({ once }: { once?: boolean }): ReactNode {
   const [confettiEnabled, setConfettiEnabled] = useLocalStorage("promptracer:confettiEnabled", true)
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export function LeaderboardWinnerConfetti({ tiggerOnce }: { tiggerOnce?: boolean
       }
     }
 
-    if (tiggerOnce) {
+    if (once) {
       void doThings()
     } else {
       const interval = setInterval(() => {
@@ -55,7 +55,11 @@ export function LeaderboardWinnerConfetti({ tiggerOnce }: { tiggerOnce?: boolean
         void lastConfetti?.then(() => confetti?.destroyCanvas())
       }
     }
-  }, [confettiEnabled, tiggerOnce])
+  }, [confettiEnabled, once])
+
+  if (once) {
+    return null
+  }
 
   return (
     <Tooltip>

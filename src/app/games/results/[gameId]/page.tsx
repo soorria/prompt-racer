@@ -7,7 +7,6 @@ import { api } from "~/lib/trpc/server"
 
 export default async function ResultsPage({ params }: { params: { gameId: string } }) {
   const users = await api.games.getPlayerPositions({ game_id: params.gameId })
-  console.log(users)
 
   return (
     <div>
@@ -16,7 +15,7 @@ export default async function ResultsPage({ params }: { params: { gameId: string
       </h1>
 
       <Suspense>
-        <LazyLeaderboardWinnerConfetti tiggerOnce={true} />
+        <LazyLeaderboardWinnerConfetti once />
       </Suspense>
       <LeaderboardHighlight
         players={users
