@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import type { LeaderboardOrdering } from "~/lib/leaderboard/trpc"
+import type { LeaderboardOrdering } from "~/lib/leaderboard/queries"
 import { getPositionRowClasses } from "~/components/leaderboard-screen/class-utils"
 import { Confetti } from "~/components/leaderboard-screen/Confetti"
 import LeaderboardHighlight, {
@@ -11,8 +11,7 @@ import LeaderboardHighlight, {
 import LeaderboardTablePlayerName from "~/components/leaderboard-screen/LeaderboardTablePlayerName"
 import LocalDate from "~/components/LocalDate"
 import { type Doc } from "~/lib/db/types"
-import { leaderboardOrderingSchema } from "~/lib/leaderboard/trpc"
-import { api } from "~/lib/trpc/server"
+import { getGlobalLeaderboard, leaderboardOrderingSchema } from "~/lib/leaderboard/queries"
 import { cn } from "~/lib/utils"
 
 export const revalidate = 60
@@ -24,9 +23,7 @@ export default async function LeaderboardPage(props: {
 }) {
   const ordering = resolveOrderingOrRedirect(props.params.ordering)
 
-  const leaderboard = await api.leaderboard.getLeaderboard({
-    ordering: ordering,
-  })
+  const leaderboard = await getGlobalLeaderboard(ordering)
 
   const TABS: { title: string; ordering: LeaderboardOrdering }[] = [
     {

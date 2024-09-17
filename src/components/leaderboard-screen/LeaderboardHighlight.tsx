@@ -1,7 +1,7 @@
 import { Medal, Trophy } from "lucide-react"
 
 import type { Doc } from "~/lib/db/types"
-import { type LeaderboardOrdering } from "~/lib/leaderboard/trpc"
+import { type LeaderboardOrdering } from "~/lib/leaderboard/queries"
 import { cn } from "~/lib/utils"
 import UserAvatar from "../nav-bar/UserAvatar"
 
