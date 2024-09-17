@@ -1,6 +1,6 @@
 import type { Doc } from "~/lib/db/types"
-import { getPositionClassKey, positionRowClasses } from "~/app/(landing)/leaderboard/page"
 import { cn } from "~/lib/utils"
+import { getPositionRowClasses } from "../leaderboard-screen/class-utils"
 import LeaderboardTablePlayerName from "../leaderboard-screen/LeaderboardTablePlayerName"
 
 export function ResultsTable({ users }: { users: Doc<"users">[] }) {
@@ -44,7 +44,7 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
           {users.map((player, idx) => {
             const isNotLastRow = idx !== users.length - 1
 
-            const classes = positionRowClasses[getPositionClassKey(idx)]
+            const classes = getPositionRowClasses(idx)
 
             return (
               <tr
@@ -73,7 +73,8 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
                     align: "left",
                   },
                   { value: player.gamesPlayed, align: "right" },
-                ].map(({ value, align }, valueIdx) => {
+                ].map(({ value, align }, valueIdx, valuesArray) => {
+                  const isLastColumn = valueIdx === valuesArray.length - 1
                   return (
                     <td
                       key={valueIdx}
@@ -85,7 +86,7 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
                         },
                         "whitespace-nowrap px-3 py-4 text-sm text-gray-400",
                         {
-                          "rounded-br-xl": !isNotLastRow,
+                          "rounded-br-xl": !isNotLastRow && isLastColumn,
                         },
                       )}
                     >

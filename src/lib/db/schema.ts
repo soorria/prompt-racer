@@ -380,11 +380,14 @@ export const gameStates = pgTable(
       .references(() => questions.id),
     status: gameStatusEnum("status").notNull(),
     mode: gameModeEnum("mode").notNull(),
-    start_time: timestamp("start_time").notNull().defaultNow(),
-    end_time: timestamp("end_time"),
+
     waiting_for_players_duration_ms: integer("waiting_for_players_duration_ms").notNull(),
     in_progress_duration_ms: integer("in_progress_duration_ms").notNull(),
-    updated_at: timestamp("updated_at").defaultNow(),
+
+    inserted_at: timestamp("inserted_at").notNull().defaultNow(),
+    updated_at: timestamp("updated_at").notNull().defaultNow(),
+    start_time: timestamp("start_time"),
+    end_time: timestamp("end_time"),
   },
   (table) => {
     return {

@@ -25,26 +25,6 @@ import { randomElement } from "~/lib/utils/random"
 import { getPlayerPostionsForGameMode } from "./game-modes"
 
 export const gameRouter = createTRPCRouter({
-  getPlayerPositions: publicProcedure.input(z.object({ game_id: z.string() })).query(async ({ ctx, input }) => {
-    const game = await getGameById(ctx.db, input.game_id)
-    if (!game) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
-    }
-    const playerGameSessions = await ctx.db.query.playerGameSessions.findMany({
-      where: cmp.eq(schema.playerGameSessions.game_id, input.game_id),
-      with: {
-        submissionState: {
-          with: {
-            results: true,
-          },
-        },
-        chatHistory: true,
-        user: true,
-      },
-    })
-    return getPlayerPostionsForGameMode(game, playerGameSessions)
-  }),
-
   getPlayerGameSession: protectedProcedure
     .input(
       z.object({
@@ -160,14 +140,14 @@ export const gameRouter = createTRPCRouter({
             id: schema.playerGameSubmissionStates.id,
           }),
         submissionState &&
-        ctx.db
-          .delete(schema.playerGameSubmissionStateResults)
-          .where(
-            cmp.eq(
-              schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-              submissionState.id,
+          ctx.db
+            .delete(schema.playerGameSubmissionStateResults)
+            .where(
+              cmp.eq(
+                schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+                submissionState.id,
+              ),
             ),
-          ),
       ])
 
       if (!insertedSubmissionState) {

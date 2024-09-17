@@ -8,7 +8,7 @@ export function Lobby() {
   const { gameInfo, leaveGameMutation, user } = useGameManager()
 
   const endTime = addMilliseconds(
-    gameInfo.start_time,
+    gameInfo.inserted_at,
     gameInfo.waiting_for_players_duration_ms,
   ).getTime()
 

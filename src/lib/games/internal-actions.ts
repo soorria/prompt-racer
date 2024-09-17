@@ -32,64 +32,67 @@ export async function advanceGameToStatus(
     .update(schema.gameStates)
     .set({
       status,
+      start_time: status === "inProgress" ? new Date() : undefined,
     })
     .where(cmp.eq(schema.gameStates.id, gameId))
 }
 
 export async function finalizeGame(gameId: string) {
-  const [game, playerGameSessions] = await Promise.all([
-    getGameById(db, gameId),
-    db.query.playerGameSessions.findMany({
-      where: cmp.eq(schema.playerGameSessions.game_id, gameId),
-      with: {
-        chatHistory: true,
-        submissionState: {
-          with: {
-            results: true,
+  await db.transaction(async (tx) => {
+    const [game, playerGameSessions] = await Promise.all([
+      getGameById(tx, gameId),
+      tx.query.playerGameSessions.findMany({
+        where: cmp.eq(schema.playerGameSessions.game_id, gameId),
+        with: {
+          chatHistory: true,
+          submissionState: {
+            with: {
+              results: true,
+            },
           },
         },
-      },
-    }),
-  ])
+      }),
+    ])
 
-  if (!game) {
-    return
-  }
-
-  const positionResults = getPlayerPostionsForGameMode(game, playerGameSessions)
-
-  await db.insert(schema.playerGameSessionFinalResults).values(positionResults)
-
-  const winningResult = positionResults.find((r) => r.position === 0)
-  if (winningResult) {
-    const winningPlayerSession = playerGameSessions.find(
-      (s) => s.id === winningResult.player_game_session_id,
-    )
-
-    if (winningPlayerSession) {
-      await db
-        .update(schema.users)
-        .set({ wins: sql`${schema.users.wins} + 1` })
-        .where(cmp.eq(schema.users.id, winningPlayerSession.user_id))
+    if (!game) {
+      return
     }
-  }
 
-  await Promise.all([
-    playerGameSessions.map((session) =>
-      db.update(schema.users).set({
-        gamesPlayed: sql`${schema.users.gamesPlayed} + 1`
-      }).where(
-        cmp.eq(schema.users.id, session.user_id)
+    const positionResults = getPlayerPostionsForGameMode(game, playerGameSessions)
+
+    await tx.insert(schema.playerGameSessionFinalResults).values(positionResults)
+
+    const winningResult = positionResults.find((r) => r.position === 0)
+    if (winningResult) {
+      const winningPlayerSession = playerGameSessions.find(
+        (s) => s.id === winningResult.player_game_session_id,
       )
-    ),
-  ])
 
-  await db
-    .update(schema.gameStates)
-    .set({
-      status: "finished",
-    })
-    .where(cmp.eq(schema.gameStates.id, game.id))
+      if (winningPlayerSession) {
+        await tx
+          .update(schema.users)
+          .set({ wins: sql`${schema.users.wins} + 1` })
+          .where(cmp.eq(schema.users.id, winningPlayerSession.user_id))
+      }
+    }
+
+    await tx
+      .update(schema.users)
+      .set({ gamesPlayed: sql`${schema.users.gamesPlayed} + 1` })
+      .where(
+        cmp.inArray(
+          schema.users.id,
+          playerGameSessions.map((session) => session.user_id),
+        ),
+      )
+
+    await tx
+      .update(schema.gameStates)
+      .set({
+        status: "finished",
+      })
+      .where(cmp.eq(schema.gameStates.id, game.id))
+  })
 }
 
 export async function sendMessageInGame(gameId: string, instructions: string) {
@@ -181,28 +184,28 @@ export async function sendMessageInGame(gameId: string, instructions: string) {
             player_game_session_id: playerGameSession.id,
             content: extractedCode
               ? {
-                type: "ai",
-                rawCompletion: rawUpdatedCode,
-                parsedCompletion: {
-                  state: "success",
-                  maybeCode: extractedCode,
-                },
-              }
+                  type: "ai",
+                  rawCompletion: rawUpdatedCode,
+                  parsedCompletion: {
+                    state: "success",
+                    maybeCode: extractedCode,
+                  },
+                }
               : {
-                type: "ai",
-                rawCompletion: rawUpdatedCode,
-                parsedCompletion: {
-                  state: "error",
-                  error: "Could not find code in AI completion",
+                  type: "ai",
+                  rawCompletion: rawUpdatedCode,
+                  parsedCompletion: {
+                    state: "error",
+                    error: "Could not find code in AI completion",
+                  },
                 },
-              },
           })
           .where(cmp.eq(schema.playerGameSessionChatHistoryItems.id, insertedAtMessage.id)),
         extractedCode &&
-        db
-          .update(schema.playerGameSessions)
-          .set({ code: extractedCode })
-          .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
+          db
+            .update(schema.playerGameSessions)
+            .set({ code: extractedCode })
+            .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
       ])
     },
   })
