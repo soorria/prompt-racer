@@ -89,7 +89,9 @@ export const questionTestCases = pgTable(
     question_id: customTypes
       .primaryKeyReference("question_id")
       .notNull()
-      .references(() => questions.id),
+      .references(() => questions.id, {
+        onDelete: "cascade",
+      }),
     type: questionTestCaseTypeEnum("type").notNull(),
     args: jsonb("args").notNull().$type<unknown[]>(),
     expectedOutput: jsonb("expected_output"),
