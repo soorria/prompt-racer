@@ -21,7 +21,7 @@ export default async function LeaderboardPage(props: {
 }) {
   const ordering = resolveOrderingOrRedirect(props.params.ordering)
 
-  const leaderboard = await getGlobalLeaderboard(ordering)
+  const { leaderboard, updatedAt } = await getGlobalLeaderboard(ordering)
 
   return (
     <div className="mx-auto max-w-screen-lg">
@@ -45,7 +45,7 @@ export default async function LeaderboardPage(props: {
       {leaderboard.length ? <LeaderboardTable users={leaderboard} /> : null}
 
       <div className="mb-8 mt-24 text-center text-sm text-zinc-400">
-        Last updated at <LocalDate date={new Date()} />
+        Last updated at <LocalDate date={updatedAt} />
       </div>
     </div>
   )

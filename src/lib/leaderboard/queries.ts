@@ -1,4 +1,5 @@
-import { type SQL } from "drizzle-orm"
+import type { SQL } from "drizzle-orm"
+import { unstable_cache } from "next/cache"
 import { z } from "zod"
 
 import { db, orderBy, schema } from "../db"
@@ -6,7 +7,7 @@ import { db, orderBy, schema } from "../db"
 export const leaderboardOrderingSchema = z.enum(["wins", "games-played", "win-rate"])
 export type LeaderboardOrdering = z.infer<typeof leaderboardOrderingSchema>
 
-export async function getGlobalLeaderboard(ordering: LeaderboardOrdering) {
+async function getGlobalLeaderboardImpl(ordering: LeaderboardOrdering) {
   const orderByMap: Record<LeaderboardOrdering, SQL[]> = {
     wins: [
       orderBy.desc(schema.users.wins),
@@ -31,3 +32,16 @@ export async function getGlobalLeaderboard(ordering: LeaderboardOrdering) {
   })
   return users
 }
+
+export const getGlobalLeaderboard = unstable_cache(
+  async (ordering: LeaderboardOrdering) => {
+    return {
+      leaderboard: await getGlobalLeaderboardImpl(ordering),
+      updatedAt: new Date(),
+    }
+  },
+  ["leaderboard"],
+  {
+    revalidate: 10,
+  },
+)
