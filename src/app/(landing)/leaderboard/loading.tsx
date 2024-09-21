@@ -4,14 +4,12 @@ export default function LeaderboardPageLoading() {
   return (
     <div className="mx-auto max-w-screen-lg">
       <div className="my-8 flex justify-center">
-        <div className="place-content-center sm:grid">
-          {/* Tabs Loading Skeleton */}
-          <nav aria-label="Tabs" className="flex space-x-4">
-            <Skeleton className="h-10 w-16 rounded-md" />
-            <Skeleton className="h-10 w-24 rounded-md" />
-            <Skeleton className="h-10 w-28 rounded-md" />
-          </nav>
-        </div>
+        {/* Tabs Loading Skeleton */}
+        <nav aria-label="Tabs" className="flex space-x-4">
+          <Skeleton className="h-10 w-16 rounded-md" />
+          <Skeleton className="h-10 w-24 rounded-md" />
+          <Skeleton className="h-10 w-28 rounded-md" />
+        </nav>
       </div>
 
       {/* Loading state for LeaderboardHighlight */}

@@ -144,7 +144,9 @@ export const playerGameSessionFinalResults = pgTable(
     player_game_session_id: customTypes
       .primaryKeyReference("player_game_session_id")
       .notNull()
-      .references(() => playerGameSessions.id),
+      .references(() => playerGameSessions.id, {
+        onDelete: "cascade",
+      }),
     position: integer("position").notNull(),
     score: integer("score").notNull(),
   },
@@ -183,11 +185,14 @@ export const playerGameSubmissionStateResults = pgTable(
     player_game_submission_state_id: customTypes
       .primaryKeyReference("player_game_submission_state_id")
       .notNull()
-      .references(() => playerGameSubmissionStates.id),
+      .references(() => playerGameSubmissionStates.id, {
+        onDelete: "cascade",
+      }),
     question_test_case_id: customTypes
       .primaryKeyReference("question_test_case_id")
-      .notNull()
-      .references(() => questionTestCases.id),
+      .references(() => questionTestCases.id, {
+        onDelete: "set null",
+      }),
     status: playerGameSubmissionStateResultStatusEnum("status").notNull(),
     result: jsonb("result"),
     reason: text("reason"),
@@ -270,7 +275,9 @@ export const playerGameSessionChatHistoryItems = pgTable(
     player_game_session_id: customTypes
       .primaryKeyReference("player_game_session_id")
       .notNull()
-      .references(() => playerGameSessions.id),
+      .references(() => playerGameSessions.id, {
+        onDelete: "cascade",
+      }),
     content: jsonb("content").notNull().$type<ChatHistoryItemContent>(),
     inserted_at: timestamp("inserted_at").notNull().defaultNow(),
   },
@@ -307,11 +314,15 @@ export const playerGameSessions = pgTable(
     user_id: customTypes
       .primaryKeyReference("user_id")
       .notNull()
-      .references(() => users.id),
+      .references(() => users.id, {
+        onDelete: "cascade",
+      }),
     game_id: customTypes
       .primaryKeyReference("game_id")
       .notNull()
-      .references(() => gameStates.id),
+      .references(() => gameStates.id, {
+        onDelete: "cascade",
+      }),
 
     test_state_id: customTypes.primaryKeyReference("test_state_id"),
     submission_state_id: customTypes.primaryKeyReference("submission_state_id"),

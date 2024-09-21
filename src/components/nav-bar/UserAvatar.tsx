@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 type UserAvatarSize = "xs" | "sm" | "md" | "lg"
 
 export default function UserAvatar({
-  name,
+  name = "Anonymous",
   imageUrl,
   size = "sm",
   className,

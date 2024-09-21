@@ -1,14 +1,13 @@
 import { Suspense } from "react"
-import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import type { LeaderboardOrdering } from "~/lib/leaderboard/queries"
 import { getPositionRowClasses } from "~/components/leaderboard-screen/class-utils"
 import { Confetti } from "~/components/leaderboard-screen/Confetti"
 import LeaderboardHighlight, {
   ORDERING_DETAILS,
 } from "~/components/leaderboard-screen/LeaderboardHighlight"
 import LeaderboardTablePlayerName from "~/components/leaderboard-screen/LeaderboardTablePlayerName"
+import { LeaderboardTabs } from "~/components/leaderboard-screen/LeaderboardTabs"
 import LocalDate from "~/components/LocalDate"
 import { type Doc } from "~/lib/db/types"
 import { getGlobalLeaderboard, leaderboardOrderingSchema } from "~/lib/leaderboard/queries"
@@ -25,21 +24,6 @@ export default async function LeaderboardPage(props: {
 
   const leaderboard = await getGlobalLeaderboard(ordering)
 
-  const TABS: { title: string; ordering: LeaderboardOrdering }[] = [
-    {
-      title: ORDERING_DETAILS.wins.label,
-      ordering: "wins",
-    },
-    {
-      title: ORDERING_DETAILS["win-rate"].label,
-      ordering: "win-rate",
-    },
-    {
-      title: ORDERING_DETAILS["games-played"].label,
-      ordering: "games-played",
-    },
-  ]
-
   return (
     <div className="mx-auto max-w-screen-lg">
       <Suspense>
@@ -47,25 +31,7 @@ export default async function LeaderboardPage(props: {
       </Suspense>
 
       <div className="my-8 flex justify-center">
-        <div className="place-content-center sm:grid">
-          <nav aria-label="Tabs" className="flex space-x-4">
-            {TABS.map((tab) => (
-              <Link
-                key={tab.ordering}
-                href={`/leaderboard/${tab.ordering}`}
-                aria-current={tab.ordering === ordering ? "page" : undefined}
-                className={cn(
-                  tab.ordering === ordering
-                    ? "bg-primary text-white"
-                    : "text-gray-400 hover:text-white",
-                  "rounded-md px-3 py-2 text-sm font-medium transition-all",
-                )}
-              >
-                {tab.title}
-              </Link>
-            ))}
-          </nav>
-        </div>
+        <LeaderboardTabs ordering={ordering} />
       </div>
 
       <LeaderboardHighlight
@@ -132,7 +98,7 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
           </tr>
         </thead>
         <tbody
-          className="slide-in"
+          className="slide-in-direct"
           style={{
             "--initial-step": 4,
           }}
