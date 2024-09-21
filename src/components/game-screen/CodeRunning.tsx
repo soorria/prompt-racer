@@ -12,7 +12,7 @@ function QuestionTestCaseResults(props: {
   testState: PlayerGameSession["testState"]
 }) {
   return (
-    <div className="space-y-2 text-sm">
+    <div className="flex flex-col space-y-12 text-sm">
       {props.question.testCases.map((testCase, i) => {
         const result = props.testState?.results[i]
 
@@ -94,8 +94,8 @@ export default function CodeRunning() {
   }
 
   return (
-    <div>
-      <div className="mb-4">
+    <div className="relative flex flex-col">
+      <div className="mb-8 flex-1 overflow-scroll">
         <h3 className="mb-2 font-medium">Test cases</h3>
         {gameInfo.question ? (
           <QuestionTestCaseResults
@@ -104,7 +104,7 @@ export default function CodeRunning() {
           />
         ) : null}
       </div>
-      <div className="flex justify-between">
+      <div className="sticky bottom-0 flex justify-between">
         <Button
           onClick={handleRunTests}
           // TODO: we need to be checking gameSessionInfo.testState.status === "running" here
@@ -116,6 +116,7 @@ export default function CodeRunning() {
           }
           Icon={Play}
           variant={"outline"}
+          className="ring-2 ring-primary"
         >
           Run tests
         </Button>
