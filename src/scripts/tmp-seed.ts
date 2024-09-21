@@ -1,7 +1,7 @@
 import { invariant } from "@epic-web/invariant"
 import { faker } from "@faker-js/faker"
 
-import type { Doc, DocInsert } from "~/lib/db/types"
+import type { DocInsert } from "~/lib/db/types"
 import { cmp, db, schema } from "~/lib/db"
 
 async function getAISourceId() {
@@ -19,12 +19,26 @@ async function getAISourceId() {
       type: "ai",
     })
     .returning()
+
   invariant(testSource, "test source should have been created")
 
   return testSource.id
 }
 
+async function getExistingUsers() {
+  const users = await db.query.users.findMany()
+
+  return users
+}
+
 async function main() {
+  const existingUsers = await getExistingUsers()
+
+  if (existingUsers.length > 0) {
+    console.log("👀 Found existing users, skipping seeding")
+    return
+  }
+
   const sourceId = await getAISourceId()
 
   const [question] = await db
