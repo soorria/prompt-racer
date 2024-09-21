@@ -1,4 +1,3 @@
-import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { getPositionRowClasses } from "~/components/leaderboard-screen/class-utils"
@@ -26,9 +25,7 @@ export default async function LeaderboardPage(props: {
 
   return (
     <div className="mx-auto max-w-screen-lg">
-      <Suspense>
-        <PlayerConfetti leaderUserId={leaderboard[0]?.id} />
-      </Suspense>
+      <PlayerConfetti leaderUserId={leaderboard[0]?.id} />
 
       <div className="my-8 flex justify-center">
         <LeaderboardTabs ordering={ordering} />
