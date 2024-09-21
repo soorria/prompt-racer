@@ -7,6 +7,7 @@ import UserAvatar from "../nav-bar/UserAvatar"
 
 type LeaderboardTopThreeProps = {
   players: (Doc<"users"> & { winCondition: { label: string; value: string } })[]
+  podiumNoPlayerPlaceholder: string
 }
 
 const numberFormatter = new Intl.NumberFormat("en")
@@ -36,10 +37,12 @@ const PlayerCard = ({
   player,
   rank,
   winCondition,
+  noPlayerPlaceholder,
 }: {
   player: Doc<"users"> | undefined
   rank: number
   winCondition: { label: string; value: string } | undefined
+  noPlayerPlaceholder: string
 }) => {
   const isGold = rank === 0
 
@@ -51,7 +54,7 @@ const PlayerCard = ({
           isGold ? "bg-gray-700" : "bg-gray-800",
         )}
       >
-        <p className="text-gray-400">Vacant</p>
+        <p className="text-gray-400">{noPlayerPlaceholder}</p>
       </div>
     )
   }
@@ -120,7 +123,10 @@ const PlayerCard = ({
   )
 }
 
-export default function LeaderboardHighlight({ players }: LeaderboardTopThreeProps) {
+export default function LeaderboardHighlight({
+  players,
+  podiumNoPlayerPlaceholder,
+}: LeaderboardTopThreeProps) {
   return (
     <div className="my-5 sm:my-10">
       <div
@@ -130,14 +136,29 @@ export default function LeaderboardHighlight({ players }: LeaderboardTopThreePro
       >
         <div className="relative z-10 h-full w-full sm:col-start-2">
           <div className="h-full sm:scale-110">
-            <PlayerCard player={players[0]} rank={0} winCondition={players[0]?.winCondition} />
+            <PlayerCard
+              player={players[0]}
+              rank={0}
+              winCondition={players[0]?.winCondition}
+              noPlayerPlaceholder={podiumNoPlayerPlaceholder}
+            />
           </div>
         </div>
         <div className="h-[90%] w-full">
-          <PlayerCard player={players[1]} rank={1} winCondition={players[1]?.winCondition} />
+          <PlayerCard
+            player={players[1]}
+            rank={1}
+            winCondition={players[1]?.winCondition}
+            noPlayerPlaceholder={podiumNoPlayerPlaceholder}
+          />
         </div>
         <div className="h-[90%] w-full">
-          <PlayerCard player={players[2]} rank={2} winCondition={players[2]?.winCondition} />
+          <PlayerCard
+            player={players[2]}
+            rank={2}
+            winCondition={players[2]?.winCondition}
+            noPlayerPlaceholder={podiumNoPlayerPlaceholder}
+          />
         </div>
       </div>
     </div>

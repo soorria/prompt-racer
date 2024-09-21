@@ -32,6 +32,7 @@ export default async function LeaderboardPage(props: {
       </div>
 
       <LeaderboardHighlight
+        podiumNoPlayerPlaceholder="This could be you!"
         players={leaderboard.slice(0, 3).map((p) => ({
           ...p,
           winCondition: {

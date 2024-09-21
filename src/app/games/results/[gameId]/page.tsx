@@ -69,6 +69,7 @@ export default async function ResultsPage({ params }: { params: { gameId: string
         <LazyLeaderboardWinnerConfetti once />
       </Suspense>
       <LeaderboardHighlight
+        podiumNoPlayerPlaceholder="Vacant"
         players={players.slice(0, 3).map((u) => ({
           ...u.user,
           winCondition: { label: "Score", value: `${u.finalResult?.score}` },
