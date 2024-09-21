@@ -1,4 +1,4 @@
-import { SQL } from "drizzle-orm"
+import { type SQL } from "drizzle-orm"
 import { z } from "zod"
 
 import { db, orderBy, schema } from "../db"

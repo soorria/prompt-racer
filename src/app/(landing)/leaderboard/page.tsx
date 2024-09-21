@@ -12,7 +12,7 @@ import { type Doc } from "~/lib/db/types"
 import { getGlobalLeaderboard, leaderboardOrderingSchema } from "~/lib/leaderboard/queries"
 import { cn } from "~/lib/utils"
 
-export const revalidate = 60
+export const revalidate = 10
 
 export default async function LeaderboardPage(props: {
   params: {
