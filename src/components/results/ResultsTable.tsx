@@ -1,3 +1,5 @@
+import { Medal, Trophy } from "lucide-react"
+
 import type { Doc } from "~/lib/db/types"
 import { getPositionClassKey, positionRowClasses } from "~/app/(landing)/leaderboard/page"
 import { cn } from "~/lib/utils"
@@ -30,9 +32,7 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
             <th
               scope="col"
               className="sticky top-0 z-10 rounded-tr-xl border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
-            >
-              Score
-            </th>
+            ></th>
           </tr>
         </thead>
         <tbody
@@ -72,7 +72,22 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
                     value: <LeaderboardTablePlayerName player={player} />,
                     align: "left",
                   },
-                  { value: player.gamesPlayed, align: "right" },
+                  {
+                    value:
+                      idx === 0 ? (
+                        <Trophy className="pointer-events-none h-6 w-6 text-yellow-400" />
+                      ) : idx === 1 || idx === 2 ? (
+                        <Medal
+                          className={cn("pointer-events-none h-6 w-6 text-gray-300", {
+                            "text-gray-400": idx === 1,
+                            "text-yellow-700": idx === 2,
+                          })}
+                        />
+                      ) : (
+                        <></>
+                      ),
+                    align: "right",
+                  },
                 ].map(({ value, align }, valueIdx) => {
                   return (
                     <td
@@ -85,11 +100,18 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
                         },
                         "whitespace-nowrap px-3 py-4 text-sm text-gray-400",
                         {
-                          "rounded-br-xl": !isNotLastRow,
+                          "": !isNotLastRow,
                         },
                       )}
                     >
-                      {value}
+                      <div
+                        className={cn({
+                          "ml-auto flex justify-start": align === "left",
+                          "mr-auto flex justify-end": align === "right",
+                        })}
+                      >
+                        {value}
+                      </div>
                     </td>
                   )
                 })}
