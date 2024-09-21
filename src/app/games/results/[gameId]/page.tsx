@@ -6,10 +6,10 @@ import LeaderboardHighlight from "~/components/leaderboard-screen/LeaderboardHig
 import { LazyLeaderboardWinnerConfetti } from "~/components/leaderboard-screen/LeaderboardWinnerConfetti.lazy"
 import { ResultsTable } from "~/components/results/ResultsTable"
 import { cmp, db, schema } from "~/lib/db"
-import { GameMode } from "~/lib/games/constants"
+import { type GameMode } from "~/lib/games/constants"
 import { getWorseScoreForGameMode } from "~/lib/games/game-modes"
 import { getGameById } from "~/lib/games/queries"
-import { FinalPlayerResult } from "~/lib/games/types"
+import { type FinalPlayerResult } from "~/lib/games/types"
 
 function resolveFinalResult(
   finalResult: Nullable<FinalPlayerResult>,
@@ -54,8 +54,10 @@ async function getResults(gameId: string) {
   }
 }
 
+export const revalidate = 3600
+
 export default async function ResultsPage({ params }: { params: { gameId: string } }) {
-  const { players, game } = await getResults(params.gameId)
+  const { players } = await getResults(params.gameId)
 
   return (
     <div>

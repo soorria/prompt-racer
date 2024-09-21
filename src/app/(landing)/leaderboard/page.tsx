@@ -2,12 +2,12 @@ import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { getPositionRowClasses } from "~/components/leaderboard-screen/class-utils"
-import { Confetti } from "~/components/leaderboard-screen/Confetti"
 import LeaderboardHighlight, {
   ORDERING_DETAILS,
 } from "~/components/leaderboard-screen/LeaderboardHighlight"
 import LeaderboardTablePlayerName from "~/components/leaderboard-screen/LeaderboardTablePlayerName"
 import { LeaderboardTabs } from "~/components/leaderboard-screen/LeaderboardTabs"
+import { PlayerConfetti } from "~/components/leaderboard-screen/PlayerConfetti"
 import LocalDate from "~/components/LocalDate"
 import { type Doc } from "~/lib/db/types"
 import { getGlobalLeaderboard, leaderboardOrderingSchema } from "~/lib/leaderboard/queries"
@@ -27,7 +27,7 @@ export default async function LeaderboardPage(props: {
   return (
     <div className="mx-auto max-w-screen-lg">
       <Suspense>
-        <Confetti leaderUserId={leaderboard[0]?.id} />
+        <PlayerConfetti leaderUserId={leaderboard[0]?.id} />
       </Suspense>
 
       <div className="my-8 flex justify-center">

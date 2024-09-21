@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useMediaQuery } from "@react-hook/media-query"
 import { type User } from "@supabase/supabase-js"
 import { useMutation } from "@tanstack/react-query"
@@ -60,6 +61,7 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
 )
 
 function useGameState({ initialState }: { initialState: InGameState }) {
+  const router = useRouter()
   const utils = api.useUtils()
 
   const gameId = initialState.id
@@ -88,10 +90,12 @@ function useGameState({ initialState }: { initialState: InGameState }) {
           if (!safe) return
 
           if (payload.eventType === "DELETE") {
-            // TODO: handle deleted e.g. when leaving a game
+            return router.refresh()
           }
 
-          void gameStateQuery.refetch()
+          void utils.games.getGameStateWithQuestion.refetch({
+            game_id: gameId,
+          })
         },
       )
       .subscribe()
@@ -103,13 +107,14 @@ function useGameState({ initialState }: { initialState: InGameState }) {
         .catch((e) => console.error("failed to remove channel", e))
       safe = false
     }
-  }, [utils, gameId, supabase])
+  }, [utils, gameId, supabase, router])
 
   return gameStateQuery
 }
 
 function useGameSessionForUser({ initialSession }: { initialSession: PlayerGameSession }) {
   const utils = api.useUtils()
+  const router = useRouter()
   const gameSessionInfoQuery = api.games.getPlayerGameSession.useQuery(
     { game_id: initialSession.game_id },
     { initialData: initialSession },
@@ -136,7 +141,7 @@ function useGameSessionForUser({ initialSession }: { initialSession: PlayerGameS
           if (!safe) return
 
           if (payload.eventType === "DELETE") {
-            // TODO: handle deleted e.g. when leaving a game
+            return router.refresh()
           }
 
           utils.games.getPlayerGameSession.setData(
@@ -157,7 +162,7 @@ function useGameSessionForUser({ initialSession }: { initialSession: PlayerGameS
         .catch((e) => console.error("failed to remove channel", e))
       safe = false
     }
-  }, [supabase, sessionId, gameId, utils])
+  }, [supabase, sessionId, gameId, utils, router])
 
   return gameSessionInfoQuery
 }
