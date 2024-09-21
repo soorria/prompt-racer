@@ -20,9 +20,8 @@ import {
 import { getQuestionTestCasesOrderBy, getRandomGameMode } from "~/lib/games/utils"
 import { inngest } from "~/lib/inngest/client"
 import { logger } from "~/lib/server/logger"
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/lib/trpc/trpc"
+import { createTRPCRouter, protectedProcedure } from "~/lib/trpc/trpc"
 import { randomElement } from "~/lib/utils/random"
-import { getPlayerPostionsForGameMode } from "./game-modes"
 
 export const gameRouter = createTRPCRouter({
   getPlayerGameSession: protectedProcedure

@@ -2,7 +2,7 @@ import { invariant } from "@epic-web/invariant"
 
 import { type Doc } from "~/lib/db/types"
 import { INTEGER_RANGE } from "../db/constants"
-import { GameMode } from "./constants"
+import { type GameMode } from "./constants"
 
 export type PlayerGameSessionToSort = Doc<"playerGameSessions"> & {
   chatHistory: Doc<"playerGameSessionChatHistoryItems">[]

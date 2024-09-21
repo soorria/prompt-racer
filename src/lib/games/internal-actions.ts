@@ -2,9 +2,9 @@ import "server-only"
 
 import { addSeconds } from "date-fns"
 
+import type { Doc } from "../db/types"
 import { requireAuthUser } from "../auth/user"
 import { cmp, db, schema, sql } from "../db"
-import { type Doc } from "../db/types"
 import { streamUpdatedCode } from "../llm/generation"
 import { extractCodeFromRawCompletion } from "../llm/utils"
 import { LLM_PROMPTING_TIMEOUT } from "./constants"
@@ -62,17 +62,19 @@ export async function finalizeGame(gameId: string) {
 
     await tx.insert(schema.playerGameSessionFinalResults).values(positionResults)
 
-    const winningResult = positionResults.find((r) => r.position === 0)
-    if (winningResult) {
-      const winningPlayerSession = playerGameSessions.find(
-        (s) => s.id === winningResult.player_game_session_id,
-      )
+    if (playerGameSessions.length > 1) {
+      const winningResult = positionResults.find((r) => r.position === 0)
+      if (winningResult) {
+        const winningPlayerSession = playerGameSessions.find(
+          (s) => s.id === winningResult.player_game_session_id,
+        )
 
-      if (winningPlayerSession) {
-        await tx
-          .update(schema.users)
-          .set({ wins: sql`${schema.users.wins} + 1` })
-          .where(cmp.eq(schema.users.id, winningPlayerSession.user_id))
+        if (winningPlayerSession) {
+          await tx
+            .update(schema.users)
+            .set({ wins: sql`${schema.users.wins} + 1` })
+            .where(cmp.eq(schema.users.id, winningPlayerSession.user_id))
+        }
       }
     }
 
