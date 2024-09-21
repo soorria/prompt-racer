@@ -97,6 +97,9 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
                           "text-right": align === "right",
                         },
                         "whitespace-nowrap px-3 py-4 text-sm text-gray-400",
+                        {
+                          "rounded-br-xl": !isNotLastRow && valueIdx === 1,
+                        },
                       )}
                     >
                       <div
