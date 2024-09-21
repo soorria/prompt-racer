@@ -25,6 +25,7 @@ type CodeDisplayProps = {
   isGeneratingCode?: boolean
   preProps?: ComponentProps<"pre">
   codeProps?: ComponentProps<"code">
+  fontSize?: "sm" | "lg"
 }
 
 const CodeDisplayContent = ({ code, language }: Pick<CodeDisplayProps, "code" | "language">) => {
@@ -37,6 +38,7 @@ const CodeDisplayContent = ({ code, language }: Pick<CodeDisplayProps, "code" | 
 }
 
 const CodeRenderer = ({
+  fontSize = "sm",
   preProps,
   codeProps,
   showLineNumbers,
@@ -51,11 +53,17 @@ const CodeRenderer = ({
       className={cn(
         "relative flex w-max flex-1 py-2",
         { "pl-4": showLineNumbers },
+        { "text-xs": fontSize === "sm", "text-base": fontSize === "lg" },
         preProps?.className,
       )}
     >
       {showLineNumbers && (
-        <div className="sticky left-0 top-0 -ml-4 -translate-x-4 select-none bg-dracula/80 pl-4 pr-2 pt-0 text-right text-gray-500 backdrop-blur-sm">
+        <div
+          className={cn(
+            "sticky left-0 top-0 -ml-4 -translate-x-4 select-none bg-dracula/80 pl-4 pr-2 pt-0 text-right text-gray-500 backdrop-blur-sm",
+            { "text-xs": fontSize === "sm", "text-base": fontSize === "lg" },
+          )}
+        >
           {lines.map((_, i) => (
             <div key={i}>{i + 1}</div>
           ))}

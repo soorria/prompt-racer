@@ -24,7 +24,7 @@ export default function CodeView() {
         code={context.gameSessionInfo.code}
         language="python"
         preProps={{ className: "py-0 sm:py-2" }}
-        codeProps={{ className: "pr-0 p-2 sm:p-0 text-xs sm:text-base" }}
+        codeProps={{ className: "pr-0 p-2 sm:p-0" }}
         showLineNumbers={!context.isMobile}
         isGeneratingCode={context.isGeneratingCode}
       />
