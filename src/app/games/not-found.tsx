@@ -13,7 +13,7 @@ export default function GameNotFoundPage() {
         </p>
         <div className="mt-6">
           <Button asChild>
-            <Link href="/games/join">Back to home</Link>
+            <Link href="/">Back to home</Link>
           </Button>
         </div>
       </div>
