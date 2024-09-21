@@ -4,7 +4,7 @@ import UserAvatar from "../nav-bar/UserAvatar"
 
 export default function LeaderboardTablePlayerName({ player }: { player: Doc<"users"> }) {
   const commonClasses = {
-    root: "flex items-center gap-1.5",
+    root: "inline-flex items-center gap-1.5",
   }
   const classes = {
     ...(player.github_username
