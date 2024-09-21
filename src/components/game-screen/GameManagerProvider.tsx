@@ -91,15 +91,7 @@ function useGameState({ initialState }: { initialState: InGameState }) {
             // TODO: handle deleted e.g. when leaving a game
           }
 
-          console.log("payload", payload)
-
-          utils.games.getGameStateWithQuestion.setData(
-            {
-              game_id: gameId,
-            },
-            (game) => (game ? { ...game, ...payload.new } : undefined),
-          )
-          // NOTE: no refetch since relations do not change
+          void gameStateQuery.refetch()
         },
       )
       .subscribe()
