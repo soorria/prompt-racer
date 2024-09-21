@@ -5,6 +5,14 @@ import { cn } from "~/lib/utils"
 import { DRACULA_COLORS } from "../../lib/colors/constants"
 import { Avatar, AvatarImage } from "../ui/avatar"
 
+/**
+ * This is to hide the extremely noisy warning that defaultProps
+ * is deprecated
+ */
+if ("defaultProps" in BoringAvatar) {
+  delete BoringAvatar.defaultProps
+}
+
 type UserAvatarSize = "xs" | "sm" | "md" | "lg"
 
 export default function UserAvatar({
