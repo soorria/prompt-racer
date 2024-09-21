@@ -3,7 +3,7 @@ import BoringAvatar from "boring-avatars"
 
 import { cn } from "~/lib/utils"
 import { DRACULA_COLORS } from "../../lib/colors/constants"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Avatar, AvatarImage } from "../ui/avatar"
 
 type UserAvatarSize = "xs" | "sm" | "md" | "lg"
 
@@ -47,14 +47,18 @@ export default function UserAvatar({
       )}
     >
       <Avatar className={cn("rounded-full", sizeClasses[size])}>
+        <BoringAvatar
+          name={name}
+          variant="beam"
+          colors={DRACULA_COLORS}
+          className="absolute inset-0"
+        />
+
         <AvatarImage
           src={imageUrl ?? undefined}
           alt={`${name}'s avatar`}
-          className={"group-hover:scale-105"}
+          className={"relative animate-in fade-in group-hover:scale-105"}
         />
-        <AvatarFallback className="h-full w-full">
-          <BoringAvatar name={name} variant="beam" colors={DRACULA_COLORS} />
-        </AvatarFallback>
       </Avatar>
       <div className={lineClasses}></div>
     </div>

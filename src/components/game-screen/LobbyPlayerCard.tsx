@@ -2,7 +2,7 @@ import React from "react"
 import { type User } from "@supabase/supabase-js"
 
 import { type InGameState } from "~/lib/games/types"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import UserAvatar from "../nav-bar/UserAvatar"
 
 type Props = {
   user: User
@@ -10,7 +10,7 @@ type Props = {
   onLeaveGame: () => void
 }
 
-export default function LobbyPlayerCard({ players, onLeaveGame, user }: Props) {
+export default function LobbyPlayerCard({ players, user }: Props) {
   const me = players.find((p) => p.user.id === user.id)
   const otherPlayers = players.filter((p) => p.user.id !== user.id)
   const ordered = [me, ...otherPlayers].filter(Boolean)
@@ -23,10 +23,7 @@ export default function LobbyPlayerCard({ players, onLeaveGame, user }: Props) {
           className="relative flex items-center gap-3 rounded-lg border border-gray-700 bg-card px-6 py-5 shadow-sm"
         >
           <div className="flex-shrink-0">
-            <Avatar>
-              <AvatarImage src={person.user.profile_image_url ?? undefined} />
-              <AvatarFallback>{person.user.name[0]}</AvatarFallback>
-            </Avatar>
+            <UserAvatar imageUrl={person.user.profile_image_url} name={person.user.name} />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium">{person.user.name}</p>
