@@ -20,6 +20,7 @@ export type NotWaitingForPlayersGameState = Omit<FullGameState, "status"> & {
 
 export type InGameState = WaitingForPlayersGameState | NotWaitingForPlayersGameState
 export type QuestionWithTestCases = FullGameState["question"]
-export type GameMode = FullGameState["mode"]
 
 export type PlayerGameSession = NonNullable<Awaited<ReturnType<typeof getSessionInfoForPlayer>>>
+
+export type FinalPlayerResult = Pick<Doc<"playerGameSessionFinalResults">, "position" | "score">

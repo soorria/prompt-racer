@@ -2,15 +2,15 @@ import { invariant } from "@epic-web/invariant"
 
 import { type Doc } from "~/lib/db/types"
 import { INTEGER_RANGE } from "../db/constants"
+import { GameMode } from "./constants"
 
 export type PlayerGameSessionToSort = Doc<"playerGameSessions"> & {
   chatHistory: Doc<"playerGameSessionChatHistoryItems">[]
   submissionState:
-  | (Doc<"playerGameSubmissionStates"> & {
-    results: Doc<"playerGameSubmissionStateResults">[]
-  })
-  | null
-  user: Doc<"users">
+    | (Doc<"playerGameSubmissionStates"> & {
+        results: Doc<"playerGameSubmissionStateResults">[]
+      })
+    | null
 }
 
 type SortablePlayerGameSession = PlayerGameSessionToSort & {
@@ -56,15 +56,15 @@ const getPlayerPositions = (
           numPassing === 0
             ? config.worstScore
             : config.getScore(
-              {
-                ...session,
-                submissionState: {
-                  ...session.submissionState,
-                  results: passing,
+                {
+                  ...session,
+                  submissionState: {
+                    ...session.submissionState,
+                    results: passing,
+                  },
                 },
-              },
-              gameState,
-            ),
+                gameState,
+              ),
       }
     })
     .sort((a, b) => {
@@ -103,7 +103,7 @@ const gameModeFinalizationConfigMap: GameModeFinalizationConfigMap = {
      * time since start of game. lower is better
      */
     getScore: (session, gameState) =>
-      gameState.start_time.getTime() - session.submissionState.last_submitted_at.getTime(),
+      (gameState.start_time?.getTime() ?? 0) - session.submissionState.last_submitted_at.getTime(),
     compareScore: compareSortOrderMap.asc,
     worstScore: INTEGER_RANGE.max,
   },
@@ -133,6 +133,10 @@ const gameModeFinalizationConfigMap: GameModeFinalizationConfigMap = {
   },
 }
 
+export function getWorseScoreForGameMode(gameMode: GameMode) {
+  return gameModeFinalizationConfigMap[gameMode].worstScore
+}
+
 export const getPlayerPostionsForGameMode = (
   game: Doc<"gameStates">,
   playerGameSessions: PlayerGameSessionToSort[],
@@ -152,7 +156,6 @@ export const getPlayerPostionsForGameMode = (
       player_game_session_id: session.id,
       position: positions[session.user_id]?.position ?? playerGameSessions.length + 2,
       score: positions[session.user_id]?.score ?? 0,
-      user: session.user,
     }
   })
 }

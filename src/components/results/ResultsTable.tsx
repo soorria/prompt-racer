@@ -1,8 +1,8 @@
 import { Medal, Trophy } from "lucide-react"
 
 import type { Doc } from "~/lib/db/types"
-import { getPositionClassKey, positionRowClasses } from "~/app/(landing)/leaderboard/page"
 import { cn } from "~/lib/utils"
+import { getPositionRowClasses } from "../leaderboard-screen/class-utils"
 import LeaderboardTablePlayerName from "../leaderboard-screen/LeaderboardTablePlayerName"
 
 export function ResultsTable({ users }: { users: Doc<"users">[] }) {
@@ -44,7 +44,7 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
           {users.map((player, idx) => {
             const isNotLastRow = idx !== users.length - 1
 
-            const classes = positionRowClasses[getPositionClassKey(idx)]
+            const classes = getPositionRowClasses(idx)
 
             return (
               <tr
@@ -83,9 +83,7 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
                             "text-yellow-700": idx === 2,
                           })}
                         />
-                      ) : (
-                        <></>
-                      ),
+                      ) : null,
                     align: "right",
                   },
                 ].map(({ value, align }, valueIdx) => {
@@ -99,9 +97,6 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
                           "text-right": align === "right",
                         },
                         "whitespace-nowrap px-3 py-4 text-sm text-gray-400",
-                        {
-                          "": !isNotLastRow,
-                        },
                       )}
                     >
                       <div

@@ -2,29 +2,19 @@ import { Suspense } from "react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import type { LeaderboardOrdering } from "~/lib/leaderboard/trpc"
+import type { LeaderboardOrdering } from "~/lib/leaderboard/queries"
+import { getPositionRowClasses } from "~/components/leaderboard-screen/class-utils"
+import { Confetti } from "~/components/leaderboard-screen/Confetti"
 import LeaderboardHighlight, {
   ORDERING_DETAILS,
 } from "~/components/leaderboard-screen/LeaderboardHighlight"
 import LeaderboardTablePlayerName from "~/components/leaderboard-screen/LeaderboardTablePlayerName"
-import { LazyLeaderboardWinnerConfetti } from "~/components/leaderboard-screen/LeaderboardWinnerConfetti.lazy"
 import LocalDate from "~/components/LocalDate"
-import { getAuthUser } from "~/lib/auth/user"
 import { type Doc } from "~/lib/db/types"
-import { leaderboardOrderingSchema } from "~/lib/leaderboard/trpc"
-import { api } from "~/lib/trpc/server"
+import { getGlobalLeaderboard, leaderboardOrderingSchema } from "~/lib/leaderboard/queries"
 import { cn } from "~/lib/utils"
 
 export const revalidate = 60
-
-export async function Confetti(props: { leaderUserId: string | undefined }) {
-  const currentUser = await getAuthUser()
-  const currentUserIsLeader = Boolean(
-    props.leaderUserId && currentUser && props.leaderUserId === currentUser.id,
-  )
-
-  return currentUserIsLeader ? <LazyLeaderboardWinnerConfetti /> : null
-}
 
 export default async function LeaderboardPage(props: {
   params: {
@@ -33,9 +23,7 @@ export default async function LeaderboardPage(props: {
 }) {
   const ordering = resolveOrderingOrRedirect(props.params.ordering)
 
-  const leaderboard = await api.leaderboard.getLeaderboard({
-    ordering: ordering,
-  })
+  const leaderboard = await getGlobalLeaderboard(ordering)
 
   const TABS: { title: string; ordering: LeaderboardOrdering }[] = [
     {
@@ -99,39 +87,7 @@ export default async function LeaderboardPage(props: {
   )
 }
 
-export const positionRowClasses = {
-  0: {
-    row: "hover:bg-yellow-700/25",
-    rankCell: "group-hover/row:text-yellow-400",
-  },
-  1: {
-    row: "hover:bg-gray-600/25",
-    rankCell: "group-hover/row:text-gray-300",
-  },
-  2: {
-    row: "hover:bg-orange-900/25",
-    rankCell: "group-hover/row:text-orange-400",
-  },
-  "3+": {
-    row: "hover:bg-zinc-800/25",
-    rankCell: "",
-  },
-} satisfies Record<
-  PropertyKey,
-  {
-    row: string
-    rankCell: string
-  }
->
-
-export function getPositionClassKey(position: number): keyof typeof positionRowClasses {
-  if (position <= 2) {
-    return position as keyof typeof positionRowClasses
-  }
-  return "3+"
-}
-
-export function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
+function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
   return (
     <div className="-mx-4 mt-16 flow-root overflow-x-scroll px-4">
       <table
@@ -184,7 +140,7 @@ export function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
           {users.map((player, idx) => {
             const isNotLastRow = idx !== users.length - 1
 
-            const classes = positionRowClasses[getPositionClassKey(idx)]
+            const classes = getPositionRowClasses(idx)
 
             return (
               <tr
