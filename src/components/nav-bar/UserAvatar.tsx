@@ -47,6 +47,10 @@ export default function UserAvatar({
       )}
     >
       <Avatar className={cn("rounded-full", sizeClasses[size])}>
+        {/**
+         * Note: intentionally not rendering the fallback inside the AvatarFallback
+         * component so the actual image can fade in :)
+         */}
         <BoringAvatar
           name={name}
           variant="beam"
