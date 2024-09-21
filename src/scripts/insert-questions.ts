@@ -105,6 +105,11 @@ async function main() {
       return true
     })
 
+  if (!dbDocuments.length) {
+    console.log("\n\nNo new questions to insert\n\n")
+    return
+  }
+
   await db.transaction(async (tx) => {
     await tx.insert(schema.questions).values(dbDocuments.map(({ question }) => question))
     await tx
