@@ -25,10 +25,14 @@ function resolveFinalResult(
   }
 }
 
-async function getResults(gameId: string) {
+/**
+ * Separated out to allow for caching
+ */
+async function getGameResultsData(gameId: string) {
   const game = await getGameById(db, gameId)
+
   if (!game) {
-    notFound()
+    return null
   }
 
   const playerGameSessions = await db.query.playerGameSessions.findMany({
@@ -40,16 +44,27 @@ async function getResults(gameId: string) {
   })
 
   return {
-    players: [...playerGameSessions]
+    players: playerGameSessions,
+    game: game,
+  }
+}
+
+async function getResults(gameId: string) {
+  const data = await getGameResultsData(gameId)
+
+  if (!data) {
+    notFound()
+  }
+
+  const { players, game } = data
+
+  return {
+    players: [...players]
       .map((session) => ({
         ...session,
         finalResult: resolveFinalResult(session.finalResult, game.mode),
       }))
-      .sort(
-        (a, b) =>
-          (a.finalResult?.position ?? Number.MAX_SAFE_INTEGER) -
-          (b.finalResult?.position ?? Number.MAX_SAFE_INTEGER),
-      ),
+      .sort((a, b) => a.finalResult.position - b.finalResult.position),
     game,
   }
 }
