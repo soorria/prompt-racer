@@ -1,11 +1,23 @@
 import { Medal, Trophy } from "lucide-react"
 
-import type { Doc } from "~/lib/db/types"
+import type { GameMode } from "~/lib/games/constants"
+import { type GameResultsPlayer } from "~/app/games/results/[gameId]/page"
+import { GAME_MODE_DETAILS } from "~/lib/games/constants"
 import { cn } from "~/lib/utils"
 import { getPositionRowClasses } from "../leaderboard-screen/class-utils"
 import LeaderboardTablePlayerName from "../leaderboard-screen/LeaderboardTablePlayerName"
 
-export function ResultsTable({ users }: { users: Doc<"users">[] }) {
+export function ResultsTable({
+  users,
+  gameMode,
+}: {
+  users: GameResultsPlayer[]
+  gameMode: GameMode
+}) {
+  const { unitLong, unitShort } = GAME_MODE_DETAILS[gameMode]
+
+  console.log(users)
+
   return (
     <div className="-mx-4 mt-4 flow-root overflow-x-scroll px-4 sm:mt-16">
       <table
@@ -29,6 +41,15 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
             >
               Player
             </th>
+
+            {/* <th
+              scope="col"
+              className="sticky top-0 z-10 border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
+            >
+              Score (<span className="hidden sm:inline">{unitLong}</span>
+              <span className="sm:hidden">{unitShort}</span>)
+            </th> */}
+
             <th
               scope="col"
               className="sticky top-0 z-10 rounded-tr-xl border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
@@ -69,9 +90,13 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
 
                 {[
                   {
-                    value: <LeaderboardTablePlayerName player={player} />,
+                    value: <LeaderboardTablePlayerName player={player.user} />,
                     align: "left",
                   },
+                  // {
+                  //   value: player.finalResult.score,
+                  //   align: "right",
+                  // },
                   {
                     value:
                       idx === 0 ? (
@@ -86,7 +111,8 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
                       ) : null,
                     align: "right",
                   },
-                ].map(({ value, align }, valueIdx) => {
+                ].map(({ value, align }, valueIdx, valuesArray) => {
+                  const isLastColumn = valueIdx === valuesArray.length - 1
                   return (
                     <td
                       key={valueIdx}
@@ -98,7 +124,7 @@ export function ResultsTable({ users }: { users: Doc<"users">[] }) {
                         },
                         "whitespace-nowrap px-3 py-4 text-sm text-gray-400",
                         {
-                          "rounded-br-xl": !isNotLastRow && valueIdx === 1,
+                          "rounded-br-xl": !isNotLastRow && isLastColumn,
                         },
                       )}
                     >

@@ -4,23 +4,18 @@ import React from "react"
 import { TestTubeDiagonal } from "lucide-react"
 import Markdown from "react-markdown"
 
+import type { BadgeProps } from "~/components/ui/badge"
+import type { GameMode } from "~/lib/games/constants"
 import type { QuestionWithTestCases } from "~/lib/games/types"
 import { Badge } from "~/components/ui/badge"
 import { type Doc } from "~/lib/db/types"
-import { type GameMode } from "~/lib/games/constants"
+import { GAME_MODE_DETAILS } from "~/lib/games/constants"
 
 const MapfromDifficultyToBadgeVariant = {
   easy: "green",
   medium: "yellow",
   hard: "red",
-} satisfies Record<Doc<"questions">["difficulty"], "green" | "yellow" | "red">
-
-const MapFromModeToWinConditionDescription = {
-  "fastest-player": "The fastest player to submit the correct answer wins!",
-  "fastest-code": "The code that runs the fastest wins!",
-  "shortest-code": "The fewest amount of lines/characters of code wins!",
-  "fewest-characters-to-llm": "The fewest characters able to generate the correct answer wins!",
-} satisfies Record<Doc<"gameStates">["mode"], string>
+} satisfies Record<Doc<"questions">["difficulty"], NonNullable<BadgeProps["variant"]>>
 
 export default function QuestionDescription(props: {
   question: QuestionWithTestCases
@@ -34,7 +29,7 @@ export default function QuestionDescription(props: {
       </Badge>
       <div className="mb-6 mt-3 rounded bg-primary/40 px-3 py-2">
         <h3 className="mb-2 font-medium">Win condition</h3>
-        <p className="text-sm">{MapFromModeToWinConditionDescription[props.gameMode]}</p>
+        <p className="text-sm">{GAME_MODE_DETAILS[props.gameMode].description}</p>
       </div>
       <div className="text-pretty text-sm">
         <Markdown className={"prose prose-invert"}>{props.question.description}</Markdown>

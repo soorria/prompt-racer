@@ -1,12 +1,13 @@
 import React, { Suspense } from "react"
 import { notFound } from "next/navigation"
 
+import type { GameMode } from "~/lib/games/constants"
 import type { Nullable } from "~/lib/utils/types"
 import LeaderboardHighlight from "~/components/leaderboard-screen/LeaderboardHighlight"
 import { LazyLeaderboardWinnerConfetti } from "~/components/leaderboard-screen/LeaderboardWinnerConfetti.lazy"
 import { ResultsTable } from "~/components/results/ResultsTable"
 import { cmp, db, schema } from "~/lib/db"
-import { type GameMode } from "~/lib/games/constants"
+import { GAME_MODE_DETAILS } from "~/lib/games/constants"
 import { getWorseScoreForGameMode } from "~/lib/games/game-modes"
 import { getGameById } from "~/lib/games/queries"
 import { type FinalPlayerResult } from "~/lib/games/types"
@@ -69,10 +70,15 @@ async function getResults(gameId: string) {
   }
 }
 
+type GameResults = Awaited<ReturnType<typeof getResults>>
+export type GameResultsPlayer = GameResults["players"][number]
+
 export const revalidate = 3600
 
 export default async function ResultsPage({ params }: { params: { gameId: string } }) {
-  const { players } = await getResults(params.gameId)
+  const { players, game } = await getResults(params.gameId)
+
+  const { unitLong } = GAME_MODE_DETAILS[game.mode]
 
   return (
     <div className="mx-auto max-w-screen-lg">
@@ -83,14 +89,15 @@ export default async function ResultsPage({ params }: { params: { gameId: string
       <Suspense>
         <LazyLeaderboardWinnerConfetti once />
       </Suspense>
+
       <LeaderboardHighlight
         podiumNoPlayerPlaceholder="Vacant"
         players={players.slice(0, 3).map((u) => ({
           ...u.user,
-          winCondition: { label: "Score", value: `${u.finalResult?.score}` },
+          winCondition: { label: "Score", value: `${u.finalResult?.score} ${unitLong}` },
         }))}
       />
-      <ResultsTable users={players.map((u) => u.user)} />
+      <ResultsTable users={players} gameMode={game.mode} />
     </div>
   )
 }
