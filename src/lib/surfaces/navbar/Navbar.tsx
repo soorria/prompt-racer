@@ -16,7 +16,7 @@ export default function Navbar({
   return (
     <nav
       className={cn(
-        "flex h-16 flex-shrink-0 items-center overflow-hidden rounded-xl rounded-t-none bg-card p-5 pt-4",
+        "flex h-16 flex-shrink-0 items-center overflow-hidden rounded-xl rounded-t-none bg-card p-4",
         className,
       )}
     >

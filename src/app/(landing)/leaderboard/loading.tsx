@@ -3,6 +3,10 @@ import { Skeleton } from "~/components/ui/skeleton"
 export default function LeaderboardPageLoading() {
   return (
     <div className="mx-auto max-w-screen-lg">
+      <h1 className="mx-auto my-6 max-w-4xl text-center text-4xl font-bold tracking-tight text-white sm:my-14 sm:text-5xl">
+        Global Leaderboard
+      </h1>
+
       <div className="my-8 flex justify-center">
         {/* Tabs Loading Skeleton */}
         <nav aria-label="Tabs" className="flex space-x-4">

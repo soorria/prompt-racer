@@ -75,7 +75,7 @@ export default async function ResultsPage({ params }: { params: { gameId: string
   const { players } = await getResults(params.gameId)
 
   return (
-    <div>
+    <div className="mx-auto max-w-screen-lg">
       <h1 className="mx-auto my-6 max-w-4xl text-center text-4xl font-bold tracking-tight text-white sm:my-14 sm:text-5xl">
         Results
       </h1>

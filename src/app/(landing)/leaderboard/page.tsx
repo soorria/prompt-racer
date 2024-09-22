@@ -25,6 +25,10 @@ export default async function LeaderboardPage(props: {
 
   return (
     <div className="mx-auto max-w-screen-lg">
+      <h1 className="mx-auto my-6 max-w-4xl text-center text-4xl font-bold tracking-tight text-white sm:my-14 sm:text-5xl">
+        Global Leaderboard
+      </h1>
+
       <PlayerConfetti leaderUserId={leaderboard[0]?.id} />
 
       <div className="my-8 flex justify-center">
