@@ -3,9 +3,14 @@
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
+import { env } from "~/env"
 import { action } from "../actions/utils"
 import { logger } from "../server/logger"
 import { createServerClient } from "../supabase/server"
+
+const AUTH_REDIRECT_ORIGIN =
+  env.NODE_ENV === "production" ? "https://promptracer.dev" : "http://localhost:3000"
+const AUTH_REDIRECT_URL = `${AUTH_REDIRECT_ORIGIN}/auth/callback`
 
 export const loginWithGitHubAction = action.action(async ({}) => {
   const sb = createServerClient()
@@ -16,7 +21,7 @@ export const loginWithGitHubAction = action.action(async ({}) => {
   const { data, error } = await sb.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: "https://promptracer.dev/auth/callback",
+      redirectTo: AUTH_REDIRECT_URL,
       queryParams: {
         next: referrerUrl?.pathname ?? "/",
       },
