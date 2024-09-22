@@ -1,6 +1,7 @@
 import { PostHog } from "posthog-node"
 
 import { env, IS_PROD } from "~/env"
+import { logger } from "../server/logger"
 
 const posthogServer = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
   disabled: !IS_PROD,
@@ -17,9 +18,13 @@ export function captureUserEvent(
   event: string,
   properties: Record<string, unknown> = {},
 ) {
-  posthogServer.capture({
-    distinctId: userId,
-    event,
-    properties,
-  })
+  try {
+    posthogServer.capture({
+      distinctId: userId,
+      event,
+      properties,
+    })
+  } catch (e) {
+    logger.error(e, "failed to capture user event")
+  }
 }

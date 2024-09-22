@@ -1,4 +1,6 @@
 import { type User } from "@supabase/supabase-js"
+import { isAfter, subSeconds } from "date-fns"
+import posthog from "posthog-js"
 
 import { cmp, db, schema } from "../db"
 
@@ -28,7 +30,7 @@ function getGithubUsernameFromAuthUser(authUser: User) {
 export async function upsertProfile(authUser: User) {
   const githubUsername = getGithubUsernameFromAuthUser(authUser)
 
-  await db
+  const [result] = await db
     .insert(schema.users)
     .values({
       id: authUser.id,
@@ -37,6 +39,15 @@ export async function upsertProfile(authUser: User) {
       github_username: githubUsername,
     })
     .onConflictDoNothing()
+    .returning({
+      inserted_at: schema.users.inserted_at,
+    })
+    .execute()
+
+  // simplest way to guesstimate that this is a new user
+  if (result && isAfter(result.inserted_at, subSeconds(new Date(), 10))) {
+    posthog.capture("User signed up")
+  }
 }
 
 export async function getUserProfile(userId: string) {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { upsertProfile as upsertUserProfile } from "~/lib/auth/profile"
+import { captureUserEvent } from "~/lib/posthog/server"
 import { createServerClient } from "~/lib/supabase/server"
 
 export async function GET(request: Request) {
@@ -17,15 +18,14 @@ export async function GET(request: Request) {
     if (!error) {
       if (data.user) {
         await upsertUserProfile(data.user)
+
+        captureUserEvent(data.user.id, "User logged in", {
+          provider: data.user.app_metadata.provider,
+        })
       }
 
       const forwardedHost = request.headers.get("x-forwarded-host") // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === "development"
-
-      console.log({
-        forwardedHost,
-        isLocalEnv,
-      })
 
       if (isLocalEnv) {
         // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
