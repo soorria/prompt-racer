@@ -1,4 +1,5 @@
 import ms from "ms"
+import type { Doc } from "../db/types"
 
 export type KebabToPascalCase<T extends string> = T extends `${infer F}-${infer R}`
   ? `${F}${Capitalize<KebabToPascalCase<R>>}`
@@ -26,3 +27,9 @@ export const GAME_MODES_WITH_TITLES = {
 export const LLM_PROMPTING_TIMEOUT = ms("10s")
 export const CODE_SUBMISSION_TIMEOUT = ms("10s")
 export const FINALIZING_SUBMISSION_BUFFER_TIME = ms("2s")
+export const GAME_CHARACTER_LIMIT_MAP = {
+  "easy": 50,
+  "medium": 60,
+  "hard": 70,
+} as const satisfies Record<Doc<'questions'>['difficulty'], number>
+export const MAX_SEND_MESSAGE_CHARACTER_LIMIT = Math.max(...Object.values(GAME_CHARACTER_LIMIT_MAP))

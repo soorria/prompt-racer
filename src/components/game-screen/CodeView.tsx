@@ -3,6 +3,7 @@
 import { useRef, useState } from "react"
 import { Send } from "lucide-react"
 
+import { GAME_CHARACTER_LIMIT_MAP } from "~/lib/games/constants"
 import CodeRenderer from "../CodeRenderer"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -19,7 +20,7 @@ export default function CodeView() {
   const formRef = useRef<HTMLFormElement>(null)
   const [inputValue, setInputValue] = useState("")
 
-  const maxLength = 50
+  const maxLength = GAME_CHARACTER_LIMIT_MAP[context.gameInfo.question?.difficulty ?? "easy"]
   const widthPercentage = (inputValue.length / maxLength) * 100
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
