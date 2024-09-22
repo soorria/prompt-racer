@@ -46,7 +46,7 @@ function ChatPanelMessage({
         className={cn(
           "absolute -bottom-8 left-0 top-0 flex w-6 justify-center",
           { "top-4": index === 0 },
-          { "bottom-36 top-12": index === len - 1 },
+          { "bottom-auto": index === len - 1 },
         )}
       >
         <div className="w-0.5 bg-gray-400" />

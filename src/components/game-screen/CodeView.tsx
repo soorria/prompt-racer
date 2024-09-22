@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { Send } from "lucide-react"
 
 import CodeRenderer from "../CodeRenderer"
@@ -17,13 +17,21 @@ export const CodeViewImpl = {
 export default function CodeView() {
   const context = useGameManager()
   const formRef = useRef<HTMLFormElement>(null)
+  const [inputValue, setInputValue] = useState("")
+
+  const maxLength = 50
+  const widthPercentage = (inputValue.length / maxLength) * 100
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value)
+  }
 
   return (
     <>
       <CodeRenderer
         code={context.gameSessionInfo.code}
         language="python"
-        preProps={{ className: "py-0 sm:py-2" }}
+        preProps={{ className: "py-0 sm:py-2 mb-4" }}
         codeProps={{ className: "pr-0 p-2 sm:p-0" }}
         showLineNumbers={!context.isMobile}
         isGeneratingCode={context.isGeneratingCode}
@@ -32,12 +40,27 @@ export default function CodeView() {
       <form
         ref={formRef}
         className="sticky inset-x-0 bottom-0 flex shrink-0 gap-2"
-        action={async (formData) => {
-          await context.updateCurrentCodeMutation.mutateAsync(formData.get("message") as string)
-          formRef.current?.reset()
+        onSubmit={async (e) => {
+          e.preventDefault()
+          await context.updateCurrentCodeMutation.mutateAsync(inputValue)
+          setInputValue("")
         }}
       >
-        <Input className="flex-1 rounded-lg" name="message" placeholder="Enter your instructions" />
+        <div className="relative flex-1 overflow-hidden rounded-lg">
+          <Input
+            className="flex-1 rounded-lg"
+            maxLength={maxLength}
+            disabled={context.isGeneratingCode || context.updateCurrentCodeMutation.isPending}
+            name="message"
+            placeholder="Enter your instructions"
+            value={inputValue}
+            onChange={handleChange}
+          />
+          <div
+            className="absolute bottom-0 h-1 rounded-lg bg-primary/75"
+            style={{ width: `${widthPercentage}%` }}
+          ></div>
+        </div>
         <Button
           type="submit"
           className="rounded-lg px-2"
