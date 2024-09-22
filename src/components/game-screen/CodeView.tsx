@@ -57,8 +57,11 @@ export default function CodeView() {
             onChange={handleChange}
           />
           <div
-            className="absolute bottom-0 h-1 rounded-lg bg-primary/75"
-            style={{ width: `${widthPercentage}%` }}
+            className="absolute bottom-0 h-1 rounded-lg bg-gradient-to-r from-primary/75 to-red-500 transition-all"
+            style={{
+              width: `${widthPercentage}%`,
+              "--tw-gradient-from-position": `${165 - widthPercentage}%`,
+            }}
           ></div>
         </div>
         <Button
