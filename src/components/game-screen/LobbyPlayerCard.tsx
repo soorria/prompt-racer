@@ -1,4 +1,5 @@
 import React from "react"
+import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { type User } from "@supabase/supabase-js"
 
 import { type InGameState } from "~/lib/games/types"
@@ -11,12 +12,16 @@ type Props = {
 }
 
 export default function LobbyPlayerCard({ players, user }: Props) {
+  const [autoAnimateRef] = useAutoAnimate()
   const me = players.find((p) => p.user.id === user.id)
   const otherPlayers = players.filter((p) => p.user.id !== user.id)
   const ordered = [me, ...otherPlayers].filter(Boolean)
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div
+      ref={autoAnimateRef}
+      className="mx-auto grid w-full max-w-screen-sm grid-cols-1 gap-4 sm:grid-cols-2"
+    >
       {ordered.map((person, idx) => (
         <div
           key={idx}
