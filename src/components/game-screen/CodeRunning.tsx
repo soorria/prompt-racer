@@ -32,7 +32,7 @@ function QuestionTestCaseResults(props: {
   const sortedTestCases = [...unsubmittedTestCases, ...incorrectTestCases, ...correctTestCases]
 
   return (
-    <div className="flex flex-col space-y-8 text-sm">
+    <div className="flex flex-col space-y-6 text-sm">
       {sortedTestCases.map((testCase, i) => {
         const result = props.testState?.results.find(
           (result) => result.question_test_case_id === testCase.id,
@@ -118,7 +118,7 @@ export default function CodeRunning() {
   return (
     <div className="relative flex flex-col">
       <div className="mb-8 flex-1 overflow-scroll">
-        <h3 className="mb-2 font-medium">Test cases</h3>
+        <h3 className="mb-4 font-medium">Test cases</h3>
         {gameInfo.question ? (
           <QuestionTestCaseResults
             question={gameInfo.question}

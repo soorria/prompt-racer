@@ -16,8 +16,6 @@ export function ResultsTable({
 }) {
   const { unitLong, unitShort } = GAME_MODE_DETAILS[gameMode]
 
-  console.log(users)
-
   return (
     <div className="-mx-4 mt-4 flow-root overflow-x-scroll px-4 sm:mt-16">
       <table
