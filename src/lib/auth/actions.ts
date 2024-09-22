@@ -7,7 +7,7 @@ import { action } from "../actions/utils"
 import { logger } from "../server/logger"
 import { createServerClient } from "../supabase/server"
 
-export const loginWithGitHubAction = action.action(async ({ }) => {
+export const loginWithGitHubAction = action.action(async ({}) => {
   const sb = createServerClient()
 
   const referrer = headers().get("referer")
@@ -16,7 +16,7 @@ export const loginWithGitHubAction = action.action(async ({ }) => {
   const { data, error } = await sb.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: "http://localhost:3000/auth/callback",
+      redirectTo: "https://promptracer.dev/auth/callback",
       queryParams: {
         next: referrerUrl?.pathname ?? "/",
       },
