@@ -1,11 +1,18 @@
 import type { Config } from "tailwindcss"
 import { fontFamily } from "tailwindcss/defaultTheme"
-const config: Config = {
+
+const config = {
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
+  darkMode: ["class"],
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
   ],
+  prefix: "",
   theme: {
     container: {
       center: true,
@@ -15,9 +22,13 @@ const config: Config = {
       },
     },
     extend: {
+      screens: {
+        "3xl": "1700px",
+        "4xl": "1900px",
+      },
       fontFamily: {
         display: ["var(--font-fugaz)", ...fontFamily.sans],
-        sans: ["var(--font-inter)", ...fontFamily.sans],
+        sans: ["var(--font-sans)", ...fontFamily.sans],
       },
       colors: {
         dracula: "#282a36",
@@ -53,6 +64,7 @@ const config: Config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+          lighter: "hsl(var(--card-lighter))",
         },
       },
       borderRadius: {
@@ -76,6 +88,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-}
+  plugins: [require("tailwindcss-animate"), require('@tailwindcss/typography')],
+} satisfies Config
+
 export default config

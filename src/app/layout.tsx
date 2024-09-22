@@ -1,18 +1,15 @@
 import "@total-typescript/ts-reset"
-import { ClerkProvider } from "@clerk/nextjs"
-import { dark } from "@clerk/themes"
-
+import "@total-typescript/ts-reset/dom"
 import "~/styles/globals.css"
-import type { Metadata } from "next"
-import { Inter, Fugaz_One } from "next/font/google"
-import ConvexClientProvider from "~/lib/convex"
-import { cx } from "class-variance-authority"
-import NavBar from "~/components/NavBar"
-import Footer from "~/components/Footer"
-import { TooltipProvider } from "~/components/ui/tooltip"
-import { Toaster } from "~/components/ui/sonner"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
+import { type Metadata } from "next"
+import { Fugaz_One, Inter } from "next/font/google"
+
+import { Toaster } from "~/components/ui/sonner"
+import { TooltipProvider } from "~/components/ui/tooltip"
+import { cn } from "~/lib/utils"
+
+const fontSans = Inter({ subsets: ["latin"], variable: "--font-sans" })
 const Fugaz = Fugaz_One({ weight: "400", variable: "--font-fugaz", subsets: ["latin"] })
 
 const title = "Prompt Racer"
@@ -30,7 +27,8 @@ export const metadata: Metadata = {
     canonical: "https://promptracer.dev",
   },
 
-  manifest: "/site.webmanifest",
+  // TODO: Set up manifest
+  // manifest: "/site.webmanifest",
 
   icons: {
     icon: [
@@ -63,46 +61,19 @@ export const metadata: Metadata = {
   },
 }
 
-export const revalidate = 10
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const rootclass = cn(Fugaz.variable, fontSans.variable, "h-[100svh]")
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
-      afterSignInUrl="/g"
-      afterSignUpUrl="/g"
-      appearance={{
-        baseTheme: dark,
-        variables: {
-          colorPrimary: "#22c55e",
-          colorTextOnPrimaryBackground: "#054016",
-        },
-      }}
-    >
-      <html lang="en">
-        <head>
-          <script
-            async
-            defer
-            data-domain="prompt-racer.soorria.com"
-            data-api="https://soorria.com/proxy/api/event"
-            src="https://soorria.com/js/potato.js"
-          />
-        </head>
-        <body
-          className={cx(Fugaz.variable, inter.variable, "font-sans", "px-4 pt-4 flex flex-col")}
-        >
-          <ConvexClientProvider>
-            <TooltipProvider>
-              <NavBar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-
-              <Toaster />
-            </TooltipProvider>
-          </ConvexClientProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" className={rootclass}>
+      <body>
+        <TooltipProvider>
+          <main className="mx-auto flex h-full w-full flex-col p-4 pt-0">
+            <div className="flex-1">{children}</div>
+            <Toaster />
+          </main>
+        </TooltipProvider>
+      </body>
+    </html>
   )
 }

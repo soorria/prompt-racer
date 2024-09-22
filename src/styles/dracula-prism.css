@@ -215,7 +215,13 @@ pre[class*="language-"] {
   color: var(--d-foreground);
   background: var(--d-background);
   text-shadow: none;
-  font-family: PT Mono, Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+  font-family:
+    PT Mono,
+    Consolas,
+    Monaco,
+    "Andale Mono",
+    "Ubuntu Mono",
+    monospace;
   text-align: left;
   white-space: pre;
   word-spacing: normal;
