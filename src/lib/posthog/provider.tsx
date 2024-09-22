@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { type User } from "@supabase/supabase-js"
 import { posthog } from "posthog-js"
@@ -34,7 +34,9 @@ export function PosthogClientProvider(props: PosthogClientProviderProps) {
   return (
     <PostHogProvider client={posthog}>
       {props.children}
-      <PosthogTracking />
+      <Suspense>
+        <PosthogTracking />
+      </Suspense>
     </PostHogProvider>
   )
 }
