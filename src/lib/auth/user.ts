@@ -1,8 +1,10 @@
+import { cache } from "react"
+
 import { cmp, db, schema } from "../db"
 import { logger } from "../server/logger"
 import { createServerClient } from "../supabase/server"
 
-export async function getAuthUser() {
+async function getAuthUserImpl() {
   const sb = createServerClient()
   const { data, error } = await sb.auth.getUser()
 
@@ -13,6 +15,8 @@ export async function getAuthUser() {
 
   return data.user
 }
+
+export const getAuthUser = cache(getAuthUserImpl)
 
 export async function getDBUser(userId: string) {
   const user = await db.query.users.findFirst({
