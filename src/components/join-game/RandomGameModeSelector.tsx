@@ -3,6 +3,7 @@
 import React from "react"
 import { useRouter } from "next/navigation"
 import { Shuffle } from "lucide-react"
+import { usePostHog } from "posthog-js/react"
 
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
@@ -10,7 +11,11 @@ import { Button } from "../ui/button"
 
 export default function RandomGameModeSelector() {
   const router = useRouter()
+  const posthog = usePostHog()
   const joinGame = api.games.join.useMutation({
+    onMutate() {
+      posthog.capture("Joined game")
+    },
     onSuccess: async ({ game_id }) => {
       router.push(`/games/play/${game_id}`)
     },

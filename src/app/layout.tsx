@@ -7,6 +7,8 @@ import { Fugaz_One, Inter } from "next/font/google"
 
 import { Toaster } from "~/components/ui/sonner"
 import { TooltipProvider } from "~/components/ui/tooltip"
+import { PosthogClientProvider } from "~/lib/posthog/provider"
+import { TRPCReactProvider } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
 
 const fontSans = Inter({ subsets: ["latin"], variable: "--font-sans" })
@@ -67,12 +69,16 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en" className={rootclass}>
       <body>
-        <TooltipProvider>
-          <main className="mx-auto flex h-full w-full flex-col p-4 pt-0">
-            <div className="flex-1">{children}</div>
-            <Toaster />
-          </main>
-        </TooltipProvider>
+        <TRPCReactProvider>
+          <PosthogClientProvider>
+            <TooltipProvider>
+              <main className="mx-auto flex h-full w-full flex-col p-4 pt-0">
+                <div className="flex-1">{children}</div>
+                <Toaster />
+              </main>
+            </TooltipProvider>
+          </PosthogClientProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   )

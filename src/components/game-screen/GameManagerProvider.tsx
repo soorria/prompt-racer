@@ -6,6 +6,7 @@ import { useMediaQuery } from "@react-hook/media-query"
 import { type User } from "@supabase/supabase-js"
 import { useMutation } from "@tanstack/react-query"
 import { useCompletion } from "ai/react"
+import { usePostHog } from "posthog-js/react"
 
 import type { InGameState, PlayerGameSession } from "~/lib/games/types"
 import { extractCodeFromRawCompletion } from "~/lib/llm/utils"
@@ -20,6 +21,7 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
     initialPlayerSession: PlayerGameSession
     user: User
   }) => {
+    const posthog = usePostHog()
     const isMobile = useMediaQuery(MOBILE_VIEWPORT)
 
     const gameSessionQuery = useGameSessionForUser({
@@ -36,11 +38,20 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
 
     const updateCurrentCodeMutation = useMutation({
       mutationFn: (code: string) => completion.complete(code),
+      onMutate: () => {
+        posthog.capture("Prompted LLM to update code")
+      },
       // ? may not need w/ the realtime stuff
       onSuccess: () => gameSessionQuery.refetch(),
     })
 
-    const submitCodeMutation = api.games.submitCode.useMutation()
+    const submitCodeMutation = api.games.submitCode.useMutation({
+      onMutate(variables) {
+        posthog.capture("Submitted code", {
+          submission_type: variables.submission_type,
+        })
+      },
+    })
 
     const leaveGameMutation = api.games.leave.useMutation()
 

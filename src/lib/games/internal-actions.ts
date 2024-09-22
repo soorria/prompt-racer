@@ -7,6 +7,7 @@ import { requireAuthUser } from "../auth/user"
 import { cmp, db, schema, sql } from "../db"
 import { streamUpdatedCode } from "../llm/generation"
 import { extractCodeFromRawCompletion } from "../llm/utils"
+import { captureUserEvent } from "../posthog/server"
 import { LLM_PROMPTING_TIMEOUT } from "./constants"
 import { getPlayerPostionsForGameMode } from "./game-modes"
 import { getGameById } from "./queries"
@@ -87,6 +88,12 @@ export async function finalizeGame(gameId: string) {
           playerGameSessions.map((session) => session.user_id),
         ),
       )
+
+    playerGameSessions.forEach((session) => {
+      captureUserEvent(session.user_id, "Finished a game", {
+        mode: game.mode,
+      })
+    })
 
     await tx
       .update(schema.gameStates)
