@@ -11,18 +11,22 @@ function QuestionTestCaseResults(props: {
   question: QuestionWithTestCases
   testState: PlayerGameSession["testState"]
 }) {
-  const correctTestCases = props.question.testCases.filter((tc, i) => {
-    const result = props.testState?.results.find((result) => result.question_test_case_id === tc.id)
+  const testResultByTestCaseId = Object.fromEntries(
+    props.testState?.results.map((result) => [`${result.question_test_case_id}`, result]) ?? [],
+  )
+
+  const correctTestCases = props.question.testCases.filter((tc) => {
+    const result = testResultByTestCaseId[tc.id]
     return result?.status === "success" && result.is_correct
   })
 
-  const incorrectTestCases = props.question.testCases.filter((tc, i) => {
-    const result = props.testState?.results.find((result) => result.question_test_case_id === tc.id)
+  const incorrectTestCases = props.question.testCases.filter((tc) => {
+    const result = testResultByTestCaseId[tc.id]
     return result && (result.status === "error" || !result.is_correct)
   })
 
-  const unsubmittedTestCases = props.question.testCases.filter((tc, i) => {
-    return !props.testState?.results.find((result) => result.question_test_case_id === tc.id)
+  const unsubmittedTestCases = props.question.testCases.filter((tc) => {
+    return !testResultByTestCaseId[tc.id]
   })
 
   const sortedTestCases = [...unsubmittedTestCases, ...incorrectTestCases, ...correctTestCases]
