@@ -16,7 +16,9 @@ export function Lobby() {
     <div className="flex flex-col items-center">
       <div className="my-16 flex flex-col items-center justify-center">
         <h2 className="mb-8 text-xl font-bold text-zinc-400">Game Begins In</h2>
-        <CountdownTimer endTime={endTime} />
+        <div className="font-display text-6xl">
+          <CountdownTimer endTime={endTime} />
+        </div>
       </div>
       <LobbyPlayerCard
         user={user}

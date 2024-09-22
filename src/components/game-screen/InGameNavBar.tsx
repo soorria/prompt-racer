@@ -2,12 +2,13 @@
 
 import React from "react"
 import Link from "next/link"
+import { addMilliseconds } from "date-fns"
 import { Settings } from "lucide-react"
 
 import Navbar from "~/lib/surfaces/navbar/Navbar"
-import { cn } from "~/lib/utils"
 import { Button } from "../ui/button"
 import ResponsiveDialog from "../ui/ResponsiveDialog"
+import { CountdownTimer } from "./CountdownTimer"
 import { useGameManager } from "./GameManagerProvider"
 
 export default function InGameNavBar() {
@@ -35,8 +36,17 @@ export default function InGameNavBar() {
   return (
     <Navbar
       leftContent={
-        <div className="flex flex-1 flex-row">
-          <span className={cn("text-md flex w-fit font-display")}>{logo}</span>
+        <div className="flex flex-1 items-center gap-4 font-display">
+          <span className="text-md flex w-fit">{logo}</span>
+
+          {gameInfo.status === "inProgress" && gameInfo.start_time ? (
+            <CountdownTimer
+              endTime={addMilliseconds(
+                gameInfo.start_time,
+                gameInfo.in_progress_duration_ms,
+              ).getTime()}
+            />
+          ) : null}
         </div>
       }
       rightContent={

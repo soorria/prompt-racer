@@ -5,12 +5,10 @@ export function CountdownTimer({ endTime }: { endTime: number }) {
   const { minutes, seconds } = useCountdown(endTime)
 
   return (
-    <div className="flex gap-4">
-      <div className="flex transform items-center font-display text-6xl tabular-nums">
-        <AnimatedNumber value={minutes} />
-        <span className="mx-1">:</span>
-        <AnimatedNumber value={seconds} />
-      </div>
+    <div className="flex transform items-center tabular-nums">
+      <AnimatedNumber value={minutes} />
+      <span className="mx-1">:</span>
+      <AnimatedNumber value={seconds} />
     </div>
   )
 }
