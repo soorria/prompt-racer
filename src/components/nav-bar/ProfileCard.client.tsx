@@ -21,7 +21,7 @@ export default function ClientProfileCard({ user }: { user: Doc<"users"> | null 
       </PopoverTrigger>
       <PopoverContent className="p-0 py-2" align="end">
         <LoginLogoutButton key={user?.id ?? ""} isAuthenticated={!!user} setOpen={setOpen} />
-        <div className="spacer my-2 h-0.5 w-full bg-gray-200/20" />
+        {/* <div className="spacer my-2 h-0.5 w-full bg-gray-200/20" />
         <Button
           asChild
           variant={"ghost"}
@@ -29,7 +29,7 @@ export default function ClientProfileCard({ user }: { user: Doc<"users"> | null 
           className="w-full justify-start rounded-none"
         >
           <Link href="/auth/login">Privacy Policy</Link>
-        </Button>
+        </Button> */}
       </PopoverContent>
     </Popover>
   )
