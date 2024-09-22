@@ -11,10 +11,28 @@ function QuestionTestCaseResults(props: {
   question: QuestionWithTestCases
   testState: PlayerGameSession["testState"]
 }) {
+  const correctTestCases = props.question.testCases.filter((tc, i) => {
+    const result = props.testState?.results.find((result) => result.question_test_case_id === tc.id)
+    return result?.status === "success" && result.is_correct
+  })
+
+  const incorrectTestCases = props.question.testCases.filter((tc, i) => {
+    const result = props.testState?.results.find((result) => result.question_test_case_id === tc.id)
+    return result && (result.status === "error" || !result.is_correct)
+  })
+
+  const unsubmittedTestCases = props.question.testCases.filter((tc, i) => {
+    return !props.testState?.results.find((result) => result.question_test_case_id === tc.id)
+  })
+
+  const sortedTestCases = [...unsubmittedTestCases, ...incorrectTestCases, ...correctTestCases]
+
   return (
-    <div className="flex flex-col space-y-12 text-sm">
-      {props.question.testCases.map((testCase, i) => {
-        const result = props.testState?.results[i]
+    <div className="flex flex-col space-y-8 text-sm">
+      {sortedTestCases.map((testCase, i) => {
+        const result = props.testState?.results.find(
+          (result) => result.question_test_case_id === testCase.id,
+        )
 
         let testEmoji: ReactNode
         if (props.testState?.status === "running") {
