@@ -4,6 +4,7 @@ import "~/styles/globals.css"
 
 import { type Metadata } from "next"
 import { Fugaz_One, Inter } from "next/font/google"
+import Script from "next/script"
 
 import { Toaster } from "~/components/ui/sonner"
 import { TooltipProvider } from "~/components/ui/tooltip"
@@ -68,6 +69,16 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   return (
     <html lang="en" className={rootclass}>
+      <head>
+        <Script
+          id="plausible"
+          async
+          defer
+          data-domain="promptracer.dev"
+          data-api="https://soorria.com/proxy/api/event"
+          src="https://soorria.com/js/potato.js"
+        />
+      </head>
       <body>
         <TRPCReactProvider>
           <PosthogClientProvider>
