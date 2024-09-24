@@ -22,6 +22,12 @@ if (typeof window !== "undefined" && IS_PROD) {
       if (!IS_PROD) {
         posthog.debug()
       }
+
+      const isLocal = window.location.hostname === "localhost"
+
+      if (isLocal) {
+        posthog.opt_out_capturing()
+      }
     },
     /**
      * We're a SPA so need to do this manually
@@ -74,17 +80,23 @@ function usePosthogIdentify() {
 
   useEffect(() => {
     const user = sbUser.data
+
     if (user) {
-      const isIgnored =
-        user.email &&
-        IGNORE_EVENTS_USERS_EMAILS.includes(user.email) &&
-        !sessionStorage.getItem("ignore_creator")
-
-      if (isIgnored) {
-        posthog.opt_out_capturing()
-      }
-
       posthog.identify(user.id, getPosthogProperties(user))
+    }
+
+    const isLocal = window.location.hostname === "localhost"
+
+    const isIgnored =
+      isLocal ||
+      (user?.email &&
+        IGNORE_EVENTS_USERS_EMAILS.includes(user.email) &&
+        !sessionStorage.getItem("ignore_creator"))
+
+    if (isIgnored) {
+      posthog.opt_out_capturing()
+    } else {
+      posthog.opt_in_capturing()
     }
   }, [sbUser.data, posthog])
 }

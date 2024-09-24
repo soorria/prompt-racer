@@ -1,8 +1,8 @@
 import { type User } from "@supabase/supabase-js"
 import { isAfter, subSeconds } from "date-fns"
-import posthog from "posthog-js"
 
 import { cmp, db, schema } from "../db"
+import { captureUserEvent } from "../posthog/server"
 
 function getNameFromAuthUser(authUser: User) {
   const { user_name } = authUser.user_metadata
@@ -46,7 +46,9 @@ export async function upsertProfile(authUser: User) {
 
   // simplest way to guesstimate that this is a new user
   if (result && isAfter(result.inserted_at, subSeconds(new Date(), 10))) {
-    posthog.capture("User signed up")
+    captureUserEvent(authUser.id, "User signed up", {
+      provider: "github",
+    })
   }
 }
 
