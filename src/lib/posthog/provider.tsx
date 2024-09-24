@@ -75,7 +75,10 @@ function usePosthogIdentify() {
   useEffect(() => {
     const user = sbUser.data
     if (user) {
-      const isIgnored = user.email && IGNORE_EVENTS_USERS_EMAILS.includes(user.email)
+      const isIgnored =
+        user.email &&
+        IGNORE_EVENTS_USERS_EMAILS.includes(user.email) &&
+        !sessionStorage.getItem("ignore_creator")
 
       if (isIgnored) {
         posthog.opt_out_capturing()
