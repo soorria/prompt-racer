@@ -9,7 +9,7 @@ export const gameWorkflowFunction = inngest.createFunction(
     cancelOn: [
       {
         event: "game/cancelled",
-        match: "data.gameId",
+        match: "data.game_id",
       },
     ],
   },

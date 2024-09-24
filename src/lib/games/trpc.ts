@@ -287,6 +287,12 @@ export const gameRouter = createTRPCRouter({
       if (!remainingPlayersCount?.count) {
         // TODO: maybe cancel instead? also could add cancel reason
         await ctx.db.delete(schema.gameStates).where(cmp.eq(schema.gameStates.id, game.id))
+        await ctx.inngest.send({
+          name: "game/cancelled" as const,
+          data: {
+            game_id: game.id,
+          },
+        })
       }
     }),
 
