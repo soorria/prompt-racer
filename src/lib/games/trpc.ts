@@ -2,6 +2,7 @@ import { invariant } from "@epic-web/invariant"
 import { TRPCError } from "@trpc/server"
 import { dequal } from "dequal"
 import { count } from "drizzle-orm"
+import { type Inngest } from "inngest"
 import { z } from "zod"
 
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
@@ -18,7 +19,6 @@ import {
   getSessionInfoForPlayer,
 } from "~/lib/games/queries"
 import { getQuestionTestCasesOrderBy, getRandomGameMode } from "~/lib/games/utils"
-import { inngest } from "~/lib/inngest/client"
 import { logger } from "~/lib/server/logger"
 import { createTRPCRouter, protectedProcedure } from "~/lib/trpc/trpc"
 import { randomElement } from "~/lib/utils/random"
@@ -117,37 +117,38 @@ export const gameRouter = createTRPCRouter({
         }
       }
 
-      // TODO: transaction?
-      const [[insertedSubmissionState]] = await Promise.all([
-        ctx.db
-          .insert(schema.playerGameSubmissionStates)
-          .values({
-            id: submissionState?.id,
-            last_submitted_at: new Date(),
-            player_game_session_id: playerGameSession.id,
-            status: "running",
-            submittion_type: input.submission_type,
-          })
-          .onConflictDoUpdate({
-            target: schema.playerGameSubmissionStates.id,
-            set: {
-              status: "running",
+      const [[insertedSubmissionState]] = await ctx.db.transaction(async (tx) => {
+        return await Promise.all([
+          tx
+            .insert(schema.playerGameSubmissionStates)
+            .values({
+              id: submissionState?.id,
               last_submitted_at: new Date(),
-            },
-          })
-          .returning({
-            id: schema.playerGameSubmissionStates.id,
-          }),
-        submissionState &&
-          ctx.db
-            .delete(schema.playerGameSubmissionStateResults)
-            .where(
-              cmp.eq(
-                schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-                submissionState.id,
+              player_game_session_id: playerGameSession.id,
+              status: "running",
+              submittion_type: input.submission_type,
+            })
+            .onConflictDoUpdate({
+              target: schema.playerGameSubmissionStates.id,
+              set: {
+                status: "running",
+                last_submitted_at: new Date(),
+              },
+            })
+            .returning({
+              id: schema.playerGameSubmissionStates.id,
+            }),
+          submissionState &&
+            tx
+              .delete(schema.playerGameSubmissionStateResults)
+              .where(
+                cmp.eq(
+                  schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+                  submissionState.id,
+                ),
               ),
-            ),
-      ])
+        ])
+      })
 
       if (!insertedSubmissionState) {
         throw new TRPCError({
@@ -203,17 +204,18 @@ export const gameRouter = createTRPCRouter({
         },
       )
 
-      // TODO: transaction?
-      await Promise.all([
-        ctx.db.insert(schema.playerGameSubmissionStateResults).values(submissionResultDocs),
-        ctx.db
-          .update(schema.playerGameSubmissionStates)
-          .set({
-            status: "complete",
-          })
-          .where(cmp.eq(schema.playerGameSubmissionStates.id, insertedSubmissionState.id)),
-        triggerPlayerGameSessionUpdate(ctx.db, playerGameSession.id),
-      ])
+      await ctx.db.transaction(async (tx) => {
+        return await Promise.all([
+          tx.insert(schema.playerGameSubmissionStateResults).values(submissionResultDocs),
+          tx
+            .update(schema.playerGameSubmissionStates)
+            .set({
+              status: "complete",
+            })
+            .where(cmp.eq(schema.playerGameSubmissionStates.id, insertedSubmissionState.id)),
+          triggerPlayerGameSessionUpdate(tx, playerGameSession.id),
+        ])
+      })
     }),
 
   join: protectedProcedure.mutation(async ({ ctx }) => {
@@ -223,7 +225,7 @@ export const gameRouter = createTRPCRouter({
       throw new Error("You are already in a game")
     }
 
-    const { game, question } = await getOrCreateGameToJoin(ctx.db)
+    const { game, question } = await getOrCreateGameToJoin(ctx.db, ctx.inngest)
 
     await ctx.db.insert(schema.playerGameSessions).values({
       user_id: ctx.user.id,
@@ -342,7 +344,7 @@ async function triggerPlayerGameSessionUpdate(tx: DBOrTransation, playerGameSess
     .where(cmp.eq(schema.playerGameSessions.id, playerGameSessionId))
 }
 
-async function getOrCreateGameToJoin(tx: DBOrTransation) {
+async function getOrCreateGameToJoin(tx: DBOrTransation, inngest: Inngest) {
   const waitingForPlayersGames = await getGamesWithStatus(tx, "waitingForPlayers")
 
   const existingGameToJoin = randomElement(waitingForPlayersGames)
@@ -356,10 +358,10 @@ async function getOrCreateGameToJoin(tx: DBOrTransation) {
     }
   }
 
-  return await createGame(tx)
+  return await createGame(tx, inngest)
 }
 
-async function createGame(tx: DBOrTransation) {
+async function createGame(tx: DBOrTransation, inngest: Inngest) {
   const question = await getRandomQuestion(tx)
   const gameMode = getRandomGameMode()
 

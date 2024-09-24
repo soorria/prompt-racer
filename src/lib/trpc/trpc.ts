@@ -13,6 +13,7 @@ import { ZodError } from "zod"
 import { db } from "~/lib/db"
 import { logger } from "~/lib/server/logger"
 import { requireAuthUser } from "../auth/user"
+import { inngest } from "../inngest/client"
 
 /**
  * 1. CONTEXT
@@ -29,6 +30,7 @@ import { requireAuthUser } from "../auth/user"
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   return {
     db,
+    inngest,
     ...opts,
   }
 }
@@ -110,7 +112,9 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  */
 export const publicProcedure = t.procedure.use(timingMiddleware)
 
-export const protectedProcedure = publicProcedure.use(t.middleware(async ({ ctx, next }) => {
-  const user = await requireAuthUser()
-  return next({ ctx: { ...ctx, user } })
-}))
+export const protectedProcedure = publicProcedure.use(
+  t.middleware(async ({ ctx, next }) => {
+    const user = await requireAuthUser()
+    return next({ ctx: { ...ctx, user } })
+  }),
+)
