@@ -98,10 +98,10 @@ export function ResultsTable({
                   {
                     value:
                       idx === 0 ? (
-                        <Trophy className="pointer-events-none h-6 w-6 text-yellow-400" />
+                        <Trophy className="sq-6 pointer-events-none text-yellow-400" />
                       ) : idx === 1 || idx === 2 ? (
                         <Medal
-                          className={cn("pointer-events-none h-6 w-6 text-gray-300", {
+                          className={cn("sq-6 pointer-events-none text-gray-300", {
                             "text-gray-400": idx === 1,
                             "text-yellow-700": idx === 2,
                           })}

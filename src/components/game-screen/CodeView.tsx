@@ -71,7 +71,7 @@ export default function CodeView() {
           isLoading={context.updateCurrentCodeMutation.isPending}
           Icon={!context.isMobile ? Send : undefined}
         >
-          {context.isMobile && <Send className="h-5 w-5" />}
+          {context.isMobile && <Send className="sq-4" />}
           {!context.isMobile && <>Send</>}
         </Button>
       </form>

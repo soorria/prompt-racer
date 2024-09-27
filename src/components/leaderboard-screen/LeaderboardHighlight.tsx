@@ -67,9 +67,9 @@ const PlayerCard = ({
           <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-transparent to-yellow-950/50"></div>
           <Trophy
             aria-hidden
-            className="pointer-events-none absolute -bottom-2 h-8 w-8 animate-pulse text-yellow-400 blur"
+            className="sq-8 pointer-events-none absolute -bottom-2 animate-pulse text-yellow-400 blur"
           />
-          <Trophy className="pointer-events-none absolute -bottom-2 h-8 w-8 text-yellow-400" />
+          <Trophy className="sq-8 pointer-events-none absolute -bottom-2 text-yellow-400" />
         </div>
 
         {/* Player Name and Rank in a single row on mobile, stacked on larger screens */}
@@ -97,7 +97,7 @@ const PlayerCard = ({
         <UserAvatar size="md" name={player.name} imageUrl={player.profile_image_url} />
         <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-transparent to-black/50"></div>
         <Medal
-          className={cn("pointer-events-none absolute -bottom-2 h-6 w-6 text-gray-300", {
+          className={cn("sq-6 pointer-events-none absolute -bottom-2 text-gray-300", {
             "text-gray-400": rank === 1,
             "text-yellow-700": rank === 2,
           })}

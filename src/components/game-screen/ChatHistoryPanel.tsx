@@ -53,8 +53,8 @@ function ChatPanelMessage({
       </div>
       {message.content.type === "ai" && (
         <>
-          <div className="z-10 mb-8 grid h-6 w-6 flex-none place-content-center rounded-full bg-card ring-1 ring-zinc-400">
-            <Bot className="h-4 w-4" />
+          <div className="sq-6 z-10 mb-8 grid flex-none place-content-center rounded-full bg-card ring-1 ring-zinc-400">
+            <Bot className="sq-4" />
           </div>
           <div
             ref={contentRef}
@@ -73,7 +73,7 @@ function ChatPanelMessage({
       )}
       {message.content.type === "instructions" && (
         <>
-          <div className="relative flex h-6 w-6 flex-none items-center justify-center">
+          <div className="sq-6 relative flex flex-none items-center justify-center">
             <div className="h-1.5 w-1.5 rounded-full bg-card ring-1 ring-gray-300" />
           </div>
           <p className="mt-1 w-full flex-auto rounded-lg bg-zinc-600 px-3 py-2 text-xs leading-5 text-card-foreground">
@@ -83,7 +83,7 @@ function ChatPanelMessage({
       )}
       {message.content.type === "reset" && (
         <>
-          <div className="relative mt-9 flex h-6 w-6 flex-none items-center justify-center">
+          <div className="sq-6 relative mt-9 flex flex-none items-center justify-center">
             <div className="h-1.5 w-1.5 rounded-full bg-card ring-1 ring-gray-300" />
           </div>
           <p className="mt-8 flex w-full flex-auto justify-center rounded-lg px-3 py-2 text-xs leading-5 text-zinc-500">
@@ -141,7 +141,7 @@ export default function ChatHistoryPanel() {
       {/* <div className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-zinc-900 px-3 py-2 text-white">
         <p className="font-medium">Change Log</p>
         <Button variant={"outline"} size="icon" onClick={scrollToBottom}>
-          <ChevronsDown className="h-4 w-4" />
+          <ChevronsDown className="sq-4" />
         </Button>
       </div> */}
 

@@ -42,23 +42,23 @@ function QuestionTestCaseResults(props: {
         if (props.testState?.status === "running") {
           testEmoji = (
             <span title="Running test">
-              <Loader2 className="h-6 w-6 animate-spin" />
+              <Loader2 className="sq-6 animate-spin" />
             </span>
           )
         } else if (result) {
           testEmoji = (
             <span title={result.status === "success" ? "Test passed" : "Test failed"}>
               {result.status === "success" && result.is_correct ? (
-                <CheckCircle2 className="h-6 w-6 rounded-full bg-primary text-black" />
+                <CheckCircle2 className="s q-6 rounded-full bg-primary text-black" />
               ) : (
-                <XCircle className="h-6 w-6 rounded-full bg-red-500 text-black" />
+                <XCircle className="sq-6 rounded-full bg-red-500 text-black" />
               )}
             </span>
           )
         } else {
           testEmoji = (
             <span className="grayscale" title="No tests run">
-              <MinusCircleIcon className="h-6 w-6 rounded-full bg-primary text-black" />
+              <MinusCircleIcon className="sq-6 rounded-full bg-primary text-black" />
             </span>
           )
         }

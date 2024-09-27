@@ -7,7 +7,7 @@ export default function GameLoadingPage() {
     <>
       <Skeleton className="mb-3 h-8 rounded-t-none sm:h-16"></Skeleton>
       <Skeleton className="grid h-full flex-1 place-items-center">
-        <LayoutTemplate className="h-72 w-72 animate-bounce text-white/10" />
+        <LayoutTemplate className="sq-72 animate-bounce text-white/10" />
       </Skeleton>
     </>
   )
@@ -17,7 +17,7 @@ export function GameLayoutLoadingPage() {
   return (
     <>
       <Skeleton className="grid h-full flex-1 place-items-center">
-        <LayoutTemplate className="h-72 w-72 animate-bounce text-white/10" />
+        <LayoutTemplate className="sq-72 animate-bounce text-white/10" />
       </Skeleton>
     </>
   )

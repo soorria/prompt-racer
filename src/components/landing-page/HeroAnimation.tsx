@@ -166,7 +166,7 @@ export default function HeroAnimation() {
           onChange={noop}
         />
         <Button type="submit" disabled={false} variant={"secondary"} className="rounded-l-none">
-          {showLoader ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+          {showLoader ? <Loader2 className="sq-5 animate-spin" /> : <Send className="sq-5" />}
 
           <span className="sr-only">Send</span>
         </Button>
