@@ -7,10 +7,10 @@ import { type GameMode } from "./constants"
 export type PlayerGameSessionToSort = Doc<"playerGameSessions"> & {
   chatHistory: Doc<"playerGameSessionChatHistoryItems">[]
   submissionState:
-    | (Doc<"playerGameSubmissionStates"> & {
-        results: Doc<"playerGameSubmissionStateResults">[]
-      })
-    | null
+  | (Doc<"playerGameSubmissionStates"> & {
+    results: Doc<"playerGameSubmissionStateResults">[]
+  })
+  | null
 }
 
 type SortablePlayerGameSession = PlayerGameSessionToSort & {
@@ -56,15 +56,15 @@ const getPlayerPositions = (
           numPassing === 0
             ? config.worstScore
             : config.getScore(
-                {
-                  ...session,
-                  submissionState: {
-                    ...session.submissionState,
-                    results: passing,
-                  },
+              {
+                ...session,
+                submissionState: {
+                  ...session.submissionState,
+                  results: passing,
                 },
-                gameState,
-              ),
+              },
+              gameState,
+            ),
       }
     })
     .sort((a, b) => {
