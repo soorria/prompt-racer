@@ -40,17 +40,17 @@ export function ResultsTable({
               Player
             </th>
 
-            {/* <th
+            <th
               scope="col"
               className="sticky top-0 z-10 border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
             >
               Score (<span className="hidden sm:inline">{unitLong}</span>
               <span className="sm:hidden">{unitShort}</span>)
-            </th> */}
+            </th>
 
             <th
               scope="col"
-              className="sticky top-0 z-10 rounded-tr-xl border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
+              className="sticky top-0 z-10 w-6 rounded-tr-xl border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
             ></th>
           </tr>
         </thead>
@@ -91,10 +91,10 @@ export function ResultsTable({
                     value: <LeaderboardTablePlayerName player={player.user} />,
                     align: "left",
                   },
-                  // {
-                  //   value: player.finalResult.score,
-                  //   align: "right",
-                  // },
+                  {
+                    value: player.finalResult.score,
+                    align: "right",
+                  },
                   {
                     value:
                       idx === 0 ? (
