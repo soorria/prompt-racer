@@ -83,18 +83,21 @@ export function ResultsTable({
 
                 {[
                   {
+                    key: "player-name",
                     value: <LeaderboardTablePlayerName player={player.user} />,
                     align: "left",
                   },
                   {
+                    key: "score",
                     value: player.finalResult.score,
                     align: "right",
                   },
-                ].map(({ value, align }, valueIdx, valuesArray) => {
+                ].map(({ key, value, align }, valueIdx, valuesArray) => {
                   const isLastColumn = valueIdx === valuesArray.length - 1
+                  const hasFinalSubmission = player.submission_state_id !== null
                   return (
                     <td
-                      key={valueIdx}
+                      key={key}
                       className={cn(
                         {
                           "border-b border-gray-700/25": isNotLastRow,
@@ -105,6 +108,9 @@ export function ResultsTable({
                         {
                           "rounded-br-xl": !isNotLastRow && isLastColumn,
                         },
+                        {
+                          "wiggle bg-zinc-900": !hasFinalSubmission,
+                        },
                       )}
                     >
                       <div
@@ -113,7 +119,16 @@ export function ResultsTable({
                           "mr-auto flex justify-end": align === "right",
                         })}
                       >
-                        {value}
+                        <span
+                          className={cn({
+                            "line-through": !hasFinalSubmission && key === "player-name",
+                          })}
+                        >
+                          {value}
+                        </span>
+                        {!hasFinalSubmission && key === "player-name" && (
+                          <span className="ml-2">(No submission)</span>
+                        )}
                       </div>
                     </td>
                   )
