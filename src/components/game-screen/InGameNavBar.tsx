@@ -14,16 +14,19 @@ import { CountdownTimer } from "./CountdownTimer"
 import { useGameManager } from "./GameManagerProvider"
 
 export default function InGameNavBar() {
-  const { gameInfo, playerPositionMetrics } = useGameManager()
+  const { gameInfo, gameSessionInfo } = useGameManager()
   const trpcUtils = api.useUtils()
-  const earlyExitGameMutation = api.games.earlyExitGame.useMutation({
+  const exitGameEarlyMutation = api.games.exitGameEarly.useMutation({
     onSuccess: () => {
       trpcUtils.games.getGameStateWithQuestion.invalidate()
     },
   })
   const [hasShownEarlyExitToast, setHasShownEarlyExitToast] = useState(false)
-  const canEarlyExit =
-    playerPositionMetrics?.every((p) => p.percentageOfTestCasesPassed === 1) ?? false
+  const gameSessionResults = gameSessionInfo.submissionState?.results
+  const canExitEarly = gameInfo.status === "inProgress" && gameInfo.players.length === 1
+  const shouldShowExitEarlyToast =
+    (canExitEarly && gameSessionResults?.length && gameSessionResults.every((r) => r.is_correct)) ??
+    false
 
   let logo = (
     <>
@@ -46,11 +49,11 @@ export default function InGameNavBar() {
   }
 
   const earlyExit = () => {
-    earlyExitGameMutation.mutate({ game_id: gameInfo.id })
+    exitGameEarlyMutation.mutate({ game_id: gameInfo.id })
   }
 
   useEffect(() => {
-    if (canEarlyExit && !hasShownEarlyExitToast) {
+    if (shouldShowExitEarlyToast && !hasShownEarlyExitToast) {
       toast.success("Consensus reached! Would you like to exit the game early?", {
         position: "top-right",
         closeButton: true,
@@ -61,7 +64,7 @@ export default function InGameNavBar() {
       })
       setHasShownEarlyExitToast(true)
     }
-  }, [canEarlyExit, hasShownEarlyExitToast])
+  }, [shouldShowExitEarlyToast, hasShownEarlyExitToast])
 
   return (
     <Navbar
@@ -92,7 +95,7 @@ export default function InGameNavBar() {
           )}
           renderContent={(props) => (
             <>
-              {canEarlyExit && <Button onClick={earlyExit}>Exit early</Button>}
+              {canExitEarly && <Button onClick={earlyExit}>Exit early</Button>}
               <Button asChild className="w-full" variant={"outline"}>
                 <Link href="/" onClick={props.closeDialog}>
                   Go to home

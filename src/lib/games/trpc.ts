@@ -349,7 +349,7 @@ export const gameRouter = createTRPCRouter({
       }
     }),
 
-  earlyExitGame: protectedProcedure
+  exitGameEarly: protectedProcedure
     .input(
       z.object({
         game_id: z.string(),
@@ -357,6 +357,18 @@ export const gameRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const game = await getGameById(ctx.db, input.game_id)
+      const [users] = await ctx.db.select({
+        count: count(),
+      })
+        .from(schema.playerGameSessions)
+        .where(cmp.eq(schema.playerGameSessions.game_id, input.game_id))
+
+      if (users?.count !== 1) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot exit early if multiple users are in the game"
+        })
+      }
 
       if (!game) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })

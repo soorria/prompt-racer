@@ -148,6 +148,30 @@ export async function getInGameState(
   return gameState as NotWaitingForPlayersGameState | undefined
 }
 
+/**
+ * Separated out to allow for caching
+ */
+export async function getGameResultsData(tx: DBOrTransation, gameId: string) {
+  const game = await getGameById(tx, gameId)
+
+  if (!game) {
+    return null
+  }
+
+  const playerGameSessions = await tx.query.playerGameSessions.findMany({
+    where: cmp.eq(schema.playerGameSessions.game_id, gameId),
+    with: {
+      finalResult: true,
+      user: true,
+    },
+  })
+
+  return {
+    players: playerGameSessions,
+    game: game,
+  }
+}
+
 export async function getSessionInfoForPlayer(tx: DBOrTransation, userId: string, gameId: string) {
   return await tx.query.playerGameSessions.findFirst({
     where: cmp.and(
@@ -155,7 +179,15 @@ export async function getSessionInfoForPlayer(tx: DBOrTransation, userId: string
       cmp.eq(schema.playerGameSessions.game_id, gameId),
     ),
     with: {
-      submissionState: true,
+      submissionState: {
+        with: {
+          results: {
+            columns: {
+              is_correct: true,
+            }
+          },
+        },
+      },
       testState: {
         with: {
           results: true,
