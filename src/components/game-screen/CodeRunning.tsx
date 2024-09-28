@@ -90,7 +90,7 @@ function QuestionTestCaseResults(props: {
 
 export default function CodeRunning() {
   const utils = api.useUtils()
-  const { gameInfo, gameSessionInfo, submitCodeMutation } = useGameManager()
+  const { gameInfo, gameSessionInfo, submitCodeMutation, isGeneratingCode } = useGameManager()
   const submisisonMetricsQuery = api.games.getSubmissionMetrics.useQuery({
     game_id: gameSessionInfo.game_id,
   })
@@ -157,7 +157,7 @@ export default function CodeRunning() {
           onClick={handleRunTests}
           // TODO: we need to be checking gameSessionInfo.testState.status === "running" here
           // this way even if we leave and come back to this panel it will show its still runnning
-          disabled={submitCodeMutation.isPending}
+          disabled={submitCodeMutation.isPending || isGeneratingCode}
           isLoading={isComputingTestRun}
           Icon={Play}
           variant={"outline"}
@@ -167,7 +167,7 @@ export default function CodeRunning() {
         </Button>
         <Button
           onClick={handleSubmitCode}
-          disabled={submitCodeMutation.isPending}
+          disabled={submitCodeMutation.isPending || isGeneratingCode}
           isLoading={isComputingSubmission}
           Icon={UploadCloud}
         >
