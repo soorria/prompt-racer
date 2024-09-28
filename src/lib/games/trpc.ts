@@ -17,11 +17,14 @@ import {
   getQuestionById,
   getRandomQuestion,
   getSessionInfoForPlayer,
+  getSubmissionMetrics,
 } from "~/lib/games/queries"
 import { getQuestionTestCasesOrderBy, getRandomGameMode } from "~/lib/games/utils"
 import { logger } from "~/lib/server/logger"
 import { createTRPCRouter, protectedProcedure } from "~/lib/trpc/trpc"
 import { randomElement } from "~/lib/utils/random"
+import { getPlayerPostionsForGameMode } from "./game-modes"
+import { cancelInngestGameWorkflow, finalizeGame } from "./internal-actions"
 
 export const gameRouter = createTRPCRouter({
   getPlayerGameSession: protectedProcedure
@@ -64,15 +67,38 @@ export const gameRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
       }
       if (sessionInfo.submission_state_id) {
-        const submissionStateResults = (await ctx.db.query.playerGameSubmissionStateResults.findMany({
-          where: cmp.eq(schema.playerGameSubmissionStateResults.player_game_submission_state_id, sessionInfo.submission_state_id)
-        }))
-        return {
-          numPassingSubmissionsTestCases: submissionStateResults.filter((result) => result.is_correct).length,
-          numTestCases: submissionStateResults.length,
-        }
+        return getSubmissionMetrics(ctx.db, sessionInfo.submission_state_id)
       }
       return null
+    }),
+
+
+  getPlayerPositionMetrics: protectedProcedure
+    .input(
+      z.object({
+        game_id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const [game, playerGameSessions] = await Promise.all([
+        getGameById(ctx.db, input.game_id),
+        ctx.db.query.playerGameSessions.findMany({
+          where: cmp.eq(schema.playerGameSessions.game_id, input.game_id),
+          with: {
+            chatHistory: true,
+            submissionState: {
+              with: {
+                results: true,
+              },
+            },
+          },
+        }),
+      ])
+      if (!game) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
+      }
+      const positionResults = getPlayerPostionsForGameMode(game, playerGameSessions)
+      return positionResults
     }),
 
   submitCode: protectedProcedure
@@ -314,13 +340,42 @@ export const gameRouter = createTRPCRouter({
       if (!remainingPlayersCount?.count) {
         // TODO: maybe cancel instead? also could add cancel reason
         await ctx.db.delete(schema.gameStates).where(cmp.eq(schema.gameStates.id, game.id))
-        await ctx.inngest.send({
-          name: "game/cancelled" as const,
-          data: {
-            game_id: game.id,
-          },
+        await cancelInngestGameWorkflow(ctx.inngest, game.id)
+      }
+    }),
+
+  exitGameEarly: protectedProcedure
+    .input(
+      z.object({
+        game_id: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const game = await getGameById(ctx.db, input.game_id)
+      const [users] = await ctx.db.select({
+        count: count(),
+      })
+        .from(schema.playerGameSessions)
+        .where(cmp.eq(schema.playerGameSessions.game_id, input.game_id))
+
+      if (users?.count !== 1) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot exit early if multiple users are in the game"
         })
       }
+
+      if (!game) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
+      }
+
+      if (game.status !== "inProgress") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Game is not in progress" })
+      }
+
+      await cancelInngestGameWorkflow(ctx.inngest, game.id)
+
+      await finalizeGame(input.game_id)
     }),
 
   resetStartingCode: protectedProcedure

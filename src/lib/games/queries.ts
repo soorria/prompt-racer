@@ -67,6 +67,16 @@ export async function getGamesWithStatus<Status extends Doc<"gameStates">["statu
   return results
 }
 
+export async function getSubmissionMetrics(tx: DBOrTransation, submission_state_id: string) {
+  const submissionStateResults = (await tx.query.playerGameSubmissionStateResults.findMany({
+    where: cmp.eq(schema.playerGameSubmissionStateResults.player_game_submission_state_id, submission_state_id)
+  }))
+  return {
+    numPassingSubmissionsTestCases: submissionStateResults.filter((result) => result.is_correct).length,
+    numTestCases: submissionStateResults.length,
+  }
+}
+
 export async function getRandomQuestion(tx: DBOrTransation) {
   const [numQuestions] = await tx
     .select({
@@ -138,6 +148,30 @@ export async function getInGameState(
   return gameState as NotWaitingForPlayersGameState | undefined
 }
 
+/**
+ * Separated out to allow for caching
+ */
+export async function getGameResultsData(tx: DBOrTransation, gameId: string) {
+  const game = await getGameById(tx, gameId)
+
+  if (!game) {
+    return null
+  }
+
+  const playerGameSessions = await tx.query.playerGameSessions.findMany({
+    where: cmp.eq(schema.playerGameSessions.game_id, gameId),
+    with: {
+      finalResult: true,
+      user: true,
+    },
+  })
+
+  return {
+    players: playerGameSessions,
+    game: game,
+  }
+}
+
 export async function getSessionInfoForPlayer(tx: DBOrTransation, userId: string, gameId: string) {
   return await tx.query.playerGameSessions.findFirst({
     where: cmp.and(
@@ -145,7 +179,15 @@ export async function getSessionInfoForPlayer(tx: DBOrTransation, userId: string
       cmp.eq(schema.playerGameSessions.game_id, gameId),
     ),
     with: {
-      submissionState: true,
+      submissionState: {
+        with: {
+          results: {
+            columns: {
+              is_correct: true,
+            }
+          },
+        },
+      },
       testState: {
         with: {
           results: true,

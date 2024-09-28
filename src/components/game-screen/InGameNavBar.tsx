@@ -1,18 +1,33 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import { addMilliseconds } from "date-fns"
 import { Settings } from "lucide-react"
+import { toast } from "sonner"
 
 import Navbar from "~/lib/surfaces/navbar/Navbar"
+import { api } from "~/lib/trpc/react"
 import { Button } from "../ui/button"
 import ResponsiveDialog from "../ui/ResponsiveDialog"
 import { CountdownTimer } from "./CountdownTimer"
 import { useGameManager } from "./GameManagerProvider"
 
 export default function InGameNavBar() {
-  const { gameInfo } = useGameManager()
+  const { gameInfo, gameSessionInfo } = useGameManager()
+  const trpcUtils = api.useUtils()
+  const exitGameEarlyMutation = api.games.exitGameEarly.useMutation({
+    onSuccess: () => {
+      trpcUtils.games.getGameStateWithQuestion.invalidate()
+    },
+  })
+  const [hasShownEarlyExitToast, setHasShownEarlyExitToast] = useState(false)
+  const gameSessionResults = gameSessionInfo.submissionState?.results
+  const canExitEarly = gameInfo.status === "inProgress" && gameInfo.players.length === 1
+  const shouldShowExitEarlyToast =
+    (canExitEarly && gameSessionResults?.length && gameSessionResults.every((r) => r.is_correct)) ??
+    false
+
   let logo = (
     <>
       PROMPT<div className="text-primary">RACER</div>
@@ -32,6 +47,24 @@ export default function InGameNavBar() {
       </>
     )
   }
+
+  const earlyExit = () => {
+    exitGameEarlyMutation.mutate({ game_id: gameInfo.id })
+  }
+
+  useEffect(() => {
+    if (shouldShowExitEarlyToast && !hasShownEarlyExitToast) {
+      toast.success("Consensus reached! Would you like to exit the game early?", {
+        position: "top-right",
+        closeButton: true,
+        action: {
+          label: "Exit early",
+          onClick: earlyExit,
+        },
+      })
+      setHasShownEarlyExitToast(true)
+    }
+  }, [shouldShowExitEarlyToast, hasShownEarlyExitToast])
 
   return (
     <Navbar
@@ -56,12 +89,13 @@ export default function InGameNavBar() {
             <Button
               className="h-fit p-1"
               onClick={props.openDialog}
-              Icon={() => <Settings className="sq-4 mr-0 sm:h-5 sm:w-5" />}
+              Icon={() => <Settings className="mr-0 sq-4 sm:h-5 sm:w-5" />}
               variant={"ghost"}
             />
           )}
           renderContent={(props) => (
             <>
+              {canExitEarly && <Button onClick={earlyExit}>Exit early</Button>}
               <Button asChild className="w-full" variant={"outline"}>
                 <Link href="/" onClick={props.closeDialog}>
                   Go to home

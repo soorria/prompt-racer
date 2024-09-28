@@ -6,10 +6,10 @@ import type { Nullable } from "~/lib/utils/types"
 import LeaderboardHighlight from "~/components/leaderboard-screen/LeaderboardHighlight"
 import { LazyLeaderboardWinnerConfetti } from "~/components/leaderboard-screen/LeaderboardWinnerConfetti.lazy"
 import { ResultsTable } from "~/components/results/ResultsTable"
-import { cmp, db, schema } from "~/lib/db"
+import { db } from "~/lib/db"
 import { GAME_MODE_DETAILS } from "~/lib/games/constants"
 import { getWorseScoreForGameMode } from "~/lib/games/game-modes"
-import { getGameById } from "~/lib/games/queries"
+import { getGameResultsData } from "~/lib/games/queries"
 import { type FinalPlayerResult } from "~/lib/games/types"
 
 function resolveFinalResult(
@@ -26,32 +26,8 @@ function resolveFinalResult(
   }
 }
 
-/**
- * Separated out to allow for caching
- */
-async function getGameResultsData(gameId: string) {
-  const game = await getGameById(db, gameId)
-
-  if (!game) {
-    return null
-  }
-
-  const playerGameSessions = await db.query.playerGameSessions.findMany({
-    where: cmp.eq(schema.playerGameSessions.game_id, gameId),
-    with: {
-      finalResult: true,
-      user: true,
-    },
-  })
-
-  return {
-    players: playerGameSessions,
-    game: game,
-  }
-}
-
 async function getResults(gameId: string) {
-  const data = await getGameResultsData(gameId)
+  const data = await getGameResultsData(db, gameId)
 
   if (!data) {
     notFound()
