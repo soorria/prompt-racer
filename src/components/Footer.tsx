@@ -1,6 +1,9 @@
+"use client"
+
 import { Fragment } from "react"
 
 import { cn } from "~/lib/utils"
+import { useMounted } from "~/lib/utils/use-mounted"
 
 const creators: { name: string; link: string; hoverColorClass: string }[] = [
   {
@@ -12,7 +15,8 @@ const creators: { name: string; link: string; hoverColorClass: string }[] = [
 ]
 
 export function Footer() {
-  const creatorsInOrder = Math.random() > 0.5 ? creators : [...creators].reverse()
+  const mounted = useMounted()
+  const creatorsInOrder = !mounted || Math.random() > 0.5 ? creators : [...creators].reverse()
 
   return (
     <footer className="flex flex-col items-center justify-center gap-1 p-2 text-xs text-muted-foreground sm:flex-row">
