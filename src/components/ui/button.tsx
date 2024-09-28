@@ -25,8 +25,8 @@ const buttonVariants = cva(
         xs: "h-7 rounded-md px-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
-        "icon-sm": "h-9 w-9",
+        icon: "sq-10",
+        "icon-sm": "sq-9",
       },
     },
     defaultVariants: {
@@ -71,11 +71,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         <div className="flex items-center">
           {isLoading ? (
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            <Loader2 className="sq-4 mr-2 animate-spin" />
           ) : (
             Icon && (
               <span className={cn({ "mr-2": children })}>
-                <Icon className="h-5 w-5" />
+                <Icon className="sq-4" />
               </span>
             )
           )}

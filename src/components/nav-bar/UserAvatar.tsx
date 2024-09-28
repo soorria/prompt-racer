@@ -27,10 +27,10 @@ export default function UserAvatar({
   className?: string
 }) {
   const sizeClasses: Record<UserAvatarSize, string> = {
-    xs: "h-4 w-4",
-    sm: "h-6 w-6",
-    md: "h-16 w-16",
-    lg: "h-20 w-20",
+    xs: "sq-4",
+    sm: "sq-6",
+    md: "sq-16",
+    lg: "sq-20",
   }
 
   // Fancy line animation classes

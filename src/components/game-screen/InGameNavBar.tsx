@@ -56,7 +56,7 @@ export default function InGameNavBar() {
             <Button
               className="h-fit p-1"
               onClick={props.openDialog}
-              Icon={() => <Settings className="mr-0 h-4 w-4 sm:h-5 sm:w-5" />}
+              Icon={() => <Settings className="sq-4 mr-0 sm:h-5 sm:w-5" />}
               variant={"ghost"}
             />
           )}

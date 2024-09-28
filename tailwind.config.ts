@@ -1,5 +1,7 @@
 import type { Config } from "tailwindcss"
 import { fontFamily } from "tailwindcss/defaultTheme"
+import plugin from "tailwindcss/plugin";
+
 
 const config = {
   future: {
@@ -88,7 +90,19 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require('@tailwindcss/typography')],
+  plugins: [require("tailwindcss-animate"), require('@tailwindcss/typography'), plugin(({ matchUtilities, theme }) => {
+    matchUtilities<string>(
+      {
+        sq: (value) => ({
+          width: value,
+          height: value,
+        }),
+      },
+      {
+        values: theme("width"),
+      },
+    );
+  }),],
 } satisfies Config
 
 export default config
