@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { addMilliseconds } from "date-fns"
-import { Settings } from "lucide-react"
+import { Ellipsis } from "lucide-react"
 import { toast } from "sonner"
 
 import Navbar from "~/lib/surfaces/navbar/Navbar"
@@ -18,7 +18,7 @@ export default function InGameNavBar() {
   const trpcUtils = api.useUtils()
   const exitGameEarlyMutation = api.games.exitGameEarly.useMutation({
     onSuccess: () => {
-      trpcUtils.games.getGameStateWithQuestion.invalidate()
+      void trpcUtils.games.getGameStateWithQuestion.invalidate()
     },
   })
   const [hasShownEarlyExitToast, setHasShownEarlyExitToast] = useState(false)
@@ -48,9 +48,9 @@ export default function InGameNavBar() {
     )
   }
 
-  const earlyExit = () => {
+  const earlyExit = useCallback(() => {
     exitGameEarlyMutation.mutate({ game_id: gameInfo.id })
-  }
+  }, [exitGameEarlyMutation, gameInfo.id])
 
   useEffect(() => {
     if (shouldShowExitEarlyToast && !hasShownEarlyExitToast) {
@@ -64,7 +64,7 @@ export default function InGameNavBar() {
       })
       setHasShownEarlyExitToast(true)
     }
-  }, [shouldShowExitEarlyToast, hasShownEarlyExitToast])
+  }, [shouldShowExitEarlyToast, hasShownEarlyExitToast, earlyExit])
 
   return (
     <Navbar
@@ -89,19 +89,19 @@ export default function InGameNavBar() {
             <Button
               className="h-fit p-1"
               onClick={props.openDialog}
-              Icon={() => <Settings className="mr-0 sq-4 sm:h-5 sm:w-5" />}
+              Icon={() => <Ellipsis className="mr-0 sq-4" />}
               variant={"ghost"}
             />
           )}
           renderContent={(props) => (
-            <>
+            <div className="flex flex-col gap-2">
               {canExitEarly && <Button onClick={earlyExit}>Exit early</Button>}
               <Button asChild className="w-full" variant={"outline"}>
                 <Link href="/" onClick={props.closeDialog}>
                   Go to home
                 </Link>
               </Button>
-            </>
+            </div>
           )}
         />
       }
