@@ -73,11 +73,15 @@ export default function CodeView() {
         <Button
           type="submit"
           className="rounded-lg px-2"
-          isLoading={context.updateCurrentCodeMutation.isPending}
-          Icon={!context.isMobile ? Send : undefined}
+          isLoading={context.updateCurrentCodeMutation.isPending || context.isGeneratingCode}
+          Icon={context.isMobile ? Send : undefined}
         >
-          {context.isMobile && <Send className="sq-4" />}
-          {!context.isMobile && <>Send</>}
+          {!context.isMobile && (
+            <>
+              <Send className="mr-1 sq-4" />
+              Send
+            </>
+          )}
         </Button>
       </form>
     </>

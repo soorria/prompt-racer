@@ -71,10 +71,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         <div className="flex items-center">
           {isLoading ? (
-            <Loader2 className="sq-4 mr-2 animate-spin" />
+            <Loader2 className={cn("animate-spin sq-4", { "mr-2": !!children })} />
           ) : (
             Icon && (
-              <span className={cn({ "mr-2": children })}>
+              <span className={cn({ "mr-2": !!children })}>
                 <Icon className="sq-4" />
               </span>
             )
