@@ -4,6 +4,7 @@ import { CheckCircle2, Loader2, MinusCircleIcon, XCircle } from "lucide-react"
 
 import { type PlayerGameSession, type QuestionWithTestCases } from "~/lib/games/types"
 import { api } from "~/lib/trpc/react"
+import { Skeleton } from "../ui/skeleton"
 import { useGameManager } from "./GameManagerProvider"
 
 function QuestionTestCaseResults(props: {
@@ -95,22 +96,51 @@ export default function CodeRunning() {
   const submissionMetrics = submisisonMetricsQuery.data
   const isComputingSubmission =
     submitCodeMutation.isPending && submitCodeMutation.variables.submission_type === "submission"
+  const hasMetricsToShow =
+    !isComputingSubmission && !submisisonMetricsQuery.isRefetching && submissionMetrics
 
   return (
     <div className="relative flex flex-col">
       <div className="flex-1">
-        <div className="mb-4 flex items-center">
-          <h3 className="flex-1 text-left font-medium">Test cases</h3>
-          {!isComputingSubmission && !submisisonMetricsQuery.isRefetching && submissionMetrics && (
-            <p className="text-right text-xs opacity-50">
-              <span>Last submssion</span>
-              <br />
-              <span className="font-medium">
-                {submissionMetrics.numPassingSubmissionsTestCases}/{submissionMetrics.numTestCases}{" "}
-                testcases passed
-              </span>
-            </p>
-          )}
+        <div className="mb-4 flex items-center pb-2">
+          <h3 className="flex-1 text-left text-lg font-bold">
+            Test
+            <br /> Cases
+          </h3>
+          <p className="text-right text-xs opacity-50">
+            {gameSessionInfo.submission_state_id ? (
+              <>
+                <span>Last submssion</span>
+                <br />
+                <span className="inline-flex items-center gap-1 font-medium">
+                  {hasMetricsToShow ? (
+                    `${submissionMetrics.numPassingSubmissionsTestCases}/${submissionMetrics.numTestCases} `
+                  ) : (
+                    <Skeleton className="h-2 w-10 rounded-full" />
+                  )}
+                  testcases passed
+                </span>
+                {hasMetricsToShow ? (
+                  <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-red-500">
+                    <div
+                      className="h-full bg-primary"
+                      style={{
+                        width: `${(submissionMetrics.numPassingSubmissionsTestCases / submissionMetrics.numTestCases) * 100}%`,
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <Skeleton className="mt-1 h-2 w-full rounded-full" />
+                )}
+              </>
+            ) : (
+              <>
+                <span>No submissions</span>
+                <br />
+                <span>recorded yet</span>
+              </>
+            )}
+          </p>
         </div>
         {gameInfo.question ? (
           <QuestionTestCaseResults
