@@ -1,5 +1,3 @@
-import { Medal, Trophy } from "lucide-react"
-
 import type { GameMode } from "~/lib/games/constants"
 import { type GameResultsPlayer } from "~/app/games/results/[gameId]/page"
 import { GAME_MODE_DETAILS } from "~/lib/games/constants"

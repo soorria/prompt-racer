@@ -13,6 +13,7 @@ import { PosthogClientProvider } from "~/lib/posthog/provider"
 import { TRPCReactProvider } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
 
+// See: https://stackoverflow.com/a/78556677/7289958
 export async function generateViewport(): Promise<Viewport> {
   const userAgent = headers().get("user-agent")
   const isiPhone = /iphone/i.test(userAgent ?? "")
