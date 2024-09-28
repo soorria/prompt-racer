@@ -42,16 +42,11 @@ export function ResultsTable({
 
             <th
               scope="col"
-              className="sticky top-0 z-10 border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
+              className="sticky top-0 z-10 rounded-tr-xl border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
             >
               Score (<span className="hidden sm:inline">{unitLong}</span>
               <span className="sm:hidden">{unitShort}</span>)
             </th>
-
-            <th
-              scope="col"
-              className="sticky top-0 z-10 w-6 rounded-tr-xl border-b border-gray-700 bg-zinc-800/25 px-3 py-3.5 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter"
-            ></th>
           </tr>
         </thead>
         <tbody
@@ -93,20 +88,6 @@ export function ResultsTable({
                   },
                   {
                     value: player.finalResult.score,
-                    align: "right",
-                  },
-                  {
-                    value:
-                      idx === 0 ? (
-                        <Trophy className="pointer-events-none text-yellow-400 sq-6" />
-                      ) : idx === 1 || idx === 2 ? (
-                        <Medal
-                          className={cn("pointer-events-none text-gray-300 sq-6", {
-                            "text-gray-400": idx === 1,
-                            "text-yellow-700": idx === 2,
-                          })}
-                        />
-                      ) : null,
                     align: "right",
                   },
                 ].map(({ value, align }, valueIdx, valuesArray) => {
