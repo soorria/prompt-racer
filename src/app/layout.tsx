@@ -2,8 +2,10 @@ import "@total-typescript/ts-reset"
 import "@total-typescript/ts-reset/dom"
 import "~/styles/globals.css"
 
-import { type Metadata } from "next"
+import type { Metadata } from "next"
+import { Viewport } from "next"
 import { Fugaz_One, Inter } from "next/font/google"
+import { headers } from "next/headers"
 import Script from "next/script"
 
 import { Toaster } from "~/components/ui/sonner"
@@ -11,6 +13,18 @@ import { TooltipProvider } from "~/components/ui/tooltip"
 import { PosthogClientProvider } from "~/lib/posthog/provider"
 import { TRPCReactProvider } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
+
+export async function generateViewport(): Promise<Viewport> {
+  const userAgent = headers().get("user-agent")
+  const isiPhone = /iphone/i.test(userAgent ?? "")
+  return isiPhone
+    ? {
+        width: "device-width",
+        initialScale: 1,
+        maximumScale: 1, // disables auto-zoom on ios safari
+      }
+    : {}
+}
 
 const fontSans = Inter({ subsets: ["latin"], variable: "--font-sans" })
 const Fugaz = Fugaz_One({ weight: "400", variable: "--font-fugaz", subsets: ["latin"] })
