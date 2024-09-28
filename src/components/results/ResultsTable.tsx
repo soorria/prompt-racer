@@ -30,7 +30,7 @@ export function ResultsTable({
               scope="col"
               className="sticky top-0 z-10 w-5 rounded-tl-xl border-b border-gray-700 bg-zinc-800 bg-opacity-25 py-3.5 pl-3 text-right text-sm font-semibold text-gray-200 backdrop-blur-md backdrop-filter sm:pr-3"
             >
-              <span aria-hidden>#</span>
+              <span aria-hidden>#Rank</span>
               <span className="sr-only">Rank</span>
             </th>
             <th
@@ -57,7 +57,7 @@ export function ResultsTable({
         >
           {users.map((player, idx) => {
             const isNotLastRow = idx !== users.length - 1
-
+            const hasFinalSubmission = player.submission_state_id !== null
             const classes = getPositionRowClasses(idx)
 
             return (
@@ -68,17 +68,26 @@ export function ResultsTable({
                 }}
                 className={cn(
                   "group/row tabular-nums transition-colors duration-500 hover:duration-75",
-                  classes.row,
+                  { [classes.row]: hasFinalSubmission },
+                  {
+                    "wiggle bg-zinc-900": !hasFinalSubmission,
+                  },
                 )}
               >
                 <td
                   className={cn(
                     { "border-b border-gray-700/25": isNotLastRow, "rounded-bl-xl": !isNotLastRow },
                     "whitespace-nowrap py-4 pl-3 text-right text-sm font-medium text-gray-200 transition-colors duration-500 group-hover/row:duration-75 sm:pr-3",
-                    classes.rankCell,
+                    { [classes.rankCell]: hasFinalSubmission },
                   )}
                 >
-                  {idx}
+                  {hasFinalSubmission ? (
+                    idx
+                  ) : (
+                    <>
+                      2<sup>31</sup>-1
+                    </>
+                  )}
                 </td>
 
                 {[
@@ -94,7 +103,6 @@ export function ResultsTable({
                   },
                 ].map(({ key, value, align }, valueIdx, valuesArray) => {
                   const isLastColumn = valueIdx === valuesArray.length - 1
-                  const hasFinalSubmission = player.submission_state_id !== null
                   return (
                     <td
                       key={key}
@@ -107,9 +115,6 @@ export function ResultsTable({
                         "whitespace-nowrap px-3 py-4 text-sm text-gray-400",
                         {
                           "rounded-br-xl": !isNotLastRow && isLastColumn,
-                        },
-                        {
-                          "wiggle bg-zinc-900": !hasFinalSubmission,
                         },
                       )}
                     >
