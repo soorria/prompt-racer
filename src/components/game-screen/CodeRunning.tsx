@@ -115,15 +115,26 @@ export default function CodeRunning() {
         : undefined,
     )
 
-    submitCodeMutation.mutate({ game_id: gameInfo.id, submission_type: "submission" })
+    submitCodeMutation.mutate(
+      { game_id: gameInfo.id, submission_type: "submission" },
+      {
+        onSuccess: () => {
+          void submisisonMetricsQuery.refetch()
+        },
+      },
+    )
   }
 
+  const isComputingTestRun =
+    submitCodeMutation.isPending && submitCodeMutation.variables.submission_type === "test-run"
+  const isComputingSubmission =
+    submitCodeMutation.isPending && submitCodeMutation.variables.submission_type === "submission"
   return (
     <div className="relative flex flex-col">
       <div className="mb-8 flex-1 overflow-scroll">
         <div className="mb-4 flex items-center">
           <h3 className="flex-1 text-left font-medium">Test cases</h3>
-          {submissionMetrics && (
+          {!isComputingSubmission && !submisisonMetricsQuery.isRefetching && submissionMetrics && (
             <p className="text-right text-xs opacity-50">
               <span>Last submssion</span>
               <br />
@@ -147,10 +158,7 @@ export default function CodeRunning() {
           // TODO: we need to be checking gameSessionInfo.testState.status === "running" here
           // this way even if we leave and come back to this panel it will show its still runnning
           disabled={submitCodeMutation.isPending}
-          isLoading={
-            submitCodeMutation.isPending &&
-            submitCodeMutation.variables.submission_type === "test-run"
-          }
+          isLoading={isComputingTestRun}
           Icon={Play}
           variant={"outline"}
           className="ring-2 ring-primary"
@@ -160,10 +168,7 @@ export default function CodeRunning() {
         <Button
           onClick={handleSubmitCode}
           disabled={submitCodeMutation.isPending}
-          isLoading={
-            submitCodeMutation.isPending &&
-            submitCodeMutation.variables.submission_type === "submission"
-          }
+          isLoading={isComputingSubmission}
           Icon={UploadCloud}
         >
           Submit code
