@@ -20,13 +20,12 @@ export default function ResponsiveMultiSelectPanel({ panels }: { panels: PanelSl
   invariant(selectedPanel, "selectedPanel should not be undefined")
 
   return (
-    <div className="flex h-full flex-col">
-      <div
-        key={panels[selectedPanelIndex]?.key}
-        className={cn(panels[selectedPanelIndex]?.className, "flex-1")}
-        style={{ overflow: "scroll" }}
-      >
-        {panels[selectedPanelIndex]?.component}
+    <div className="mb-16">
+      <div className={cn("flex h-full flex-col gap-6", selectedPanel?.className)}>
+        {selectedPanel.component}
+        {selectedPanel.footer && (
+          <div className={cn(selectedPanel.footerClassName)}>{selectedPanel.footer}</div>
+        )}
       </div>
       <div className="absolute inset-x-0 bottom-0 z-10 grid place-content-center bg-gradient-to-t from-card/40 p-3">
         <div className="flex flex-row gap-x-2 rounded-full bg-card-lighter p-2 ring-2 ring-green-800">

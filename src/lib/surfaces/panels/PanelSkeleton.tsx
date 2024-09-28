@@ -5,6 +5,7 @@ import React, { Suspense } from "react"
 import type { GroupPanelSchema } from "./panels"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "~/components/ui/resizable"
 import { Skeleton } from "~/components/ui/skeleton"
+import { cn } from "~/lib/utils"
 import { validateUniqueKeys } from "./panels"
 
 const PanelSkeleton = ({ layout }: { layout: GroupPanelSchema }) => {
@@ -32,8 +33,19 @@ const PanelSkeleton = ({ layout }: { layout: GroupPanelSchema }) => {
                 <PanelSkeleton layout={panel} />
               </ResizablePanel>
             ) : (
-              <ResizablePanel defaultSize={panel.defaultSize} className={panel.className}>
-                <Suspense fallback={<Skeleton className="h-full" />}>{panel.component}</Suspense>
+              <ResizablePanel defaultSize={panel.defaultSize}>
+                <div className={cn("flex h-full flex-col")}>
+                  <div className={cn("flex-1 overflow-scroll bg-card", panel.className)}>
+                    <Suspense fallback={<Skeleton className="h-full" />}>
+                      {panel.component}
+                    </Suspense>
+                  </div>
+                  {panel.footer && (
+                    <div className={cn("bg-card", panel.footerClassName)}>
+                      <Suspense fallback={<Skeleton className="h-full" />}>{panel.footer}</Suspense>
+                    </div>
+                  )}
+                </div>
               </ResizablePanel>
             )}
             {!isLast && <ResizableHandle withHandle />}
