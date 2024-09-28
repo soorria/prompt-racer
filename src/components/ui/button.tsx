@@ -69,7 +69,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isLoading || props.disabled}
         {...props}
       >
-        <div className="flex items-center">
+        <span className="flex items-center">
           {isLoading ? (
             <Loader2 className={cn("animate-spin sq-4", { "mr-2": !!children })} />
           ) : (
@@ -80,7 +80,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             )
           )}
           {children}
-        </div>
+        </span>
       </Comp>
     )
   },
