@@ -24,7 +24,7 @@ import { logger } from "~/lib/server/logger"
 import { createTRPCRouter, protectedProcedure } from "~/lib/trpc/trpc"
 import { randomElement } from "~/lib/utils/random"
 import { getPlayerPostionsForGameMode } from "./game-modes"
-import { finalizeGame } from "./internal-actions"
+import { cancelInngestGameWorkflow, finalizeGame } from "./internal-actions"
 
 export const gameRouter = createTRPCRouter({
   getPlayerGameSession: protectedProcedure
@@ -340,12 +340,7 @@ export const gameRouter = createTRPCRouter({
       if (!remainingPlayersCount?.count) {
         // TODO: maybe cancel instead? also could add cancel reason
         await ctx.db.delete(schema.gameStates).where(cmp.eq(schema.gameStates.id, game.id))
-        await ctx.inngest.send({
-          name: "game/cancelled" as const,
-          data: {
-            game_id: game.id,
-          },
-        })
+        await cancelInngestGameWorkflow(ctx.inngest, game.id)
       }
     }),
 
@@ -378,12 +373,7 @@ export const gameRouter = createTRPCRouter({
         throw new TRPCError({ code: "BAD_REQUEST", message: "Game is not in progress" })
       }
 
-      await ctx.inngest.send({
-        name: "game/cancelled" as const,
-        data: {
-          game_id: game.id,
-        },
-      })
+      await cancelInngestGameWorkflow(ctx.inngest, game.id)
 
       await finalizeGame(input.game_id)
     }),

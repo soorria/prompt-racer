@@ -12,6 +12,7 @@ import { LLM_PROMPTING_TIMEOUT } from "./constants"
 import { getPlayerPostionsForGameMode } from "./game-modes"
 import { getGameById } from "./queries"
 import { chatHistoryItemTypeIs } from "./utils"
+import { Inngest } from "inngest"
 
 export async function advanceGameToStatus(
   gameId: string,
@@ -36,6 +37,15 @@ export async function advanceGameToStatus(
       start_time: status === "inProgress" ? new Date() : undefined,
     })
     .where(cmp.eq(schema.gameStates.id, gameId))
+}
+
+export async function cancelInngestGameWorkflow(inngest: Inngest, gameId: string) {
+  await inngest.send({
+    name: "game/cancelled" as const,
+    data: {
+      game_id: gameId,
+    },
+  })
 }
 
 export async function finalizeGame(gameId: string) {
