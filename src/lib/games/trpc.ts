@@ -52,6 +52,29 @@ export const gameRouter = createTRPCRouter({
       return gameState
     }),
 
+  getSubmissionMetrics: protectedProcedure
+    .input(
+      z.object({
+        game_id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const sessionInfo = await getSessionInfoForPlayer(ctx.db, ctx.user.id, input.game_id)
+      if (!sessionInfo) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
+      }
+      if (sessionInfo.submission_state_id) {
+        const submissionStateResults = (await ctx.db.query.playerGameSubmissionStateResults.findMany({
+          where: cmp.eq(schema.playerGameSubmissionStateResults.player_game_submission_state_id, sessionInfo.submission_state_id)
+        }))
+        return {
+          numPassingSubmissionsTestCases: submissionStateResults.filter((result) => result.is_correct).length,
+          numTestCases: submissionStateResults.length,
+        }
+      }
+      return null
+    }),
+
   submitCode: protectedProcedure
     .input(
       z.object({
@@ -60,6 +83,7 @@ export const gameRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const isTestRun = input.submission_type === "test-run";
       const playerGameSession = await ctx.db.query.playerGameSessions.findFirst({
         where: cmp.and(
           cmp.eq(schema.playerGameSessions.user_id, ctx.user.id),
@@ -81,8 +105,8 @@ export const gameRouter = createTRPCRouter({
               },
             },
           },
-          testState: input.submission_type === "test-run" ? true : undefined,
-          submissionState: input.submission_type === "submission" ? true : undefined,
+          testState: isTestRun ? true : undefined,
+          submissionState: isTestRun ? undefined : true,
         },
       })
 
@@ -101,9 +125,9 @@ export const gameRouter = createTRPCRouter({
       }
 
       const submissionState =
-        input.submission_type === "submission"
-          ? playerGameSession.submissionState
-          : playerGameSession.testState
+        isTestRun
+          ? playerGameSession.testState
+          : playerGameSession.submissionState
 
       if (submissionState) {
         const lastSubmittedAt = submissionState.last_submitted_at
@@ -139,14 +163,14 @@ export const gameRouter = createTRPCRouter({
               id: schema.playerGameSubmissionStates.id,
             }),
           submissionState &&
-            tx
-              .delete(schema.playerGameSubmissionStateResults)
-              .where(
-                cmp.eq(
-                  schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-                  submissionState.id,
-                ),
+          tx
+            .delete(schema.playerGameSubmissionStateResults)
+            .where(
+              cmp.eq(
+                schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+                submissionState.id,
               ),
+            ),
         ])
       })
 
@@ -158,7 +182,7 @@ export const gameRouter = createTRPCRouter({
       }
 
       const submissionStateIdField =
-        input.submission_type === "submission" ? "submission_state_id" : "test_state_id"
+        isTestRun ? "test_state_id" : "submission_state_id"
 
       await ctx.db
         .update(schema.playerGameSessions)
@@ -167,7 +191,10 @@ export const gameRouter = createTRPCRouter({
         })
         .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
 
-      const testCases = playerGameSession.game.question.testCases
+      const testCases = playerGameSession.game.question.testCases.filter(
+        (testCase) => isTestRun ? testCase.type === "public" : true,
+      )
+
       const runResults = await runPythonCodeAgainstTestCases(
         playerGameSession.code,
         testCases.map((testCase) => testCase.args),

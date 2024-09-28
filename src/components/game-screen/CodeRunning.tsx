@@ -42,7 +42,7 @@ function QuestionTestCaseResults(props: {
         if (props.testState?.status === "running") {
           testEmoji = (
             <span title="Running test">
-              <Loader2 className="sq-6 animate-spin" />
+              <Loader2 className="animate-spin sq-6" />
             </span>
           )
         } else if (result) {
@@ -51,14 +51,14 @@ function QuestionTestCaseResults(props: {
               {result.status === "success" && result.is_correct ? (
                 <CheckCircle2 className="s q-6 rounded-full bg-primary text-black" />
               ) : (
-                <XCircle className="sq-6 rounded-full bg-red-500 text-black" />
+                <XCircle className="rounded-full bg-red-500 text-black sq-6" />
               )}
             </span>
           )
         } else {
           testEmoji = (
             <span className="grayscale" title="No tests run">
-              <MinusCircleIcon className="sq-6 rounded-full bg-primary text-black" />
+              <MinusCircleIcon className="rounded-full bg-primary text-black sq-6" />
             </span>
           )
         }
@@ -91,7 +91,10 @@ function QuestionTestCaseResults(props: {
 export default function CodeRunning() {
   const utils = api.useUtils()
   const { gameInfo, gameSessionInfo, submitCodeMutation } = useGameManager()
-
+  const submisisonMetricsQuery = api.games.getSubmissionMetrics.useQuery({
+    game_id: gameSessionInfo.game_id,
+  })
+  const submissionMetrics = submisisonMetricsQuery.data
   const handleRunTests = () => {
     utils.games.getPlayerGameSession.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
       oldData?.testState
@@ -118,7 +121,19 @@ export default function CodeRunning() {
   return (
     <div className="relative flex flex-col">
       <div className="mb-8 flex-1 overflow-scroll">
-        <h3 className="mb-4 font-medium">Test cases</h3>
+        <div className="mb-4 flex items-center">
+          <h3 className="flex-1 text-left font-medium">Test cases</h3>
+          {submissionMetrics && (
+            <p className="text-right text-xs opacity-50">
+              <span>Last submssion</span>
+              <br />
+              <span className="font-medium">
+                {submissionMetrics.numPassingSubmissionsTestCases}/{submissionMetrics.numTestCases}{" "}
+                testcases passed
+              </span>
+            </p>
+          )}
+        </div>
         {gameInfo.question ? (
           <QuestionTestCaseResults
             question={gameInfo.question}
