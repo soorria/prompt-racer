@@ -121,7 +121,7 @@ export function ResultsTable({
                       >
                         <span
                           className={cn({
-                            "line-through": !hasFinalSubmission && key === "player-name",
+                            "line-through": !hasFinalSubmission,
                           })}
                         >
                           {value}
