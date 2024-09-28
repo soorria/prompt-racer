@@ -68,10 +68,13 @@ export default async function ResultsPage({ params }: { params: { gameId: string
 
       <LeaderboardHighlight
         podiumNoPlayerPlaceholder="Vacant"
-        players={players.slice(0, 3).map((u) => ({
-          ...u.user,
-          winCondition: { label: "Score", value: `${u.finalResult?.score} ${unitLong}` },
-        }))}
+        players={players
+          .slice(0, 3)
+          .filter((u) => u.submission_state_id !== null)
+          .map((u) => ({
+            ...u.user,
+            winCondition: { label: "Score", value: `${u.finalResult?.score} ${unitLong}` },
+          }))}
       />
       <ResultsTable users={players} gameMode={game.mode} />
     </div>
