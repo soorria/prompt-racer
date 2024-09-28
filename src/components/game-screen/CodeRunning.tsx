@@ -152,7 +152,7 @@ export default function CodeRunning() {
           />
         ) : null}
       </div>
-      <div className="sticky bottom-0 flex justify-between">
+      <div className="bottom-0 mb-16 flex justify-between sm:sticky sm:mb-0">
         <Button
           onClick={handleRunTests}
           // TODO: we need to be checking gameSessionInfo.testState.status === "running" here
