@@ -1,10 +1,9 @@
 import type { ReactNode } from "react"
 import React from "react"
-import { CheckCircle2, Loader2, MinusCircleIcon, Play, UploadCloud, XCircle } from "lucide-react"
+import { CheckCircle2, Loader2, MinusCircleIcon, XCircle } from "lucide-react"
 
 import { type PlayerGameSession, type QuestionWithTestCases } from "~/lib/games/types"
 import { api } from "~/lib/trpc/react"
-import { Button } from "../ui/button"
 import { useGameManager } from "./GameManagerProvider"
 
 function QuestionTestCaseResults(props: {
@@ -89,49 +88,17 @@ function QuestionTestCaseResults(props: {
 }
 
 export default function CodeRunning() {
-  const utils = api.useUtils()
-  const { gameInfo, gameSessionInfo, submitCodeMutation, isGeneratingCode } = useGameManager()
+  const { gameInfo, gameSessionInfo, submitCodeMutation } = useGameManager()
   const submisisonMetricsQuery = api.games.getSubmissionMetrics.useQuery({
     game_id: gameSessionInfo.game_id,
   })
   const submissionMetrics = submisisonMetricsQuery.data
-  const handleRunTests = () => {
-    utils.games.getPlayerGameSession.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
-      oldData?.testState
-        ? {
-            ...oldData,
-            testState: { ...oldData?.testState, status: "running" },
-          }
-        : undefined,
-    )
-
-    submitCodeMutation.mutate({ game_id: gameInfo.id, submission_type: "test-run" })
-  }
-
-  const handleSubmitCode = () => {
-    utils.games.getPlayerGameSession.setData({ game_id: gameSessionInfo.game_id }, (oldData) =>
-      oldData?.submissionState
-        ? { ...oldData, submissionState: { ...oldData.submissionState, status: "running" } }
-        : undefined,
-    )
-
-    submitCodeMutation.mutate(
-      { game_id: gameInfo.id, submission_type: "submission" },
-      {
-        onSuccess: () => {
-          void submisisonMetricsQuery.refetch()
-        },
-      },
-    )
-  }
-
-  const isComputingTestRun =
-    submitCodeMutation.isPending && submitCodeMutation.variables.submission_type === "test-run"
   const isComputingSubmission =
     submitCodeMutation.isPending && submitCodeMutation.variables.submission_type === "submission"
+
   return (
     <div className="relative flex flex-col">
-      <div className="mb-8 flex-1 overflow-scroll">
+      <div className="flex-1">
         <div className="mb-4 flex items-center">
           <h3 className="flex-1 text-left font-medium">Test cases</h3>
           {!isComputingSubmission && !submisisonMetricsQuery.isRefetching && submissionMetrics && (
@@ -151,28 +118,6 @@ export default function CodeRunning() {
             testState={gameSessionInfo.testState}
           />
         ) : null}
-      </div>
-      <div className="bottom-0 mb-16 flex justify-between sm:sticky sm:mb-0">
-        <Button
-          onClick={handleRunTests}
-          // TODO: we need to be checking gameSessionInfo.testState.status === "running" here
-          // this way even if we leave and come back to this panel it will show its still runnning
-          disabled={submitCodeMutation.isPending || isGeneratingCode}
-          isLoading={isComputingTestRun}
-          Icon={Play}
-          variant={"outline"}
-          className="ring-2 ring-primary"
-        >
-          Run tests
-        </Button>
-        <Button
-          onClick={handleSubmitCode}
-          disabled={submitCodeMutation.isPending || isGeneratingCode}
-          isLoading={isComputingSubmission}
-          Icon={UploadCloud}
-        >
-          Submit code
-        </Button>
       </div>
     </div>
   )

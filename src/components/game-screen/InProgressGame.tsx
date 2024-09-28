@@ -9,6 +9,7 @@ import QuestionDescription from "~/components/game-screen/QuestionDescription"
 import { type NotWaitingForPlayersGameState } from "~/lib/games/types"
 import { createDefaultLayout, createDefaultMobileLayout } from "~/lib/surfaces/panels/layouts"
 import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
+import CodeRunningFooter from "./CodeRunningFooter"
 import { CodeViewImpl } from "./CodeView"
 import MultiSelectPanel from "./MultiSelectPanel"
 import RunCodePanel from "./RunCodePanel"
@@ -26,8 +27,10 @@ function useViews(props: { gameInfo: NotWaitingForPlayersGameState }) {
     }
     const CodeRunningViewImpl = {
       key: "run-code",
-      className: "bg-card p-4",
+      className: "p-4",
       component: <RunCodePanel />,
+      footer: <CodeRunningFooter />,
+      footerClassName: "px-4 pb-4 pt-2",
     }
 
     const MobileLayout = {
@@ -37,7 +40,7 @@ function useViews(props: { gameInfo: NotWaitingForPlayersGameState }) {
         <MobileMultiSelectPanel
           panels={[
             { ...QuestionViewImpl, title: "Question" },
-            { ...CodeRunningViewImpl, title: "Run code" },
+            { ...CodeRunningViewImpl, title: "Run code", footerClassName: "p-0" },
             { ...ChatHistoryPanelImpl, title: "Chat log" },
           ]}
         />

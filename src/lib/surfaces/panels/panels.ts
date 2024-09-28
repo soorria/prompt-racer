@@ -1,7 +1,9 @@
 export type PanelSlot = {
   key: string
-  className: string
+  className?: string
   component: React.ReactElement
+  footer?: React.ReactElement
+  footerClassName?: string
 }
 
 export type PanelSchema = {
@@ -10,6 +12,8 @@ export type PanelSchema = {
   defaultSize: number
   className: string
   component: React.ReactElement
+  footer?: React.ReactElement
+  footerClassName?: string
 }
 
 export type GroupPanelSchema = {

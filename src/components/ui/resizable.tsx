@@ -27,7 +27,7 @@ const ResizablePanel = ({
   <ResizablePrimitive.Panel
     {...props}
     className={cn("relative max-h-full overflow-scroll rounded-xl", className)}
-    style={{ overflow: "scroll" }}
+    // style={{ overflow: "scroll" }}
   />
 )
 

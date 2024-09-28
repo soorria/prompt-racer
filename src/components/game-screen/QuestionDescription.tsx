@@ -22,7 +22,7 @@ export default function QuestionDescription(props: {
   gameMode: GameMode
 }) {
   return (
-    <div className="pb-16">
+    <div>
       <div className="mb-1 text-2xl font-bold">{props.question.title}</div>
       <Badge variant={MapfromDifficultyToBadgeVariant[props.question.difficulty]} className="mb-2">
         {props.question.difficulty}
