@@ -26,9 +26,6 @@ function resolveFinalResult(
   }
 }
 
-/**
- * Separated out to allow for caching
- */
 async function getGameResultsData(gameId: string) {
   const game = await getGameById(db, gameId)
 

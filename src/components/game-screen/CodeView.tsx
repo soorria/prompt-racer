@@ -19,6 +19,7 @@ export default function CodeView() {
   const context = useGameManager()
   const formRef = useRef<HTMLFormElement>(null)
   const [inputValue, setInputValue] = useState("")
+  console.log(context.playerPositionMetrics)
 
   const maxLength = GAME_CHARACTER_LIMIT_MAP[context.gameInfo.question?.difficulty ?? "easy"]
   const widthPercentage = (inputValue.length / maxLength) * 100

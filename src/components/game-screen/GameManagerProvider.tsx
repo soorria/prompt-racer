@@ -32,6 +32,10 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
       initialState: props.initialGameState,
     })
 
+    const playerPositionMetricsQuery = api.games.getPlayerPositionMetrics.useQuery({
+      game_id: gameSessionQuery.data.game_id,
+    })
+
     const completion = useGenerateUpdatedCode({
       gameId: gameSessionQuery.data.game_id,
     })
@@ -67,6 +71,7 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
       submitCodeMutation,
       leaveGameMutation,
       user: props.user,
+      playerPositionMetrics: playerPositionMetricsQuery.data,
     }
   },
 )

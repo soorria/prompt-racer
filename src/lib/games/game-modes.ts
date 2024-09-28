@@ -156,6 +156,7 @@ export const getPlayerPostionsForGameMode = (
       player_game_session_id: session.id,
       position: positions[session.user_id]?.position ?? playerGameSessions.length + 2,
       score: positions[session.user_id]?.score ?? 0,
+      percentageOfTestCasesPassed: (session.submissionState?.results.filter((r) => r.is_correct)?.length ?? 0) / (session.submissionState?.results?.length ?? 1),
     }
   })
 }

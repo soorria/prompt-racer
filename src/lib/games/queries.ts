@@ -67,6 +67,16 @@ export async function getGamesWithStatus<Status extends Doc<"gameStates">["statu
   return results
 }
 
+export async function getSubmissionMetrics(tx: DBOrTransation, submission_state_id: string) {
+  const submissionStateResults = (await tx.query.playerGameSubmissionStateResults.findMany({
+    where: cmp.eq(schema.playerGameSubmissionStateResults.player_game_submission_state_id, submission_state_id)
+  }))
+  return {
+    numPassingSubmissionsTestCases: submissionStateResults.filter((result) => result.is_correct).length,
+    numTestCases: submissionStateResults.length,
+  }
+}
+
 export async function getRandomQuestion(tx: DBOrTransation) {
   const [numQuestions] = await tx
     .select({
