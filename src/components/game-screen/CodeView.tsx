@@ -47,6 +47,11 @@ export default function CodeView() {
           setInputValue("")
         }}
       >
+        {!context.isMobile && widthPercentage === 100 && (
+          <div className="slide-in-direct absolute -bottom-4 left-0 right-0 z-50 mx-auto text-center text-xs text-zinc-500">
+            {maxLength} character limit reached
+          </div>
+        )}
         <div className="relative flex-1 overflow-hidden rounded-lg">
           <Input
             className="flex-1 rounded-lg"

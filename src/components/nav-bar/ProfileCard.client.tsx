@@ -1,13 +1,10 @@
 "use client"
 
 import React from "react"
-import Link from "next/link"
-import { BookOpen } from "lucide-react"
 
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
 import { type Doc } from "~/lib/db/types"
 import { cn } from "~/lib/utils"
-import { Button } from "../ui/button"
 import LoginLogoutButton from "./LoginLogoutButton"
 import UserAvatar from "./UserAvatar"
 
