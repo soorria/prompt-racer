@@ -40,9 +40,7 @@ export default function RandomGameModeSelector() {
             <Button
               isLoading={joinGame.isPending}
               disabled={joinGame.isSuccess}
-              onClick={() => {
-                joinGame.mutate({})
-              }}
+              onClick={() => joinGame.mutate({})}
               className="mt-5 w-full ring-2 ring-zinc-700"
               variant={"outline"}
             >

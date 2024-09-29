@@ -4,7 +4,7 @@ import GameCard from "~/components/join-game/GameCard"
 import RandomGameModeSelector from "~/components/join-game/RandomGameModeSelector"
 import { GAME_MODES } from "~/lib/games/constants"
 
-export default async function JoinGame() {
+export default function JoinGame() {
   return (
     <>
       <div className="mx-auto my-8 max-w-2xl text-center lg:max-w-none">
