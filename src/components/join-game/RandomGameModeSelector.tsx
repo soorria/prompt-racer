@@ -2,14 +2,26 @@
 
 import React from "react"
 import { useRouter } from "next/navigation"
+import { type User } from "@supabase/supabase-js"
 import { Shuffle } from "lucide-react"
 import { usePostHog } from "posthog-js/react"
 
+import type { QuestionDifficultyLevels } from "~/lib/games/constants"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select"
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
 import { Button } from "../ui/button"
 
-export default function RandomGameModeSelector() {
+export default function RandomGameModeSelector({ user }: { user: User | null }) {
+  const [difficulty, setDifficulty] = React.useState<QuestionDifficultyLevels | undefined>(
+    undefined,
+  )
   const router = useRouter()
   const posthog = usePostHog()
   const joinGame = api.games.join.useMutation({
@@ -23,6 +35,21 @@ export default function RandomGameModeSelector() {
 
   return (
     <div className="mx-auto max-w-sm">
+      {user && user.role === "admin" && (
+        <Select
+          onValueChange={(a: QuestionDifficultyLevels) => setDifficulty(a)}
+          defaultValue={"easy"}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Difficulty" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="easy">Easy</SelectItem>
+            <SelectItem value="medium">Medium</SelectItem>
+            <SelectItem value="hard">Hard</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
       <div className="isolate mx-auto my-16 grid grid-cols-1 gap-4 gap-y-8 lg:mx-0 lg:grid-cols-1">
         <div
           className={cn(
@@ -40,7 +67,9 @@ export default function RandomGameModeSelector() {
             <Button
               isLoading={joinGame.isPending}
               disabled={joinGame.isSuccess}
-              onClick={() => joinGame.mutate()}
+              onClick={() => {
+                joinGame.mutate({ difficulty })
+              }}
               className="mt-5 w-full ring-2 ring-zinc-700"
               variant={"outline"}
             >

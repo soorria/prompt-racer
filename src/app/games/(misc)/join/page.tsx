@@ -2,9 +2,11 @@ import React from "react"
 
 import GameCard from "~/components/join-game/GameCard"
 import RandomGameModeSelector from "~/components/join-game/RandomGameModeSelector"
+import { getAuthUser } from "~/lib/auth/user"
 import { GAME_MODES } from "~/lib/games/constants"
 
-export default function JoinGame() {
+export default async function JoinGame() {
+  const user = await getAuthUser()
   return (
     <>
       <div className="mx-auto my-8 max-w-2xl text-center lg:max-w-none">
@@ -13,7 +15,7 @@ export default function JoinGame() {
           Each game mode has a different goal. Choose the one to flex your skills!
         </p>
       </div>
-      <RandomGameModeSelector />
+      <RandomGameModeSelector user={user} />
 
       <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {GAME_MODES.map((gm) => (

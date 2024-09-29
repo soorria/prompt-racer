@@ -1,6 +1,7 @@
 import ms from "ms"
 
 import type { Doc } from "../db/types"
+import { questionDifficultyEnum } from "../db/schema"
 
 export type KebabToPascalCase<T extends string> = T extends `${infer F}-${infer R}`
   ? `${F}${Capitalize<KebabToPascalCase<R>>}`
@@ -18,6 +19,9 @@ export const GAME_MODES = [
   "shortest-code",
   "fewest-characters-to-llm",
 ] as const
+
+export type QuestionDifficultyLevels = (typeof questionDifficultyEnum)['enumValues'][number]
+export const QUESTION_DIFFICULTY_LEVELS = ['easy', 'medium', 'hard'] as const satisfies QuestionDifficultyLevels[];
 
 export const LLM_PROMPTING_TIMEOUT = ms("10s")
 export const CODE_SUBMISSION_TIMEOUT = ms("10s")

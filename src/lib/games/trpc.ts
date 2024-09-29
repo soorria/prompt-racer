@@ -8,7 +8,7 @@ import { z } from "zod"
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
 import { cmp, schema } from "~/lib/db"
 import { type DBOrTransation, type DocInsert } from "~/lib/db/types"
-import { CODE_SUBMISSION_TIMEOUT, DEFAULT_GAME_DURATIONS } from "~/lib/games/constants"
+import { CODE_SUBMISSION_TIMEOUT, DEFAULT_GAME_DURATIONS, QUESTION_DIFFICULTY_LEVELS, QuestionDifficultyLevels } from "~/lib/games/constants"
 import {
   getGameById,
   getGamesWithStatus,
@@ -187,14 +187,14 @@ export const gameRouter = createTRPCRouter({
               id: schema.playerGameSubmissionStates.id,
             }),
           submissionState &&
-            tx
-              .delete(schema.playerGameSubmissionStateResults)
-              .where(
-                cmp.eq(
-                  schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-                  submissionState.id,
-                ),
+          tx
+            .delete(schema.playerGameSubmissionStateResults)
+            .where(
+              cmp.eq(
+                schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+                submissionState.id,
               ),
+            ),
         ])
       })
 
@@ -268,14 +268,18 @@ export const gameRouter = createTRPCRouter({
       })
     }),
 
-  join: protectedProcedure.mutation(async ({ ctx }) => {
+  join: protectedProcedure.input(
+    z.object({
+      difficulty: z.optional(z.enum(QUESTION_DIFFICULTY_LEVELS)),
+    }),
+  ).mutation(async ({ ctx, input }) => {
     const currentGame = await getLatestActiveGameForUser(ctx.db, ctx.user.id)
 
     if (currentGame) {
       throw new Error("You are already in a game")
     }
 
-    const { game, question } = await getOrCreateGameToJoin(ctx.db, ctx.inngest)
+    const { game, question } = await getOrCreateGameToJoin(ctx.db, ctx.inngest, input.difficulty)
 
     await ctx.db.insert(schema.playerGameSessions).values({
       user_id: ctx.user.id,
@@ -430,9 +434,11 @@ async function triggerPlayerGameSessionUpdate(tx: DBOrTransation, playerGameSess
     .where(cmp.eq(schema.playerGameSessions.id, playerGameSessionId))
 }
 
-async function getOrCreateGameToJoin(tx: DBOrTransation, inngest: Inngest) {
-  const waitingForPlayersGames = await getGamesWithStatus(tx, "waitingForPlayers")
-
+async function getOrCreateGameToJoin(tx: DBOrTransation, inngest: Inngest, difficulty?: QuestionDifficultyLevels) {
+  let waitingForPlayersGames = await getGamesWithStatus(tx, "waitingForPlayers")
+  if (difficulty) {
+    waitingForPlayersGames = waitingForPlayersGames.filter(game => game.question.difficulty === difficulty)
+  }
   const existingGameToJoin = randomElement(waitingForPlayersGames)
 
   if (existingGameToJoin) {
@@ -444,11 +450,11 @@ async function getOrCreateGameToJoin(tx: DBOrTransation, inngest: Inngest) {
     }
   }
 
-  return await createGame(tx, inngest)
+  return await createGame(tx, inngest, difficulty)
 }
 
-async function createGame(tx: DBOrTransation, inngest: Inngest) {
-  const question = await getRandomQuestion(tx)
+async function createGame(tx: DBOrTransation, inngest: Inngest, difficulty?: QuestionDifficultyLevels) {
+  const question = await getRandomQuestion(tx, difficulty)
   const gameMode = getRandomGameMode()
 
   const [game] = await tx
