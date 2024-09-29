@@ -1,6 +1,7 @@
 import "server-only"
 
 import { addSeconds } from "date-fns"
+import { type Inngest } from "inngest"
 
 import type { Doc } from "../db/types"
 import { requireAuthUser } from "../auth/user"
@@ -12,7 +13,6 @@ import { LLM_PROMPTING_TIMEOUT } from "./constants"
 import { getPlayerPostionsForGameMode } from "./game-modes"
 import { getGameById } from "./queries"
 import { chatHistoryItemTypeIs } from "./utils"
-import { Inngest } from "inngest"
 
 export async function advanceGameToStatus(
   gameId: string,
@@ -203,28 +203,28 @@ export async function sendMessageInGame(gameId: string, instructions: string) {
             player_game_session_id: playerGameSession.id,
             content: extractedCode
               ? {
-                type: "ai",
-                rawCompletion: rawUpdatedCode,
-                parsedCompletion: {
-                  state: "success",
-                  maybeCode: extractedCode,
-                },
-              }
+                  type: "ai",
+                  rawCompletion: rawUpdatedCode,
+                  parsedCompletion: {
+                    state: "success",
+                    maybeCode: extractedCode,
+                  },
+                }
               : {
-                type: "ai",
-                rawCompletion: rawUpdatedCode,
-                parsedCompletion: {
-                  state: "error",
-                  error: "Could not find code in AI completion",
+                  type: "ai",
+                  rawCompletion: rawUpdatedCode,
+                  parsedCompletion: {
+                    state: "error",
+                    error: "Could not find code in AI completion",
+                  },
                 },
-              },
           })
           .where(cmp.eq(schema.playerGameSessionChatHistoryItems.id, insertedAtMessage.id)),
         extractedCode &&
-        db
-          .update(schema.playerGameSessions)
-          .set({ code: extractedCode })
-          .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
+          db
+            .update(schema.playerGameSessions)
+            .set({ code: extractedCode })
+            .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id)),
       ])
     },
   })
