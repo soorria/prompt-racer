@@ -1,7 +1,10 @@
 import type { Config } from "tailwindcss"
 import { fontFamily } from "tailwindcss/defaultTheme"
-import plugin from "tailwindcss/plugin";
+import plugin from "tailwindcss/plugin"
 
+function hslVariableWithOpacity(value: string) {
+  return `hsl(var(${value}) / <alpha-value>)`
+}
 
 const config = {
   future: {
@@ -34,39 +37,39 @@ const config = {
       },
       colors: {
         dracula: "#282a36",
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: hslVariableWithOpacity("--border"),
+        input: hslVariableWithOpacity("--input"),
+        ring: hslVariableWithOpacity("--ring"),
+        background: hslVariableWithOpacity("--background"),
+        foreground: hslVariableWithOpacity("--foreground"),
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: hslVariableWithOpacity("--primary"),
+          foreground: hslVariableWithOpacity("--primary-foreground"),
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: hslVariableWithOpacity("--secondary"),
+          foreground: hslVariableWithOpacity("--secondary-foreground"),
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: hslVariableWithOpacity("--destructive"),
+          foreground: hslVariableWithOpacity("--destructive-foreground"),
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: hslVariableWithOpacity("--muted"),
+          foreground: hslVariableWithOpacity("--muted-foreground"),
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: hslVariableWithOpacity("--accent"),
+          foreground: hslVariableWithOpacity("--accent-foreground"),
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: hslVariableWithOpacity("--popover"),
+          foreground: hslVariableWithOpacity("--popover-foreground"),
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-          lighter: "hsl(var(--card-lighter))",
+          DEFAULT: hslVariableWithOpacity("--card"),
+          foreground: hslVariableWithOpacity("--card-foreground"),
+          lighter: hslVariableWithOpacity("--card-lighter"),
         },
       },
       borderRadius: {
@@ -88,21 +91,35 @@ const config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      blur: {
+        xs: "2px",
+        xxs: "1px",
+      },
+    },
+    keyframes: {
+      spin: {
+        from: { rotate: "0deg" },
+        to: { rotate: "360deg" },
+      },
     },
   },
-  plugins: [require("tailwindcss-animate"), require('@tailwindcss/typography'), plugin(({ matchUtilities, theme }) => {
-    matchUtilities<string>(
-      {
-        sq: (value) => ({
-          width: value,
-          height: value,
-        }),
-      },
-      {
-        values: theme("width"),
-      },
-    );
-  }),],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/typography"),
+    plugin(({ matchUtilities, theme }) => {
+      matchUtilities<string>(
+        {
+          sq: (value) => ({
+            width: value,
+            height: value,
+          }),
+        },
+        {
+          values: theme("width"),
+        },
+      )
+    }),
+  ],
 } satisfies Config
 
 export default config
