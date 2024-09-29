@@ -100,7 +100,7 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
           </tr>
         </thead>
         <tbody
-          className="slide-in-direct"
+          className="slide-in-direct rounded-b-lg"
           style={{
             "--initial-step": 4,
           }}
@@ -123,7 +123,7 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
               >
                 <td
                   className={cn(
-                    { "border-b border-gray-700/25": isNotLastRow },
+                    { "border-b border-gray-700/25": isNotLastRow, "rounded-bl-xl": !isNotLastRow },
                     "whitespace-nowrap py-4 pl-3 text-right text-sm font-medium text-gray-200 transition-colors duration-500 group-hover/row:duration-75 sm:pr-3",
                     classes.rankCell,
                   )}
@@ -139,7 +139,8 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
                   { value: ORDERING_DETAILS.wins.getValue(player), align: "right" },
                   { value: ORDERING_DETAILS["games-played"].getValue(player), align: "right" },
                   { value: ORDERING_DETAILS["win-rate"].getValue(player), align: "right" },
-                ].map(({ value, align }, valueIdx) => {
+                ].map(({ value, align }, valueIdx, valuesArray) => {
+                  const isLastColumn = valueIdx === valuesArray.length - 1
                   return (
                     <td
                       key={valueIdx}
@@ -150,6 +151,9 @@ function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
                           "text-right": align === "right",
                         },
                         "whitespace-nowrap px-3 py-4 text-sm text-gray-400",
+                        {
+                          "rounded-br-xl": !isNotLastRow && isLastColumn,
+                        },
                       )}
                     >
                       {value}
