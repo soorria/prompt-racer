@@ -7,8 +7,8 @@ import { z } from "zod"
 
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
 import { cmp, schema } from "~/lib/db"
-import { type DBOrTransation, type DocInsert } from "~/lib/db/types"
-import { CODE_SUBMISSION_TIMEOUT, DEFAULT_GAME_DURATIONS, QUESTION_DIFFICULTY_LEVELS, QuestionDifficultyLevels } from "~/lib/games/constants"
+import { Doc, type DBOrTransation, type DocInsert } from "~/lib/db/types"
+import { CODE_SUBMISSION_TIMEOUT, DEFAULT_GAME_DURATIONS, GAME_STATUS, QUESTION_DIFFICULTY_LEVELS, QuestionDifficultyLevels } from "~/lib/games/constants"
 import {
   getGameById,
   getGamesWithStatus,
@@ -266,6 +266,41 @@ export const gameRouter = createTRPCRouter({
           triggerPlayerGameSessionUpdate(tx, playerGameSession.id),
         ])
       })
+    }),
+
+  forceProgressGameState: protectedProcedure
+    .input(
+      z.object({
+        game_id: z.string(),
+        game_state: z.optional(z.enum(GAME_STATUS)),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const game = await getGameById(ctx.db, input.game_id)
+
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Only admins can force progress games" })
+      }
+
+      if (!game) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
+      }
+
+      if (!input.game_state) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Must specify desired game state" })
+      }
+
+      if (input.game_state === "finished") {
+        await cancelInngestGameWorkflow(ctx.inngest, game.id)
+        finalizeGame(input.game_id)
+      }
+
+      await ctx.db
+        .update(schema.gameStates)
+        .set({
+          status: input.game_state,
+        })
+        .where(cmp.eq(schema.gameStates.id, game.id))
     }),
 
   join: protectedProcedure.input(

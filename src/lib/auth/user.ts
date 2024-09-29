@@ -7,12 +7,6 @@ import { type User } from "@supabase/supabase-js"
 
 export const ADMIN_EMAILS = ["soorria.ss@gmail.com", "ericcpaul00@gmail.com"]
 
-declare global {
-  interface User {
-    role: 'admin' | 'user'
-  }
-}
-
 async function getAuthUserImpl(): Promise<User | null> {
   const sb = createServerClient()
   const { data, error } = await sb.auth.getUser()
@@ -28,7 +22,7 @@ async function getAuthUserImpl(): Promise<User | null> {
     return null
   }
 
-  return { ...data.user, role: dbUser.role }
+  return { ...data.user, userRole: dbUser.role }
 }
 
 export const getAuthUser = cache(getAuthUserImpl)

@@ -8,13 +8,14 @@ import { toast } from "sonner"
 
 import Navbar from "~/lib/surfaces/navbar/Navbar"
 import { api } from "~/lib/trpc/react"
+import AdminSettings from "../AdminSettings"
 import { Button } from "../ui/button"
 import ResponsiveDialog from "../ui/ResponsiveDialog"
 import { CountdownTimer } from "./CountdownTimer"
 import { useGameManager } from "./GameManagerProvider"
 
 export default function InGameNavBar() {
-  const { gameInfo, gameSessionInfo } = useGameManager()
+  const { gameInfo, gameSessionInfo, user } = useGameManager()
   const trpcUtils = api.useUtils()
   const exitGameEarlyMutation = api.games.exitGameEarly.useMutation({
     onSuccess: () => {
@@ -95,6 +96,7 @@ export default function InGameNavBar() {
           )}
           renderContent={(props) => (
             <div className="flex flex-col gap-2">
+              {user.userRole === "admin" && <AdminSettings gameId={gameInfo.id} />}
               {canExitEarly && <Button onClick={earlyExit}>Exit early</Button>}
               <Button asChild className="w-full" variant={"outline"}>
                 <Link href="/" onClick={props.closeDialog}>
