@@ -62,14 +62,6 @@ export const metadata: Metadata = {
     title,
     description,
     url: "https://promptracer.dev",
-    images: [
-      {
-        url: "https://promptracer.dev/ogimage.png",
-        width: 1200,
-        height: 630,
-        alt: `${title} - ${description}`,
-      },
-    ],
   },
 
   twitter: {
