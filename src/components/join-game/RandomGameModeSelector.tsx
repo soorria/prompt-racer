@@ -2,23 +2,14 @@
 
 import React from "react"
 import { useRouter } from "next/navigation"
-import { type User } from "@supabase/supabase-js"
 import { Shuffle } from "lucide-react"
 import { usePostHog } from "posthog-js/react"
 
-import type { QuestionDifficultyLevels } from "~/lib/games/constants"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select"
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
 import { Button } from "../ui/button"
 
-export default function RandomGameModeSelector({ user }: { user: User | null }) {
+export default function RandomGameModeSelector() {
   const router = useRouter()
   const posthog = usePostHog()
   const joinGame = api.games.join.useMutation({
