@@ -72,7 +72,6 @@ export const gameRouter = createTRPCRouter({
       return null
     }),
 
-
   getPlayerPositionMetrics: protectedProcedure
     .input(
       z.object({
@@ -109,7 +108,7 @@ export const gameRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const isTestRun = input.submission_type === "test-run";
+      const isTestRun = input.submission_type === "test-run"
       const playerGameSession = await ctx.db.query.playerGameSessions.findFirst({
         where: cmp.and(
           cmp.eq(schema.playerGameSessions.user_id, ctx.user.id),
@@ -150,10 +149,9 @@ export const gameRouter = createTRPCRouter({
         })
       }
 
-      const submissionState =
-        isTestRun
-          ? playerGameSession.testState
-          : playerGameSession.submissionState
+      const submissionState = isTestRun
+        ? playerGameSession.testState
+        : playerGameSession.submissionState
 
       if (submissionState) {
         const lastSubmittedAt = submissionState.last_submitted_at
@@ -189,14 +187,14 @@ export const gameRouter = createTRPCRouter({
               id: schema.playerGameSubmissionStates.id,
             }),
           submissionState &&
-          tx
-            .delete(schema.playerGameSubmissionStateResults)
-            .where(
-              cmp.eq(
-                schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-                submissionState.id,
+            tx
+              .delete(schema.playerGameSubmissionStateResults)
+              .where(
+                cmp.eq(
+                  schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+                  submissionState.id,
+                ),
               ),
-            ),
         ])
       })
 
@@ -207,8 +205,7 @@ export const gameRouter = createTRPCRouter({
         })
       }
 
-      const submissionStateIdField =
-        isTestRun ? "test_state_id" : "submission_state_id"
+      const submissionStateIdField = isTestRun ? "test_state_id" : "submission_state_id"
 
       await ctx.db
         .update(schema.playerGameSessions)
@@ -217,8 +214,8 @@ export const gameRouter = createTRPCRouter({
         })
         .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
 
-      const testCases = playerGameSession.game.question.testCases.filter(
-        (testCase) => isTestRun ? testCase.type === "public" : true,
+      const testCases = playerGameSession.game.question.testCases.filter((testCase) =>
+        isTestRun ? testCase.type === "public" : true,
       )
 
       const runResults = await runPythonCodeAgainstTestCases(
@@ -352,16 +349,17 @@ export const gameRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const game = await getGameById(ctx.db, input.game_id)
-      const [users] = await ctx.db.select({
-        count: count(),
-      })
+      const users = await ctx.db
+        .select({
+          user_id: schema.playerGameSessions.user_id,
+        })
         .from(schema.playerGameSessions)
         .where(cmp.eq(schema.playerGameSessions.game_id, input.game_id))
 
-      if (users?.count !== 1) {
+      if (users.length !== 1 || users[0]?.user_id !== ctx.user.id) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Cannot exit early if multiple users are in the game"
+          message: "Cannot exit early if multiple users are in the game",
         })
       }
 
