@@ -2,23 +2,24 @@
 
 import type { VariantProps } from "class-variance-authority"
 import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
+import { Slot, Slottable } from "@radix-ui/react-slot"
 import { cva } from "class-variance-authority"
 import { Loader2 } from "lucide-react"
 
 import { cn } from "~/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-md text-sm font-medium ring-offset-background transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-card hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        default: "bg-primary text-primary-foreground enabled:hover:bg-primary/90",
+        destructive: "bg-destructive text-destructive-foreground enabled:hover:bg-destructive/90",
+        outline:
+          "border border-input bg-card enabled:hover:bg-accent enabled:hover:text-accent-foreground",
+        secondary: "bg-secondary text-secondary-foreground enabled:hover:bg-secondary/80",
+        ghost: "enabled:hover:bg-accent enabled:hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 enabled:hover:underline",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -28,16 +29,24 @@ const buttonVariants = cva(
         icon: "sq-10",
         "icon-sm": "sq-9",
       },
+      /**
+       * Note: separated so disabled styles don't affect the loading state
+       */
+      disabled: {
+        true: "opacity-50",
+        false: "",
+      },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
+      disabled: false,
     },
   },
 )
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+    Omit<VariantProps<typeof buttonVariants>, "disabled"> {
   asChild?: boolean
   isLoading?: boolean
   scalingOnClick?: boolean
@@ -62,25 +71,37 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size }), className, {
-          "transition-transform active:scale-[0.98]": scalingOnClick,
+        className={cn(buttonVariants({ variant, size, disabled: props.disabled }), className, {
+          "transition-transform enabled:active:scale-[0.98]": scalingOnClick,
         })}
         ref={ref}
         disabled={isLoading || props.disabled}
         {...props}
       >
-        <span className="flex items-center">
-          {isLoading ? (
-            <Loader2 className={cn("animate-spin sq-4", { "mr-2": !!children })} />
-          ) : (
-            Icon && (
-              <span className={cn({ "mr-2": !!children })}>
-                <Icon className="sq-4" />
-              </span>
-            )
-          )}
-          {children}
-        </span>
+        {Icon ? <Icon className="sq-4" /> : null}
+
+        <Slottable>{children}</Slottable>
+
+        {variant !== "link" && (
+          <span
+            className={cn(
+              "pointer-events-none absolute inset-0 grid place-items-center transition",
+              {
+                "scale-50 opacity-0 backdrop-blur-0": !isLoading,
+                "backdrop-blur-xxs": isLoading,
+              },
+            )}
+          >
+            <span
+              className={cn(
+                "bg-accent",
+                buttonVariants({ variant, size }),
+                "absolute inset-0 border-none bg-opacity-70",
+              )}
+            />
+            <Loader2 className="animate-spin text-current sq-4" />
+          </span>
+        )}
       </Comp>
     )
   },
