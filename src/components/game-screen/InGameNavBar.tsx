@@ -97,9 +97,7 @@ export default function InGameNavBar() {
           )}
           renderContent={(props) => (
             <div className="flex flex-col gap-2">
-              {userQuery.data && userQuery.data.role === "admin" && (
-                <AdminSettings gameId={gameInfo.id} />
-              )}
+              {userQuery.data?.role === "admin" && <AdminSettings gameId={gameInfo.id} />}
               {canExitEarly && <Button onClick={earlyExit}>Exit early</Button>}
               <Button asChild className="w-full" variant={"outline"}>
                 <Link href="/" onClick={props.closeDialog}>
