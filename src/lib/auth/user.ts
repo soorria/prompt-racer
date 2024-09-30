@@ -4,8 +4,6 @@ import { cmp, db, schema } from "../db"
 import { logger } from "../server/logger"
 import { createServerClient } from "../supabase/server"
 
-export const ADMIN_EMAILS = ["soorria.ss@gmail.com", "ericcpaul00@gmail.com"]
-
 async function getAuthUserImpl() {
   const sb = createServerClient()
   const { data, error } = await sb.auth.getUser()
