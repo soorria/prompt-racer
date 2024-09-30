@@ -15,13 +15,14 @@ import { CountdownTimer } from "./CountdownTimer"
 import { useGameManager } from "./GameManagerProvider"
 
 export default function InGameNavBar() {
-  const { gameInfo, gameSessionInfo, user } = useGameManager()
+  const { gameInfo, gameSessionInfo } = useGameManager()
   const trpcUtils = api.useUtils()
   const exitGameEarlyMutation = api.games.exitGameEarly.useMutation({
     onSuccess: () => {
       void trpcUtils.games.getGameStateWithQuestion.invalidate()
     },
   })
+  const userQuery = api.auth.getUser.useQuery()
   const [hasShownEarlyExitToast, setHasShownEarlyExitToast] = useState(false)
   const gameSessionResults = gameSessionInfo.submissionState?.results
   const canExitEarly = gameInfo.status === "inProgress" && gameInfo.players.length === 1
@@ -96,7 +97,9 @@ export default function InGameNavBar() {
           )}
           renderContent={(props) => (
             <div className="flex flex-col gap-2">
-              {user.userRole === "admin" && <AdminSettings gameId={gameInfo.id} />}
+              {userQuery.data && userQuery.data.role === "admin" && (
+                <AdminSettings gameId={gameInfo.id} />
+              )}
               {canExitEarly && <Button onClick={earlyExit}>Exit early</Button>}
               <Button asChild className="w-full" variant={"outline"}>
                 <Link href="/" onClick={props.closeDialog}>

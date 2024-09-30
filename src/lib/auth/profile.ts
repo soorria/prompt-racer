@@ -3,7 +3,6 @@ import { isAfter, subSeconds } from "date-fns"
 
 import { cmp, db, schema } from "../db"
 import { captureUserEvent } from "../posthog/server"
-import { ADMIN_EMAILS } from "./user"
 
 function getNameFromAuthUser(authUser: User) {
   const { user_name } = authUser.user_metadata
@@ -36,7 +35,6 @@ export async function upsertProfile(authUser: User) {
     .values({
       id: authUser.id,
       name: getNameFromAuthUser(authUser),
-      role: !!authUser.email && ADMIN_EMAILS.includes(authUser.email) ? 'admin' : 'user',
       profile_image_url: getProfileImageFromAuthUser(authUser),
       github_username: githubUsername,
     })

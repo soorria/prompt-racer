@@ -7,8 +7,8 @@ import { z } from "zod"
 
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
 import { cmp, schema } from "~/lib/db"
-import { Doc, type DBOrTransation, type DocInsert } from "~/lib/db/types"
-import { CODE_SUBMISSION_TIMEOUT, DEFAULT_GAME_DURATIONS, GAME_STATUS, QUESTION_DIFFICULTY_LEVELS, QuestionDifficultyLevels } from "~/lib/games/constants"
+import { type DBOrTransation, type DocInsert } from "~/lib/db/types"
+import { CODE_SUBMISSION_TIMEOUT, DEFAULT_GAME_DURATIONS, GAME_STATUS, QUESTION_DIFFICULTY_LEVELS, type QuestionDifficultyLevels } from "~/lib/games/constants"
 import {
   getGameById,
   getGamesWithStatus,
@@ -272,7 +272,7 @@ export const gameRouter = createTRPCRouter({
     .input(
       z.object({
         game_id: z.string(),
-        game_state: z.optional(z.enum(GAME_STATUS)),
+        game_state: z.enum(GAME_STATUS),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -286,13 +286,10 @@ export const gameRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
       }
 
-      if (!input.game_state) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Must specify desired game state" })
-      }
-
       if (input.game_state === "finished") {
         await cancelInngestGameWorkflow(ctx.inngest, game.id)
-        finalizeGame(input.game_id)
+        await finalizeGame(input.game_id)
+        return
       }
 
       await ctx.db
