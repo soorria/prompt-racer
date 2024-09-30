@@ -12,7 +12,7 @@ const AUTH_REDIRECT_ORIGIN =
   env.NODE_ENV === "production" ? "https://promptracer.dev" : "http://localhost:3000"
 const AUTH_REDIRECT_URL = `${AUTH_REDIRECT_ORIGIN}/auth/callback`
 
-export const loginWithGitHubAction = action.action(async ({ }) => {
+export const loginWithGitHubAction = action.action(async ({}) => {
   const sb = createServerClient()
 
   const referrer = headers().get("referer")
