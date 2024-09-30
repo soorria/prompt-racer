@@ -12,6 +12,7 @@ import {
   type WaitingForPlayersGameState,
 } from "./types"
 import { getQuestionTestCasesOrderBy } from "./utils"
+import { QuestionDifficultyLevels } from "./constants"
 
 // TODO: cursor-based pagination
 export async function getCurrentUserGames(tx: DBOrTransation) {
@@ -62,6 +63,13 @@ export async function getGamesWithStatus<Status extends Doc<"gameStates">["statu
 ) {
   const results = await tx.query.gameStates.findMany({
     where: cmp.eq(schema.gameStates.status, status),
+    with: {
+      question: {
+        columns: {
+          difficulty: true
+        }
+      }
+    }
   })
 
   return results
@@ -77,18 +85,24 @@ export async function getSubmissionMetrics(tx: DBOrTransation, submission_state_
   }
 }
 
-export async function getRandomQuestion(tx: DBOrTransation) {
-  const [numQuestions] = await tx
-    .select({
-      count: count(),
-    })
-    .from(schema.questions)
+export async function getRandomQuestion(tx: DBOrTransation, difficulty?: QuestionDifficultyLevels) {
+  const baseQuery = tx.select({ count: count() }).from(schema.questions)
+  const queryWithDifficulty = difficulty
+    ? baseQuery.where(cmp.eq(schema.questions.difficulty, difficulty))
+    : baseQuery
+
+  const [numQuestions] = await queryWithDifficulty
 
   invariant(numQuestions?.count, "No questions found")
 
   const randomIndex = Math.floor(Math.random() * numQuestions.count)
 
-  const [question] = await tx.select().from(schema.questions).offset(randomIndex)
+  const baseQuestionQuery = tx.select().from(schema.questions)
+  const questionQueryWithDifficulty = difficulty
+    ? baseQuestionQuery.where(cmp.eq(schema.questions.difficulty, difficulty))
+    : baseQuestionQuery
+
+  const [question] = await questionQueryWithDifficulty.offset(randomIndex)
 
   invariant(question, "No question found")
 

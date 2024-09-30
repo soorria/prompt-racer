@@ -75,7 +75,7 @@ export function ResultsTable({
                 <td
                   className={cn(
                     { "border-b border-gray-700/25": isNotLastRow, "rounded-bl-xl": !isNotLastRow },
-                    "whitespace-nowrap py-4 pl-3 text-right text-sm font-medium text-gray-200 transition-colors duration-500 group-hover/row:duration-75 sm:pr-3",
+                    "whitespace-nowrap py-4 pl-3 text-left text-sm font-medium text-gray-200 transition-colors duration-500 group-hover/row:duration-75 sm:pr-3",
                     { [classes.rankCell]: hasFinalSubmission },
                   )}
                 >

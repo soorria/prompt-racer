@@ -23,6 +23,8 @@ const customTypes = {
   primaryKeyReference: (name: string) => uuid(name),
 }
 
+export const roleEnum = pgEnum("role", ["admin", "user"])
+
 export const users = pgTable(
   "users",
   {
@@ -32,6 +34,7 @@ export const users = pgTable(
     id: customTypes.primaryKeyWithoutDefault("id"),
     name: text("name").notNull(),
     profile_image_url: text("profile_image_url"),
+    role: roleEnum("role").default('user').notNull(),
 
     github_username: text("github_username"),
 

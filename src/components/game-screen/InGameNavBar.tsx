@@ -8,6 +8,7 @@ import { toast } from "sonner"
 
 import Navbar from "~/lib/surfaces/navbar/Navbar"
 import { api } from "~/lib/trpc/react"
+import AdminSettings from "../AdminSettings"
 import { Button } from "../ui/button"
 import ResponsiveDialog from "../ui/ResponsiveDialog"
 import { CountdownTimer } from "./CountdownTimer"
@@ -21,6 +22,7 @@ export default function InGameNavBar() {
       void trpcUtils.games.getGameStateWithQuestion.invalidate()
     },
   })
+  const userQuery = api.auth.getUser.useQuery()
   const [hasShownEarlyExitToast, setHasShownEarlyExitToast] = useState(false)
   const gameSessionResults = gameSessionInfo.submissionState?.results
   const canExitEarly = gameInfo.status === "inProgress" && gameInfo.players.length === 1
@@ -95,6 +97,7 @@ export default function InGameNavBar() {
           )}
           renderContent={(props) => (
             <div className="flex flex-col gap-2">
+              {userQuery.data?.role === "admin" && <AdminSettings gameId={gameInfo.id} />}
               {canExitEarly && <Button onClick={earlyExit}>Exit early</Button>}
               <Button asChild className="w-full" variant={"outline"}>
                 <Link href="/" onClick={props.closeDialog}>
