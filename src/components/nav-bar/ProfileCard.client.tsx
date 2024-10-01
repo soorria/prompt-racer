@@ -21,22 +21,24 @@ export default function ClientProfileCard({ user }: { user: Doc<"users"> | null 
       </PopoverTrigger>
       <PopoverContent className="p-0 py-2" align="end">
         <LoginLogoutButton key={user?.id ?? ""} isAuthenticated={!!user} setOpen={setOpen} />
-        <div className="spacer my-2 h-0.5 w-full bg-gray-200/20" />
         {user?.role === "admin" && (
-          <ResponsiveDialog
-            title="Settings"
-            renderTrigger={(props) => (
-              <Button
-                className="w-full"
-                onClick={() => {
-                  props.openDialog()
-                }}
-              >
-                Admin settings
-              </Button>
-            )}
-            renderContent={() => <AdminSettings />}
-          />
+          <>
+            <div className="spacer my-2 h-0.5 w-full bg-gray-200/20" />
+            <ResponsiveDialog
+              title="Settings"
+              renderTrigger={(props) => (
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    props.openDialog()
+                  }}
+                >
+                  Admin settings
+                </Button>
+              )}
+              renderContent={() => <AdminSettings />}
+            />
+          </>
         )}
       </PopoverContent>
     </Popover>
