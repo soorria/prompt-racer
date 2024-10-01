@@ -24,7 +24,7 @@ export default function RandomGameModeSelector() {
   return (
     <div className="mx-auto max-w-sm">
       <div className="isolate mx-auto my-16 grid grid-cols-1 gap-4 gap-y-8 lg:mx-0 lg:grid-cols-1">
-        <AnimatedBorder borderRadius={12}>
+        <AnimatedBorder>
           <div
             className={cn(
               "bubbles relative flex flex-col justify-between gap-4 rounded-3xl bg-card p-8 ring-1 ring-gray-200/20",

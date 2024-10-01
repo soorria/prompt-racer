@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useState } from "react"
 import { useSize } from "@radix-ui/react-use-size"
 
 import { IS_DEV } from "~/env"
+import { cn } from "~/lib/utils"
 
 type AnimatedBorderProps = {
   children: React.ReactNode
@@ -16,28 +17,29 @@ export function AnimatedBorder({ strokeWidth, children, debug }: AnimatedBorderP
   const offset = 1.5
 
   return (
-    <div className="relative w-fit" ref={setElement}>
+    <div className="relative w-full" ref={setElement}>
       {React.Children.only(children)}
-      {elementDetails.ready && (
-        <div
-          data-border-ignore
-          className="pointer-events-none absolute grid place-items-center"
-          style={{
-            left: -offset,
-            top: -offset,
-            width: elementDetails.width + 2 * offset,
-            height: elementDetails.height + 2 * offset,
-          }}
-        >
-          <AnimatedBorderSVG
-            width={elementDetails.width + 2 * offset}
-            height={elementDetails.height + 2 * offset}
-            borderRadius={elementDetails.borderRadius ?? 0}
-            strokeWidth={strokeWidth}
-            debug={debug}
-          />
-        </div>
-      )}
+
+      <div
+        data-border-ignore
+        className={cn("pointer-events-none absolute grid place-items-center transition-opacity", {
+          "opacity-0": !elementDetails.ready,
+        })}
+        style={{
+          left: -offset,
+          top: -offset,
+          width: elementDetails.width + 2 * offset,
+          height: elementDetails.height + 2 * offset,
+        }}
+      >
+        <AnimatedBorderSVG
+          width={elementDetails.width + 2 * offset}
+          height={elementDetails.height + 2 * offset}
+          borderRadius={elementDetails.borderRadius ?? 0}
+          strokeWidth={strokeWidth ?? 2}
+          debug={debug}
+        />
+      </div>
     </div>
   )
 }
@@ -74,14 +76,14 @@ function useElementDetails(rootElement: HTMLElement | null) {
 function AnimatedBorderSVG({
   width,
   height,
-  borderRadius = 0,
-  strokeWidth = 1,
+  borderRadius,
+  strokeWidth,
   debug: debugProp,
 }: {
   width: number
   height: number
-  borderRadius?: number
-  strokeWidth?: number
+  borderRadius: number
+  strokeWidth: number
   debug?: true
 }) {
   const rectWidth = width - 2 * strokeWidth
