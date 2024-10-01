@@ -38,7 +38,7 @@ export function AnimatedBorder({ strokeWidth, children, debug }: AnimatedBorderP
           width={elementDetails.width + 2 * offset}
           height={elementDetails.height + 2 * offset}
           borderRadius={elementDetails.borderRadius ?? 0}
-          strokeWidth={strokeWidth ?? 2}
+          strokeWidth={strokeWidth ?? 1}
           debug={debug}
         />
       </div>
@@ -112,7 +112,7 @@ function AnimatedBorderSVG({
           <stop offset="10%" stopColor="hsl(var(--primary))"></stop>
           <stop offset="95%" stopColor="hsl(var(--primary) / 0)"></stop>
         </radialGradient>
-        <mask id="v-clip" strokeWidth="3">
+        <mask id="v-clip" strokeWidth="2">
           <rect
             x={strokeWidth}
             y={strokeWidth}
@@ -128,7 +128,7 @@ function AnimatedBorderSVG({
 
       {debug && (
         <rect
-          className={"fill-none stroke-red-500"}
+          className={"fill-none stroke-red-500/50"}
           strokeWidth={strokeWidth}
           x={strokeWidth}
           y={strokeWidth}
