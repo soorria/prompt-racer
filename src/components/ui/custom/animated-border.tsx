@@ -1,27 +1,40 @@
-import React from "react"
+import React, { useLayoutEffect, useState } from "react"
 import { useSize } from "@radix-ui/react-use-size"
+
+import { IS_DEV } from "~/env"
 
 type AnimatedBorderProps = {
   children: React.ReactNode
-  borderRadius?: number
   strokeWidth?: number
+  debug?: true
 }
 
-export function AnimatedBorder({ borderRadius, strokeWidth, children }: AnimatedBorderProps) {
+export function AnimatedBorder({ strokeWidth, children, debug }: AnimatedBorderProps) {
   const [element, setElement] = React.useState<HTMLDivElement | null>(null)
-  const dim = useSize(element)
-  console.log(dim, element)
+  const elementDetails = useElementDetails(element)
+
+  const offset = 1.5
 
   return (
     <div className="relative w-fit" ref={setElement}>
-      {children}
-      {dim && (
-        <div className="absolute -inset-2">
+      {React.Children.only(children)}
+      {elementDetails.ready && (
+        <div
+          data-border-ignore
+          className="pointer-events-none absolute grid place-items-center"
+          style={{
+            left: -offset,
+            top: -offset,
+            width: elementDetails.width + 2 * offset,
+            height: elementDetails.height + 2 * offset,
+          }}
+        >
           <AnimatedBorderSVG
-            width={dim.width}
-            height={dim.height}
-            borderRadius={borderRadius}
+            width={elementDetails.width + 2 * offset}
+            height={elementDetails.height + 2 * offset}
+            borderRadius={elementDetails.borderRadius ?? 0}
             strokeWidth={strokeWidth}
+            debug={debug}
           />
         </div>
       )}
@@ -29,33 +42,73 @@ export function AnimatedBorder({ borderRadius, strokeWidth, children }: Animated
   )
 }
 
+function useElementDetails(rootElement: HTMLElement | null) {
+  const size = useSize(rootElement)
+  const [borderRadius, setBorderRadius] = useState<number | null>(null)
+
+  useLayoutEffect(() => {
+    if (!rootElement) {
+      return
+    }
+
+    const child = rootElement.querySelector(":not([data-border-ignore])")
+
+    if (!child) {
+      return
+    }
+
+    const resolvedBorderRadius = window.getComputedStyle(child).borderRadius
+    const parsedBorderRadius = parseFloat(resolvedBorderRadius)
+    setBorderRadius(parsedBorderRadius)
+  }, [rootElement])
+
+  return {
+    ready: !!size,
+    width: 0,
+    height: 0,
+    ...size,
+    borderRadius,
+  }
+}
+
 function AnimatedBorderSVG({
   width,
   height,
   borderRadius = 0,
   strokeWidth = 1,
+  debug: debugProp,
 }: {
   width: number
   height: number
   borderRadius?: number
   strokeWidth?: number
+  debug?: true
 }) {
   const rectWidth = width - 2 * strokeWidth
   const rectHeight = height - 2 * strokeWidth
+
+  const viewboxPadding = 0
+
+  const debug = IS_DEV && debugProp
+
   return (
     <svg
-      className="block h-full w-full"
-      viewBox={`-8 -8 ${width + 8} ${height + 8}`}
+      className="block"
+      style={{
+        width,
+        height,
+      }}
+      viewBox={`${-1 * viewboxPadding} ${-1 * viewboxPadding} ${width + viewboxPadding} ${height + viewboxPadding}`}
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
       fill="none"
     >
       <defs>
         <radialGradient id="pulseGradient">
-          <stop offset="10%" stop-color="#22C55E"></stop>
-          <stop offset="95%" stop-color="#22C55E00"></stop>
+          <stop offset="10%" stopColor="hsl(var(--primary))"></stop>
+          <stop offset="95%" stopColor="hsl(var(--primary) / 0)"></stop>
         </radialGradient>
-        <mask id="v-clip" stroke-width="3">
+        <mask id="v-clip" strokeWidth="3">
           <rect
             x={strokeWidth}
             y={strokeWidth}
@@ -64,21 +117,23 @@ function AnimatedBorderSVG({
             rx={borderRadius}
             ry={borderRadius}
             stroke="white"
-            vector-effect="non-scaling-stroke"
+            vectorEffect="non-scaling-stroke"
           ></rect>
         </mask>
       </defs>
 
-      <rect
-        className={"fill-none stroke-border"}
-        strokeWidth={strokeWidth}
-        x={strokeWidth}
-        y={strokeWidth}
-        width={rectWidth}
-        height={rectHeight}
-        rx={borderRadius}
-        ry={borderRadius}
-      />
+      {debug && (
+        <rect
+          className={"fill-none stroke-red-500"}
+          strokeWidth={strokeWidth}
+          x={strokeWidth}
+          y={strokeWidth}
+          width={rectWidth}
+          height={rectHeight}
+          rx={borderRadius}
+          ry={borderRadius}
+        />
+      )}
 
       <g mask="url(#v-clip)">
         <circle
