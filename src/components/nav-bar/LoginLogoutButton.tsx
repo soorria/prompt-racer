@@ -1,10 +1,14 @@
-"use client"
+/**
+ * Intentionally not "use client"-ed. This cannot be a client entrypoint because
+ * it requires a non-action function as a prop.
+ */
 
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { LogIn, LogOut } from "lucide-react"
 
 import { loginWithGitHubAction, logoutAction } from "~/lib/auth/actions"
+import { createBrowserClient } from "~/lib/supabase/browser"
 import { Button } from "../ui/button"
 
 export default function LoginLogoutButton({
@@ -20,6 +24,7 @@ export default function LoginLogoutButton({
   const handleLogout = async () => {
     setIsLoading(true)
     await logoutAction().then(() => {
+      void createBrowserClient().auth.signOut()
       router.push("/")
       setOpen(false)
       setIsLoading(false)
