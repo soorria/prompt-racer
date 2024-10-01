@@ -96,8 +96,7 @@ export default function HeroAnimation() {
   )
   const showLoader =
     step > stepMilestones.startGeneratingCode && step < stepMilestones.startSubmitting
-  // const showSubmittingFakeModal = step > stepMilestones.startSubmitting
-  const showSubmittingFakeModal = true
+  const showSubmittingFakeModal = step > stepMilestones.startSubmitting
   const complete = step === stepMilestones.total
 
   const inputToShow = example.inputChunks.slice(0, currentInputChunkIndex).join("")
