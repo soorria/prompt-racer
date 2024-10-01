@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useLayoutEffect, useState } from "react"
 import { useSize } from "@radix-ui/react-use-size"
 
