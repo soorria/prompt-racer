@@ -10,6 +10,7 @@ import Script from "next/script"
 import { Toaster } from "~/components/ui/sonner"
 import { TooltipProvider } from "~/components/ui/tooltip"
 import { PosthogClientProvider } from "~/lib/posthog/provider"
+import { Themed } from "~/lib/theming/Themed"
 import { TRPCReactProvider } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
 
@@ -89,10 +90,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <TRPCReactProvider>
           <PosthogClientProvider>
             <TooltipProvider>
-              <div className="flex h-full w-full flex-col p-4 pt-0">
-                <div className="flex-1">{children}</div>
-                <Toaster />
-              </div>
+              <Themed>
+                <div className="flex h-full w-full flex-col p-4 pt-0">
+                  <div className="flex-1">{children}</div>
+                  <Toaster />
+                </div>
+              </Themed>
             </TooltipProvider>
           </PosthogClientProvider>
         </TRPCReactProvider>

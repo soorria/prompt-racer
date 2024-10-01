@@ -96,7 +96,8 @@ export default function HeroAnimation() {
   )
   const showLoader =
     step > stepMilestones.startGeneratingCode && step < stepMilestones.startSubmitting
-  const showSubmittingFakeModal = step > stepMilestones.startSubmitting
+  // const showSubmittingFakeModal = step > stepMilestones.startSubmitting
+  const showSubmittingFakeModal = true
   const complete = step === stepMilestones.total
 
   const inputToShow = example.inputChunks.slice(0, currentInputChunkIndex).join("")
@@ -166,7 +167,7 @@ export default function HeroAnimation() {
           onChange={noop}
         />
         <Button type="submit" disabled={false} variant={"secondary"} className="rounded-l-none">
-          {showLoader ? <Loader2 className="sq-5 animate-spin" /> : <Send className="sq-5" />}
+          {showLoader ? <Loader2 className="animate-spin sq-5" /> : <Send className="sq-5" />}
 
           <span className="sr-only">Send</span>
         </Button>
@@ -175,7 +176,7 @@ export default function HeroAnimation() {
       <div>
         {showSubmittingFakeModal && (
           <div className="animate-fade-in absolute inset-0 grid place-items-center">
-            <div className="rounded bg-zinc-600 px-6 py-4">
+            <div className="rounded bg-accent px-6 py-4">
               {complete ? (
                 <div className="flex flex-col items-center gap-4">
                   <p className="font-display text-xl text-primary">🥇 1ST PLACE 🥇</p>

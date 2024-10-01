@@ -9,6 +9,7 @@ import { PostHogProvider, usePostHog } from "posthog-js/react"
 
 import { env, IS_PROD } from "~/env"
 import { useSupabaseUser } from "../auth/hooks/use-supabase-user"
+import { IGNORE_EVENTS_USERS_EMAILS } from "../utils/user"
 
 type PosthogClientProviderProps = {
   children: ReactNode
@@ -71,8 +72,6 @@ function usePosthogPageView() {
     }
   }, [pathname, searchParams, posthog])
 }
-
-const IGNORE_EVENTS_USERS_EMAILS = ["soorria.ss@gmail.com", "ericcpaul00@gmail.com"]
 
 function usePosthogIdentify() {
   const posthog = usePostHog()
