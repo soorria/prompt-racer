@@ -155,3 +155,33 @@ body {
 .slide-in > *:nth-child(20) {
   --step-num: 20;
 }
+
+/* Circle movement along the path */
+.animated-border-circle {
+  animation:
+    animated-border-position 8s infinite linear,
+    animated-border-pulse 4s infinite;
+}
+
+/* Circle moving along the rectangle path */
+@keyframes animated-border-position {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+/* Circle pulsing effect by opacity and size */
+@keyframes animated-border-pulse {
+  0%,
+  30%,
+  70%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}

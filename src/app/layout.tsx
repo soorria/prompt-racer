@@ -89,10 +89,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <TRPCReactProvider>
           <PosthogClientProvider>
             <TooltipProvider>
-              <main className="mx-auto flex h-full w-full flex-col p-4 pt-0">
+              <div className="flex h-full w-full flex-col p-4 pt-0">
                 <div className="flex-1">{children}</div>
                 <Toaster />
-              </main>
+              </div>
             </TooltipProvider>
           </PosthogClientProvider>
         </TRPCReactProvider>
