@@ -7,7 +7,7 @@ import { type User } from "@supabase/supabase-js"
 import { posthog } from "posthog-js"
 import { PostHogProvider, usePostHog } from "posthog-js/react"
 
-import { env, IS_PROD } from "~/env"
+import { env } from "~/env"
 import { useSupabaseUser } from "../auth/hooks/use-supabase-user"
 import { IGNORE_EVENTS_USERS_EMAILS } from "../utils/user"
 
@@ -15,18 +15,13 @@ type PosthogClientProviderProps = {
   children: ReactNode
 }
 
-if (typeof window !== "undefined" && IS_PROD) {
+if (typeof window !== "undefined") {
   posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
     api_host: env.NEXT_PUBLIC_POSTHOG_HOST,
     person_profiles: "identified_only",
     loaded(posthog) {
-      if (!IS_PROD) {
+      if (process.env.NODE_ENV === "development") {
         posthog.debug()
-      }
-
-      const isLocal = window.location.hostname === "localhost"
-
-      if (isLocal) {
         posthog.opt_out_capturing()
       }
     },

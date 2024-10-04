@@ -1,10 +1,10 @@
 import { PostHog } from "posthog-node"
 
-import { env, IS_DEV } from "~/env"
+import { env } from "~/env"
 import { logger } from "../server/logger"
 
 const posthogServer = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
-  disabled: IS_DEV,
+  disabled: process.env.NODE_ENV === "development",
 
   /**
    * Needed for serverless environments
@@ -13,7 +13,7 @@ const posthogServer = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
   flushInterval: 0,
 })
 
-if (IS_DEV) {
+if (process.env.NODE_ENV === "development") {
   posthogServer.debug(true)
 }
 
@@ -27,7 +27,7 @@ export function captureUserEvent(
   properties: Record<string, unknown> = {},
 ) {
   try {
-    if (IS_DEV) {
+    if (process.env.NODE_ENV === "development") {
       logger.debug(`capturing user event`, {
         event,
         userId,

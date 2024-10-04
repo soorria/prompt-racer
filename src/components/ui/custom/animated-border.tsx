@@ -3,7 +3,6 @@
 import type { RefObject } from "react"
 import React, { useLayoutEffect, useRef, useState } from "react"
 
-import { IS_DEV } from "~/env"
 import { cn } from "~/lib/utils"
 
 type AnimatedBorderProps = {
@@ -122,8 +121,6 @@ function AnimatedBorderSVG({
 
   const viewboxPadding = 0
 
-  const debug = IS_DEV && debugProp
-
   return (
     <svg
       className="block"
@@ -155,7 +152,7 @@ function AnimatedBorderSVG({
         </mask>
       </defs>
 
-      {debug && (
+      {debugProp && process.env.NODE_ENV === "development" && (
         <rect
           className={"fill-none stroke-red-500/50"}
           strokeWidth={strokeWidth}
