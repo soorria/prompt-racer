@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useLayoutEffect, useState } from "react"
-import { useSize } from "@radix-ui/react-use-size"
+import type { RefObject } from "react"
+import React, { useLayoutEffect, useRef, useState } from "react"
 
 import { IS_DEV } from "~/env"
 import { cn } from "~/lib/utils"
@@ -13,18 +13,18 @@ type AnimatedBorderProps = {
 }
 
 export function AnimatedBorder({ strokeWidth, children, debug }: AnimatedBorderProps) {
-  const [element, setElement] = React.useState<HTMLDivElement | null>(null)
-  const elementDetails = useElementDetails(element)
+  const elementRef = useRef<HTMLDivElement>(null)
+  const elementDetails = useElementDetails(elementRef)
 
   const offset = 1.5
 
   return (
-    <div className="relative w-full" ref={setElement}>
+    <div className="relative w-full" ref={elementRef}>
       {React.Children.only(children)}
 
       <div
         data-border-ignore
-        className={cn("pointer-events-none absolute grid place-items-center transition-opacity", {
+        className={cn("pointer-events-none absolute grid place-items-center", {
           "opacity-0": !elementDetails.ready,
         })}
         style={{
@@ -46,33 +46,62 @@ export function AnimatedBorder({ strokeWidth, children, debug }: AnimatedBorderP
   )
 }
 
-function useElementDetails(rootElement: HTMLElement | null) {
-  const size = useSize(rootElement)
-  const [borderRadius, setBorderRadius] = useState<number | null>(null)
+interface ElementDetails {
+  ready: boolean
+  width: number
+  height: number
+  borderRadius: number
+}
+
+const defaultElementDetails: ElementDetails = {
+  ready: false,
+  width: 0,
+  height: 0,
+  borderRadius: 0,
+}
+
+function useElementDetails(elementRef: RefObject<HTMLElement>) {
+  const [elementDetails, setElementDetails] = useState<ElementDetails>(defaultElementDetails)
 
   useLayoutEffect(() => {
-    if (!rootElement) {
+    const element = elementRef.current
+    if (!element) {
       return
     }
 
-    const child = rootElement.querySelector(":not([data-border-ignore])")
+    function observeDetails() {
+      if (!element) {
+        return
+      }
 
-    if (!child) {
-      return
+      const child = element.querySelector(":not([data-border-ignore])")
+
+      let borderRadius = 0
+
+      if (child) {
+        const resolvedBorderRadius = window.getComputedStyle(child).borderRadius
+        borderRadius = parseFloat(resolvedBorderRadius)
+      }
+
+      setElementDetails({
+        ready: true,
+        borderRadius: borderRadius,
+        width: element.offsetWidth,
+        height: element.offsetHeight,
+      })
     }
 
-    const resolvedBorderRadius = window.getComputedStyle(child).borderRadius
-    const parsedBorderRadius = parseFloat(resolvedBorderRadius)
-    setBorderRadius(parsedBorderRadius)
-  }, [rootElement])
+    observeDetails()
 
-  return {
-    ready: !!size,
-    width: 0,
-    height: 0,
-    ...size,
-    borderRadius,
-  }
+    const observer = new ResizeObserver(observeDetails)
+    observer.observe(element, { box: "border-box" })
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [elementRef])
+
+  return elementDetails
 }
 
 function AnimatedBorderSVG({
