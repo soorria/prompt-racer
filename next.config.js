@@ -34,6 +34,16 @@ const config = {
     ]
   },
 
+  async redirects() {
+    return [
+      {
+        source: "/src",
+        destination: "https://github.com/soorria/prompt-racer",
+        permanent: false,
+      },
+    ]
+  },
+
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
 }
