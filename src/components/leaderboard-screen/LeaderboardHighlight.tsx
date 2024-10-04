@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils"
 import UserAvatar from "../nav-bar/UserAvatar"
 
 type LeaderboardTopThreeProps = {
-  players: (Doc<"users"> & { winCondition: { label: string; value: string } })[]
+  players: (Doc<"userProfiles"> & { winCondition: { label: string; value: string } })[]
   podiumNoPlayerPlaceholder: string
 }
 
@@ -16,7 +16,7 @@ export const ORDERING_DETAILS: Record<
   LeaderboardOrdering,
   {
     label: string
-    getValue: (player: Doc<"users">) => string | number
+    getValue: (player: Doc<"userProfiles">) => string | number
   }
 > = {
   "games-played": {
@@ -39,7 +39,7 @@ const PlayerCard = ({
   winCondition,
   noPlayerPlaceholder,
 }: {
-  player: Doc<"users"> | undefined
+  player: Doc<"userProfiles"> | undefined
   rank: number
   winCondition: { label: string; value: string } | undefined
   noPlayerPlaceholder: string
@@ -67,9 +67,9 @@ const PlayerCard = ({
           <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-transparent to-yellow-950/50"></div>
           <Trophy
             aria-hidden
-            className="sq-8 pointer-events-none absolute -bottom-2 animate-pulse text-yellow-400 blur"
+            className="pointer-events-none absolute -bottom-2 animate-pulse text-yellow-400 blur sq-8"
           />
-          <Trophy className="sq-8 pointer-events-none absolute -bottom-2 text-yellow-400" />
+          <Trophy className="pointer-events-none absolute -bottom-2 text-yellow-400 sq-8" />
         </div>
 
         {/* Player Name and Rank in a single row on mobile, stacked on larger screens */}
@@ -97,7 +97,7 @@ const PlayerCard = ({
         <UserAvatar size="md" name={player.name} imageUrl={player.profile_image_url} />
         <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-transparent to-black/50"></div>
         <Medal
-          className={cn("sq-6 pointer-events-none absolute -bottom-2 text-gray-300", {
+          className={cn("pointer-events-none absolute -bottom-2 text-gray-300 sq-6", {
             "text-gray-400": rank === 1,
             "text-yellow-700": rank === 2,
           })}

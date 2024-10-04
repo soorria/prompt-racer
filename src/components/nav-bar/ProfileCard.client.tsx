@@ -11,7 +11,11 @@ import ResponsiveDialog from "../ui/ResponsiveDialog"
 import LoginLogoutButton from "./LoginLogoutButton"
 import UserAvatar from "./UserAvatar"
 
-export default function ClientProfileCard({ user }: { user: Doc<"users"> | null | undefined }) {
+export default function ClientProfileCard({
+  user,
+}: {
+  user: Doc<"userProfiles"> | null | undefined
+}) {
   const [open, setOpen] = React.useState(false)
 
   return (

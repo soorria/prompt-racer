@@ -2,7 +2,7 @@ import type { Doc } from "~/lib/db/types"
 import { cn } from "~/lib/utils"
 import UserAvatar from "../nav-bar/UserAvatar"
 
-export default function LeaderboardTablePlayerName({ player }: { player: Doc<"users"> }) {
+export default function LeaderboardTablePlayerName({ player }: { player: Doc<"userProfiles"> }) {
   const commonClasses = {
     root: "inline-flex items-center gap-1.5",
   }

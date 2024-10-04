@@ -55,7 +55,7 @@ export default async function LeaderboardPage(props: {
   )
 }
 
-function LeaderboardTable({ users }: { users: Doc<"users">[] }) {
+function LeaderboardTable({ users }: { users: Doc<"userProfiles">[] }) {
   return (
     <div className="-mx-4 mt-16 flow-root overflow-x-scroll px-4">
       <table

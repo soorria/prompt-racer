@@ -25,7 +25,7 @@ const customTypes = {
 
 export const roleEnum = pgEnum("role", ["admin", "user"])
 
-export const users = pgTable(
+export const userProfiles = pgTable(
   "users",
   {
     /**
@@ -34,7 +34,7 @@ export const users = pgTable(
     id: customTypes.primaryKeyWithoutDefault("id"),
     name: text("name").notNull(),
     profile_image_url: text("profile_image_url"),
-    role: roleEnum("role").default('user').notNull(),
+    role: roleEnum("role").default("user").notNull(),
 
     github_username: text("github_username"),
 
@@ -42,7 +42,7 @@ export const users = pgTable(
     gamesPlayed: integer("games_played").default(0).notNull(),
     winRate: real("win_rate").generatedAlwaysAs(
       (): SQL =>
-        sql`case when ${users.gamesPlayed} = 0 then 0 else least((${users.wins}::real / ${users.gamesPlayed}), 1.0) end`,
+        sql`case when ${userProfiles.gamesPlayed} = 0 then 0 else least((${userProfiles.wins}::real / ${userProfiles.gamesPlayed}), 1.0) end`,
     ),
 
     inserted_at: timestamp("inserted_at").notNull().defaultNow(),
@@ -63,7 +63,7 @@ export const users = pgTable(
   },
 )
 
-export const usersRelations = relations(users, ({ many }) => {
+export const usersRelations = relations(userProfiles, ({ many }) => {
   return {
     gameSessions: many(playerGameSessions),
   }
@@ -319,7 +319,7 @@ export const playerGameSessions = pgTable(
     user_id: customTypes
       .primaryKeyReference("user_id")
       .notNull()
-      .references(() => users.id, {
+      .references(() => userProfiles.id, {
         onDelete: "cascade",
       }),
     game_id: customTypes
@@ -365,9 +365,9 @@ export const playerGameSessionsRelations = relations(playerGameSessions, ({ one,
       references: [playerGameSubmissionStates.id],
     }),
     finalResult: one(playerGameSessionFinalResults),
-    user: one(users, {
+    user: one(userProfiles, {
       fields: [playerGameSessions.user_id],
-      references: [users.id],
+      references: [userProfiles.id],
     }),
     game: one(gameStates, {
       fields: [playerGameSessions.game_id],

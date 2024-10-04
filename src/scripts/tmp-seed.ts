@@ -26,7 +26,7 @@ async function getAISourceId() {
 }
 
 async function getExistingUsers() {
-  const users = await db.query.users.findMany()
+  const users = await db.query.userProfiles.findMany()
 
   return users
 }
@@ -68,7 +68,7 @@ async function main() {
     },
   ])
 
-  const fakeUsers: DocInsert<"users">[] = []
+  const fakeUsers: DocInsert<"userProfiles">[] = []
   for (let i = 0; i < 100; i++) {
     const name = faker.person.firstName()
     fakeUsers.push({
@@ -81,7 +81,7 @@ async function main() {
     })
   }
 
-  await db.insert(schema.users).values(fakeUsers)
+  await db.insert(schema.userProfiles).values(fakeUsers)
 }
 
 void main()

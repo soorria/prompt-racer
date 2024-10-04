@@ -6,7 +6,7 @@ type FullGameState = Doc<"gameStates"> & {
     testCases: Doc<"questionTestCases">[]
   }
   players: {
-    user: Doc<"users">
+    user: Doc<"userProfiles">
   }[]
 }
 

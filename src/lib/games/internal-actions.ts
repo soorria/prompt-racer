@@ -82,19 +82,19 @@ export async function finalizeGame(gameId: string) {
 
         if (winningPlayerSession) {
           await tx
-            .update(schema.users)
-            .set({ wins: sql`${schema.users.wins} + 1` })
-            .where(cmp.eq(schema.users.id, winningPlayerSession.user_id))
+            .update(schema.userProfiles)
+            .set({ wins: sql`${schema.userProfiles.wins} + 1` })
+            .where(cmp.eq(schema.userProfiles.id, winningPlayerSession.user_id))
         }
       }
     }
 
     await tx
-      .update(schema.users)
-      .set({ gamesPlayed: sql`${schema.users.gamesPlayed} + 1` })
+      .update(schema.userProfiles)
+      .set({ gamesPlayed: sql`${schema.userProfiles.gamesPlayed} + 1` })
       .where(
         cmp.inArray(
-          schema.users.id,
+          schema.userProfiles.id,
           playerGameSessions.map((session) => session.user_id),
         ),
       )

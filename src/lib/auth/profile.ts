@@ -32,7 +32,7 @@ export async function upsertProfile(authUser: User) {
   const githubUsername = getGithubUsernameFromAuthUser(authUser)
 
   const [result] = await db
-    .insert(schema.users)
+    .insert(schema.userProfiles)
     .values({
       id: authUser.id,
       name: getNameFromAuthUser(authUser),
@@ -41,7 +41,7 @@ export async function upsertProfile(authUser: User) {
     })
     .onConflictDoNothing()
     .returning({
-      inserted_at: schema.users.inserted_at,
+      inserted_at: schema.userProfiles.inserted_at,
     })
     .execute()
 
@@ -54,8 +54,8 @@ export async function upsertProfile(authUser: User) {
 }
 
 async function getUserProfileImpl(userId: string) {
-  const profile = await db.query.users.findFirst({
-    where: cmp.eq(schema.users.id, userId),
+  const profile = await db.query.userProfiles.findFirst({
+    where: cmp.eq(schema.userProfiles.id, userId),
   })
 
   return profile

@@ -10,23 +10,23 @@ export type LeaderboardOrdering = z.infer<typeof leaderboardOrderingSchema>
 async function getGlobalLeaderboardImpl(ordering: LeaderboardOrdering) {
   const orderByMap: Record<LeaderboardOrdering, SQL[]> = {
     wins: [
-      orderBy.desc(schema.users.wins),
-      orderBy.asc(schema.users.gamesPlayed),
-      orderBy.desc(schema.users.inserted_at),
+      orderBy.desc(schema.userProfiles.wins),
+      orderBy.asc(schema.userProfiles.gamesPlayed),
+      orderBy.desc(schema.userProfiles.inserted_at),
     ],
     "games-played": [
-      orderBy.desc(schema.users.gamesPlayed),
-      orderBy.desc(schema.users.inserted_at),
+      orderBy.desc(schema.userProfiles.gamesPlayed),
+      orderBy.desc(schema.userProfiles.inserted_at),
     ],
     // TODO: maybe set a lower limit for gamesPlayed to be considered for this ordering
     "win-rate": [
-      orderBy.desc(schema.users.winRate),
-      orderBy.desc(schema.users.wins),
-      orderBy.desc(schema.users.inserted_at),
+      orderBy.desc(schema.userProfiles.winRate),
+      orderBy.desc(schema.userProfiles.wins),
+      orderBy.desc(schema.userProfiles.inserted_at),
     ],
   }
 
-  const users = await db.query.users.findMany({
+  const users = await db.query.userProfiles.findMany({
     orderBy: orderByMap[ordering],
     limit: 100,
   })
