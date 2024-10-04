@@ -1,3 +1,4 @@
+import { cache } from "react"
 import { type User } from "@supabase/supabase-js"
 import { isAfter, subSeconds } from "date-fns"
 
@@ -52,10 +53,12 @@ export async function upsertProfile(authUser: User) {
   }
 }
 
-export async function getUserProfile(userId: string) {
+async function getUserProfileImpl(userId: string) {
   const profile = await db.query.users.findFirst({
     where: cmp.eq(schema.users.id, userId),
   })
 
   return profile
 }
+
+export const getUserProfile = cache(getUserProfileImpl)

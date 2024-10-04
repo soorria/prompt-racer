@@ -29,7 +29,7 @@ import { getQuestionTestCasesOrderBy, getRandomGameMode } from "~/lib/games/util
 import { logger } from "~/lib/server/logger"
 import { createTRPCRouter, protectedProcedure } from "~/lib/trpc/trpc"
 import { randomElement } from "~/lib/utils/random"
-import { getDBUser } from "../auth/user"
+import { getUserProfile } from "../auth/profile"
 import { getPlayerPostionsForGameMode } from "./game-modes"
 import { cancelInngestGameWorkflow, finalizeGame } from "./internal-actions"
 
@@ -283,9 +283,9 @@ export const gameRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const dbUser = await getDBUser(ctx.user.id)
+      const userProfile = await getUserProfile(ctx.user.id)
 
-      if (dbUser?.role !== "admin") {
+      if (userProfile?.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Only admins can force progress games" })
       }
 
