@@ -1,5 +1,5 @@
 import type { GameMode } from "~/lib/games/constants"
-import { type GameResultsPlayer } from "~/app/games/results/[gameId]/page"
+import { type GameResultsPlayer } from "~/app/games/(not-in-game)/results/[gameId]/page"
 import { GAME_MODE_DETAILS } from "~/lib/games/constants"
 import { cn } from "~/lib/utils"
 import { getPositionRowClasses } from "../leaderboard-screen/class-utils"

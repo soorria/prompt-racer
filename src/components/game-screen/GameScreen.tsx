@@ -2,7 +2,7 @@
 
 import { notFound, redirect } from "next/navigation"
 
-import { GameLayoutLoadingPage } from "~/app/games/play/[gameId]/loading"
+import { GameLayoutLoadingPage } from "~/app/games/(in-game)/play/[gameId]/loading"
 import { ClientOnly } from "../ClientOnly"
 import { useGameManager } from "./GameManagerProvider"
 import { InProgressGame } from "./InProgressGame"
