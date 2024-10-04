@@ -5,10 +5,16 @@ import { count } from "drizzle-orm"
 import { type Inngest } from "inngest"
 import { z } from "zod"
 
+import type { QuestionDifficultyLevels } from "~/lib/games/constants"
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
 import { cmp, schema } from "~/lib/db"
 import { type DBOrTransation, type DocInsert } from "~/lib/db/types"
-import { CODE_SUBMISSION_TIMEOUT, DEFAULT_GAME_DURATIONS, GAME_STATUS, QUESTION_DIFFICULTY_LEVELS, type QuestionDifficultyLevels } from "~/lib/games/constants"
+import {
+  CODE_SUBMISSION_TIMEOUT,
+  DEFAULT_GAME_DURATIONS,
+  GAME_STATUS,
+  QUESTION_DIFFICULTY_LEVELS,
+} from "~/lib/games/constants"
 import {
   getGameById,
   getGamesWithStatus,
@@ -23,6 +29,7 @@ import { getQuestionTestCasesOrderBy, getRandomGameMode } from "~/lib/games/util
 import { logger } from "~/lib/server/logger"
 import { createTRPCRouter, protectedProcedure } from "~/lib/trpc/trpc"
 import { randomElement } from "~/lib/utils/random"
+import { getDBUser } from "../auth/user"
 import { getPlayerPostionsForGameMode } from "./game-modes"
 import { cancelInngestGameWorkflow, finalizeGame } from "./internal-actions"
 
@@ -187,14 +194,14 @@ export const gameRouter = createTRPCRouter({
               id: schema.playerGameSubmissionStates.id,
             }),
           submissionState &&
-          tx
-            .delete(schema.playerGameSubmissionStateResults)
-            .where(
-              cmp.eq(
-                schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-                submissionState.id,
+            tx
+              .delete(schema.playerGameSubmissionStateResults)
+              .where(
+                cmp.eq(
+                  schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+                  submissionState.id,
+                ),
               ),
-            ),
         ])
       })
 
@@ -276,18 +283,19 @@ export const gameRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const game = await getGameById(ctx.db, input.game_id)
+      const dbUser = await getDBUser(ctx.user.id)
 
-      if (ctx.user.role !== 'admin') {
+      if (dbUser?.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Only admins can force progress games" })
       }
+
+      const game = await getGameById(ctx.db, input.game_id)
 
       if (!game) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
       }
 
       if (input.game_state === "finished") {
-        await cancelInngestGameWorkflow(ctx.inngest, game.id)
         await finalizeGame(input.game_id)
         return
       }
@@ -300,30 +308,32 @@ export const gameRouter = createTRPCRouter({
         .where(cmp.eq(schema.gameStates.id, game.id))
     }),
 
-  join: protectedProcedure.input(
-    z.object({
-      difficulty: z.optional(z.enum(QUESTION_DIFFICULTY_LEVELS)),
+  join: protectedProcedure
+    .input(
+      z.object({
+        difficulty: z.optional(z.enum(QUESTION_DIFFICULTY_LEVELS)),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const currentGame = await getLatestActiveGameForUser(ctx.db, ctx.user.id)
+
+      if (currentGame) {
+        throw new Error("You are already in a game")
+      }
+
+      const { game, question } = await getOrCreateGameToJoin(ctx.db, ctx.inngest, input.difficulty)
+
+      await ctx.db.insert(schema.playerGameSessions).values({
+        user_id: ctx.user.id,
+        game_id: game.id,
+        code: question.starterCode,
+        model: "openai::gpt-4o-mini",
+      })
+
+      return {
+        game_id: game.id,
+      }
     }),
-  ).mutation(async ({ ctx, input }) => {
-    const currentGame = await getLatestActiveGameForUser(ctx.db, ctx.user.id)
-
-    if (currentGame) {
-      throw new Error("You are already in a game")
-    }
-
-    const { game, question } = await getOrCreateGameToJoin(ctx.db, ctx.inngest, input.difficulty)
-
-    await ctx.db.insert(schema.playerGameSessions).values({
-      user_id: ctx.user.id,
-      game_id: game.id,
-      code: question.starterCode,
-      model: "openai::gpt-4o-mini",
-    })
-
-    return {
-      game_id: game.id,
-    }
-  }),
 
   leave: protectedProcedure
     .input(
@@ -466,10 +476,16 @@ async function triggerPlayerGameSessionUpdate(tx: DBOrTransation, playerGameSess
     .where(cmp.eq(schema.playerGameSessions.id, playerGameSessionId))
 }
 
-async function getOrCreateGameToJoin(tx: DBOrTransation, inngest: Inngest, difficulty?: QuestionDifficultyLevels) {
+async function getOrCreateGameToJoin(
+  tx: DBOrTransation,
+  inngest: Inngest,
+  difficulty?: QuestionDifficultyLevels,
+) {
   let waitingForPlayersGames = await getGamesWithStatus(tx, "waitingForPlayers")
   if (difficulty) {
-    waitingForPlayersGames = waitingForPlayersGames.filter(game => game.question.difficulty === difficulty)
+    waitingForPlayersGames = waitingForPlayersGames.filter(
+      (game) => game.question.difficulty === difficulty,
+    )
   }
   const existingGameToJoin = randomElement(waitingForPlayersGames)
 
@@ -485,7 +501,11 @@ async function getOrCreateGameToJoin(tx: DBOrTransation, inngest: Inngest, diffi
   return await createGame(tx, inngest, difficulty)
 }
 
-async function createGame(tx: DBOrTransation, inngest: Inngest, difficulty?: QuestionDifficultyLevels) {
+async function createGame(
+  tx: DBOrTransation,
+  inngest: Inngest,
+  difficulty?: QuestionDifficultyLevels,
+) {
   const question = await getRandomQuestion(tx, difficulty)
   const gameMode = getRandomGameMode()
 

@@ -18,12 +18,14 @@ async function getAuthUserImpl() {
 
 export const getAuthUser = cache(getAuthUserImpl)
 
-export async function getDBUser(userId: string) {
+async function getDBUserImpl(userId: string) {
   const user = await db.query.users.findFirst({
     where: cmp.eq(schema.users.id, userId),
   })
   return user
 }
+
+export const getDBUser = cache(getDBUserImpl)
 
 export async function requireAuthUser() {
   const user = await getAuthUser()
