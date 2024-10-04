@@ -6,7 +6,7 @@ export default function GameNotFoundPage() {
   return (
     <div className="flex flex-col items-center justify-center bg-background px-4 py-12 dark:bg-muted sm:px-6 lg:px-8">
       <div className="mx-auto max-w-md text-center">
-        <div className="sq-12 mx-auto text-green-500" />
+        <div className="mx-auto sq-12" />
         <h1 className="mt-4 text-8xl font-bold tracking-tight text-foreground sm:text-9xl">404</h1>
         <p className="mt-4 text-lg text-muted-foreground">
           Oops, the requested game was not found.

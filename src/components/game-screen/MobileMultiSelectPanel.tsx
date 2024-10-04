@@ -28,7 +28,7 @@ export default function ResponsiveMultiSelectPanel({ panels }: { panels: PanelSl
         )}
       </div>
       <div className="absolute inset-x-0 bottom-0 z-10 grid place-content-center bg-gradient-to-t from-card/40 p-3">
-        <div className="flex flex-row gap-x-2 rounded-full bg-card-lighter p-2 ring-2 ring-green-800">
+        <div className="flex flex-row gap-x-2 rounded-full bg-card-lighter p-2 ring-2 ring-primary/80">
           <AnimatedTabs
             interaction="click"
             value={selectedPanel.key}
