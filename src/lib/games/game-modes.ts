@@ -7,10 +7,10 @@ import { type GameMode } from "./constants"
 export type PlayerGameSessionToSort = Doc<"playerGameSessions"> & {
   chatHistory: Doc<"playerGameSessionChatHistoryItems">[]
   submissionState:
-  | (Doc<"playerGameSubmissionStates"> & {
-    results: Doc<"playerGameSubmissionStateResults">[]
-  })
-  | null
+    | (Doc<"playerGameSubmissionStates"> & {
+        results: Doc<"playerGameSubmissionStateResults">[]
+      })
+    | null
 }
 
 type SortablePlayerGameSession = PlayerGameSessionToSort & {
@@ -56,15 +56,15 @@ const getPlayerPositions = (
           numPassing === 0
             ? config.worstScore
             : config.getScore(
-              {
-                ...session,
-                submissionState: {
-                  ...session.submissionState,
-                  results: passing,
+                {
+                  ...session,
+                  submissionState: {
+                    ...session.submissionState,
+                    results: passing,
+                  },
                 },
-              },
-              gameState,
-            ),
+                gameState,
+              ),
       }
     })
     .sort((a, b) => {
@@ -120,7 +120,7 @@ const gameModeFinalizationConfigMap: GameModeFinalizationConfigMap = {
      * returns code length. lower is better
      */
     getScore: (session) => session.code.length,
-    compareScore: compareSortOrderMap.desc,
+    compareScore: compareSortOrderMap.asc,
     worstScore: INTEGER_RANGE.max,
   },
   "fewest-characters-to-llm": {
@@ -128,7 +128,7 @@ const gameModeFinalizationConfigMap: GameModeFinalizationConfigMap = {
      * returns number of characters sent to LLM. lower is better
      */
     getScore: getTotalCharactersUsed,
-    compareScore: compareSortOrderMap.desc,
+    compareScore: compareSortOrderMap.asc,
     worstScore: INTEGER_RANGE.max,
   },
 }
@@ -156,7 +156,10 @@ export const getPlayerPostionsForGameMode = (
       player_game_session_id: session.id,
       position: positions[session.user_id]?.position ?? playerGameSessions.length + 2,
       score: positions[session.user_id]?.score ?? 0,
-      percentageOfTestCasesPassed: (session.submissionState?.results.filter((r) => r.is_correct)?.length ?? 0) / (session.submissionState?.results?.length || 1),
+      percentageOfTestCasesPassed:
+        (session.submissionState?.results.filter((r) => r.is_correct)?.length ?? 0) /
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        (session.submissionState?.results?.length || 1),
     }
   })
 }
