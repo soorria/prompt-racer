@@ -149,6 +149,7 @@ export const playerGameSessionFinalResults = pgTable(
     player_game_session_id: customTypes
       .primaryKeyReference("player_game_session_id")
       .notNull()
+      .unique()
       .references(() => playerGameSessions.id, {
         onDelete: "cascade",
       }),

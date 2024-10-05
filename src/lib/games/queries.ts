@@ -37,17 +37,37 @@ export async function getUserGameHistory(
 
   const results = await tx
     .select({
-      session: schema.playerGameSessions,
-      game: schema.gameStates,
+      game: {
+        id: schema.gameStates.id,
+        status: schema.gameStates.status,
+        mode: schema.gameStates.mode,
+        inserted_at: schema.gameStates.inserted_at,
+      },
+      finalResult: {
+        position: schema.playerGameSessionFinalResults.position,
+        score: schema.playerGameSessionFinalResults.score,
+      },
     })
     .from(schema.playerGameSessions)
     .where(filter)
     .innerJoin(schema.gameStates, cmp.eq(schema.playerGameSessions.game_id, schema.gameStates.id))
-    .orderBy(orderBy.desc(schema.gameStates.start_time))
+    .leftJoin(
+      schema.playerGameSessionFinalResults,
+      cmp.eq(
+        schema.playerGameSessions.id,
+        schema.playerGameSessionFinalResults.player_game_session_id,
+      ),
+    )
+    .orderBy(orderBy.desc(schema.gameStates.inserted_at))
     .limit(limit)
 
   return {
-    items: results,
+    items: results.map((item) => {
+      return {
+        ...item.game,
+        finalResult: item.finalResult,
+      }
+    }),
     nextCursor: results.at(-1)?.game.inserted_at.toISOString(),
   }
 }

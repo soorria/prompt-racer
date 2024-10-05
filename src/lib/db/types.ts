@@ -14,6 +14,10 @@ type SchemaTableNames = {
     : never
 }[keyof typeof schema]
 
+export type SchemaTables = {
+  [TableName in SchemaTableNames]: (typeof schema)[TableName]
+}
+
 type DBSelectTypeMap = {
   [TableName in SchemaTableNames]: InferSelectModel<(typeof schema)[TableName]>
 }

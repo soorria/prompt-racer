@@ -71,7 +71,14 @@ export async function finalizeGame(gameId: string) {
 
     const positionResults = getPlayerPostionsForGameMode(game, playerGameSessions)
 
-    await tx.insert(schema.playerGameSessionFinalResults).values(positionResults)
+    /**
+     * If we _really_ want to allow finalizing a game multiple times, we can
+     * delete existing rows and insert new ones.
+     */
+    await tx
+      .insert(schema.playerGameSessionFinalResults)
+      .values(positionResults)
+      .onConflictDoNothing()
 
     if (playerGameSessions.length > 1) {
       const winningResult = positionResults.find((r) => r.position === 0)
