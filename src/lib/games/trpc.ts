@@ -24,6 +24,7 @@ import {
   getRandomQuestion,
   getSessionInfoForPlayer,
   getSubmissionMetrics,
+  getUserGameHistory,
 } from "~/lib/games/queries"
 import { getQuestionTestCasesOrderBy, getRandomGameMode } from "~/lib/games/utils"
 import { logger } from "~/lib/server/logger"
@@ -466,6 +467,21 @@ export const gameRouter = createTRPCRouter({
           code: game.question.starterCode,
         })
         .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
+    }),
+
+  getHistory: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).optional(),
+        cursor: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await getUserGameHistory(ctx.db, {
+        userId: ctx.user.id,
+        limit: input.limit,
+        cursor: input.cursor,
+      })
     }),
 })
 

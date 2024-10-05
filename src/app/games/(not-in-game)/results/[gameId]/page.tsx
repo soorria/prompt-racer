@@ -29,7 +29,7 @@ function resolveFinalResult(
 async function getResults(gameId: string) {
   const data = await getGameResultsData(db, gameId)
 
-  if (!data) {
+  if (!data || data.game.status !== "finished") {
     notFound()
   }
 
