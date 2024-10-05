@@ -34,8 +34,6 @@ export function GameHistory(props: GameHistoryProps) {
 
   const flattenedGameHistory = gameHistory.data?.pages.flatMap((page) => page.items) ?? []
 
-  console.log(flattenedGameHistory)
-
   return (
     <div className="mx-auto max-w-screen-lg">
       <h1 className="mx-auto my-6 text-center text-4xl font-bold tracking-tight sm:my-14 sm:text-5xl">
