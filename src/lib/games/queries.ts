@@ -1,35 +1,75 @@
 import "server-only"
 
+import type { SQL } from "drizzle-orm"
 import { invariant } from "@epic-web/invariant"
 import { count } from "drizzle-orm"
 
 import { requireAuthUser } from "../auth/user"
 import { cmp, orderBy, schema } from "../db"
 import { type DBOrTransation, type Doc } from "../db/types"
+import { type QuestionDifficultyLevels } from "./constants"
 import {
   type InGameState,
   type NotWaitingForPlayersGameState,
   type WaitingForPlayersGameState,
 } from "./types"
 import { getQuestionTestCasesOrderBy } from "./utils"
-import { QuestionDifficultyLevels } from "./constants"
 
-// TODO: cursor-based pagination
-export async function getCurrentUserGames(tx: DBOrTransation) {
-  const user = await requireAuthUser()
+export async function getUserGameHistory(
+  tx: DBOrTransation,
+  {
+    userId,
+    limit = 10,
+    cursor,
+  }: {
+    userId: string
+    limit?: number
+    cursor?: string
+  },
+) {
+  const userFilter = cmp.eq(schema.playerGameSessions.user_id, userId)
+
+  let filter: SQL | undefined = userFilter
+
+  if (cursor) {
+    filter = cmp.and(userFilter, cmp.lt(schema.gameStates.inserted_at, new Date(cursor)))
+  }
 
   const results = await tx
     .select({
-      session: schema.playerGameSessions,
-      game: schema.gameStates,
+      game: {
+        id: schema.gameStates.id,
+        status: schema.gameStates.status,
+        mode: schema.gameStates.mode,
+        inserted_at: schema.gameStates.inserted_at,
+      },
+      finalResult: {
+        position: schema.playerGameSessionFinalResults.position,
+        score: schema.playerGameSessionFinalResults.score,
+      },
     })
     .from(schema.playerGameSessions)
-    .where(cmp.eq(schema.playerGameSessions.user_id, user.id))
+    .where(filter)
     .innerJoin(schema.gameStates, cmp.eq(schema.playerGameSessions.game_id, schema.gameStates.id))
-    .orderBy(orderBy.desc(schema.gameStates.start_time))
-    .limit(10)
+    .leftJoin(
+      schema.playerGameSessionFinalResults,
+      cmp.eq(
+        schema.playerGameSessions.id,
+        schema.playerGameSessionFinalResults.player_game_session_id,
+      ),
+    )
+    .orderBy(orderBy.desc(schema.gameStates.inserted_at))
+    .limit(limit)
 
-  return results
+  return {
+    items: results.map((item) => {
+      return {
+        ...item.game,
+        finalResult: item.finalResult,
+      }
+    }),
+    nextCursor: results.at(-1)?.game.inserted_at.toISOString(),
+  }
 }
 
 export async function getLatestActiveGameForUser(tx: DBOrTransation, userId: string) {
@@ -66,21 +106,25 @@ export async function getGamesWithStatus<Status extends Doc<"gameStates">["statu
     with: {
       question: {
         columns: {
-          difficulty: true
-        }
-      }
-    }
+          difficulty: true,
+        },
+      },
+    },
   })
 
   return results
 }
 
 export async function getSubmissionMetrics(tx: DBOrTransation, submission_state_id: string) {
-  const submissionStateResults = (await tx.query.playerGameSubmissionStateResults.findMany({
-    where: cmp.eq(schema.playerGameSubmissionStateResults.player_game_submission_state_id, submission_state_id)
-  }))
+  const submissionStateResults = await tx.query.playerGameSubmissionStateResults.findMany({
+    where: cmp.eq(
+      schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+      submission_state_id,
+    ),
+  })
   return {
-    numPassingSubmissionsTestCases: submissionStateResults.filter((result) => result.is_correct).length,
+    numPassingSubmissionsTestCases: submissionStateResults.filter((result) => result.is_correct)
+      .length,
     numTestCases: submissionStateResults.length,
   }
 }
@@ -198,7 +242,7 @@ export async function getSessionInfoForPlayer(tx: DBOrTransation, userId: string
           results: {
             columns: {
               is_correct: true,
-            }
+            },
           },
         },
       },

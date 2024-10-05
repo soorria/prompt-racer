@@ -4,6 +4,7 @@ import postgres from "postgres"
 
 import { env } from "~/env"
 import * as schema from "./schema"
+import { type SchemaTables } from "./types"
 
 /**
  * Cache the database connection in development. This avoids creating a new connection on every HMR
@@ -19,4 +20,7 @@ if (env.NODE_ENV !== "production") globalForDb.conn = conn
 export const db = drizzle(conn, { schema, logger: false })
 export const cmp = getOperators()
 export const orderBy = getOrderByOperators()
-export { schema, sql }
+
+const typedSchema = schema as unknown as SchemaTables
+
+export { typedSchema as schema, sql }
