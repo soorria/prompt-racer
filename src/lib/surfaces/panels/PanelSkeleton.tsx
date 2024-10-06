@@ -35,7 +35,9 @@ const PanelSkeleton = ({ layout }: { layout: GroupPanelSchema }) => {
             ) : (
               <ResizablePanel defaultSize={panel.defaultSize}>
                 <div className={cn("flex h-full flex-col")}>
-                  <div className={cn("flex-1 overflow-scroll bg-card", panel.className)}>
+                  <div
+                    className={cn("no-scrollbar flex-1 overflow-scroll bg-card", panel.className)}
+                  >
                     <Suspense fallback={<Skeleton className="h-full" />}>
                       {panel.component}
                     </Suspense>

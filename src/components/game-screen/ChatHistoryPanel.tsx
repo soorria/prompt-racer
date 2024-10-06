@@ -137,7 +137,7 @@ export default function ChatHistoryPanel() {
   const sortedMessages = swapAIAndInstructions([...chatMessages].reverse())
 
   return (
-    <div className="relative h-full overflow-auto scroll-smooth rounded-xl bg-card">
+    <div className="relative h-full scroll-smooth rounded-xl bg-card">
       {/* <div className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-zinc-900 px-3 py-2 text-white">
         <p className="font-medium">Change Log</p>
         <Button variant={"outline"} size="icon" onClick={scrollToBottom}>

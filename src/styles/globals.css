@@ -190,3 +190,44 @@ body {
     opacity: 1;
   }
 }
+
+/* Scrollbar styles */
+
+*::-webkit-scrollbar {
+  width: 0.6em;
+  height: 0.6em;
+  overflow: hidden;
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 50px;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.3) 35%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.3) 65%,
+    rgba(0, 0, 0, 0)
+  );
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--card-lighter) / var(--tw-bg-opacity));
+  border-radius: 50px;
+}
+
+/* To hide scrollbars use `.no-scrollbar`
+ * https://github.com/tailwindlabs/tailwindcss/discussions/2394
+ * https://github.com/tailwindlabs/tailwindcss/pull/5732
+ */
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}

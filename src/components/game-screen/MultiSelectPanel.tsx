@@ -50,7 +50,7 @@ export default function MultiSelectPanel({ panels }: { panels: PanelSlotWithTitl
       </div>
       <div
         key={selectedPanel.key}
-        className={cn(selectedPanel.className, "flex-1")}
+        className={cn(selectedPanel.className, "no-scrollbar flex-1")}
         style={{ overflow: "scroll" }}
       >
         {selectedPanel.component}
