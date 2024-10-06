@@ -106,7 +106,7 @@ const config = {
   plugins: [
     require("tailwindcss-animate"),
     require("@tailwindcss/typography"),
-    plugin(({ matchUtilities, theme }) => {
+    plugin(({ matchUtilities, addUtilities, theme }) => {
       matchUtilities<string>(
         {
           sq: (value) => ({
@@ -118,6 +118,12 @@ const config = {
           values: theme("width"),
         },
       )
+
+      addUtilities({
+        ".no-scrollbar": {
+          /* Hide scrollbar - Styles in global.css */
+        },
+      })
     }),
   ],
 } satisfies Config
