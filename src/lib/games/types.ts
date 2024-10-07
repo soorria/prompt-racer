@@ -1,3 +1,4 @@
+import { type BadgeProps } from "~/components/ui/badge"
 import { type Doc } from "../db/types"
 import { type getSessionInfoForPlayer } from "./queries"
 
@@ -24,3 +25,9 @@ export type QuestionWithTestCases = FullGameState["question"]
 export type PlayerGameSession = NonNullable<Awaited<ReturnType<typeof getSessionInfoForPlayer>>>
 
 export type FinalPlayerResult = Pick<Doc<"playerGameSessionFinalResults">, "position" | "score">
+
+export const MapfromDifficultyToBadgeVariant = {
+  easy: "green",
+  medium: "yellow",
+  hard: "red",
+} satisfies Record<Doc<"questions">["difficulty"], NonNullable<BadgeProps["variant"]>>

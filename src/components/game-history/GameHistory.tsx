@@ -1,12 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Play } from "lucide-react"
+import { ArrowRight, Hash, Play } from "lucide-react"
 
 import type { RouterOutputs } from "~/lib/trpc/react"
 import { GAME_MODE_DETAILS } from "~/lib/games/constants"
+import { MapfromDifficultyToBadgeVariant } from "~/lib/games/types"
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
+import { Badge } from "../ui/badge"
 import { InfiniteScrollTrigger } from "./InfiniteScrollTrigger"
 
 type GameHistoryPage = RouterOutputs["games"]["getHistory"]
@@ -80,18 +82,22 @@ function GameHistoryItem(props: { item: GameHistoryItem }) {
       className="group/item flex cursor-pointer items-start gap-4 rounded bg-card p-4 transition-colors duration-500 hover:bg-card-lighter hover:duration-75 sm:px-6"
     >
       <span
-        className={cn("grid aspect-square w-8 shrink-0 place-items-center rounded-full", {
-          "bg-primary/70": !isGameFinished || true,
-        })}
+        className={cn(
+          "relative grid aspect-square w-8 shrink-0 place-items-center overflow-hidden rounded-full",
+          {
+            "bg-primary/70": !isGameFinished || true,
+          },
+        )}
       >
         {isGameFinished ? (
           <>{props.item.finalResult?.position ?? <>dnf</>}</>
         ) : (
           <Play className="sq-4" />
         )}
+        <Hash className="absolute -left-2 -top-3 opacity-10 sq-12" />
       </span>
 
-      <span className="flex flex-1 flex-col gap-4">
+      <span className="flex flex-1 flex-col">
         <span className="flex w-full items-end justify-between">
           <span>{GAME_MODE_DETAILS[props.item.mode].title}</span>
 
@@ -100,6 +106,16 @@ function GameHistoryItem(props: { item: GameHistoryItem }) {
             {GAME_MODE_DETAILS[props.item.mode].unitShort}
           </span>
         </span>
+
+        {props.item.difficulty && (
+          <Badge
+            className="mb-2 w-fit text-xs"
+            variant={MapfromDifficultyToBadgeVariant[props.item.difficulty]}
+          >
+            {props.item.difficulty[0]!.toLocaleUpperCase()}
+            {props.item.difficulty.slice(1)} Question
+          </Badge>
+        )}
 
         <span className="flex items-center gap-1 text-sm group-hover/item:underline">
           {linkDetails.label}

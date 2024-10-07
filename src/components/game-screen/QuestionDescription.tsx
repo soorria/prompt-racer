@@ -4,18 +4,11 @@ import React from "react"
 import { TestTubeDiagonal } from "lucide-react"
 import Markdown from "react-markdown"
 
-import type { BadgeProps } from "~/components/ui/badge"
 import type { GameMode } from "~/lib/games/constants"
 import type { QuestionWithTestCases } from "~/lib/games/types"
 import { Badge } from "~/components/ui/badge"
-import { type Doc } from "~/lib/db/types"
 import { GAME_MODE_DETAILS } from "~/lib/games/constants"
-
-const MapfromDifficultyToBadgeVariant = {
-  easy: "green",
-  medium: "yellow",
-  hard: "red",
-} satisfies Record<Doc<"questions">["difficulty"], NonNullable<BadgeProps["variant"]>>
+import { MapfromDifficultyToBadgeVariant } from "~/lib/games/types"
 
 export default function QuestionDescription(props: {
   question: QuestionWithTestCases

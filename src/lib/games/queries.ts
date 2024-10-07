@@ -47,6 +47,9 @@ export async function getUserGameHistory(
         position: schema.playerGameSessionFinalResults.position,
         score: schema.playerGameSessionFinalResults.score,
       },
+      question: {
+        difficulty: schema.questions.difficulty,
+      },
     })
     .from(schema.playerGameSessions)
     .where(filter)
@@ -58,6 +61,7 @@ export async function getUserGameHistory(
         schema.playerGameSessionFinalResults.player_game_session_id,
       ),
     )
+    .leftJoin(schema.questions, cmp.eq(schema.gameStates.question_id, schema.questions.id))
     .orderBy(orderBy.desc(schema.gameStates.inserted_at))
     .limit(limit)
 
@@ -65,6 +69,7 @@ export async function getUserGameHistory(
     items: results.map((item) => {
       return {
         ...item.game,
+        difficulty: item.question?.difficulty,
         finalResult: item.finalResult,
       }
     }),
