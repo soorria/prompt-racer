@@ -18,6 +18,7 @@ const buttonVariants = cva(
         outline:
           "border border-input bg-card enabled:hover:bg-accent enabled:hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground enabled:hover:bg-secondary/80",
+        tertiary: "bg-white text-zinc-800 enabled:hover:bg-zinc-100",
         ghost: "enabled:hover:bg-accent enabled:hover:text-accent-foreground",
         link: "text-primary underline-offset-4 enabled:hover:underline",
       },
@@ -72,7 +73,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, disabled: props.disabled }), className, {
-          "transition-transform enabled:active:scale-[0.98]": scalingOnClick,
+          "enabled:active:scale-[0.98]": scalingOnClick,
         })}
         ref={ref}
         disabled={isLoading || props.disabled}

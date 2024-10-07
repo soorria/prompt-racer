@@ -5,11 +5,15 @@ import { isAfter, subSeconds } from "date-fns"
 import { cmp, db, schema } from "../db"
 import { captureUserEvent } from "../posthog/server"
 
-function getNameFromAuthUser(authUser: User) {
-  const { user_name } = authUser.user_metadata
+function getNameFromAuthUser(authUser: User): string {
+  const { user_name, name } = authUser.user_metadata as Record<string, unknown>
 
   if (typeof user_name === "string") {
     return user_name
+  }
+
+  if (typeof name === "string") {
+    return name
   }
 
   // TODO: google docs thing where it gives you a random name
