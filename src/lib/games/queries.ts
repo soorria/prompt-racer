@@ -229,9 +229,14 @@ export async function getGameResultsData(tx: DBOrTransation, gameId: string) {
     },
   })
 
+  const question = await tx.query.questions.findFirst({
+    where: cmp.eq(schema.questions.id, game.question_id),
+  })
+
   return {
     players: playerGameSessions,
-    game: game,
+    game,
+    question,
   }
 }
 

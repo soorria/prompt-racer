@@ -6,6 +6,7 @@ import type { FinalPlayerResult } from "~/lib/games/types"
 import type { Nullable } from "~/lib/utils/types"
 import LeaderboardHighlight from "~/components/leaderboard-screen/LeaderboardHighlight"
 import { LazyLeaderboardWinnerConfetti } from "~/components/leaderboard-screen/LeaderboardWinnerConfetti.lazy"
+import QuestionDifficultyBadge from "~/components/QuestionDifficultyBadge"
 import { ResultsTable } from "~/components/results/ResultsTable"
 import { Badge } from "~/components/ui/badge"
 import { cmp, db, schema } from "~/lib/db"
@@ -35,15 +36,7 @@ async function getResults(gameId: string) {
     notFound()
   }
 
-  const { players, game } = data
-
-  const question = await db.query.questions.findFirst({
-    where: cmp.eq(schema.questions.id, game.question_id),
-  })
-
-  if (!question) {
-    notFound()
-  }
+  const { players, game, question } = data
 
   return {
     players: [...players]
@@ -53,7 +46,7 @@ async function getResults(gameId: string) {
       }))
       .sort((a, b) => a.finalResult.position - b.finalResult.position),
     game,
-    difficulty: question.difficulty,
+    difficulty: question?.difficulty,
   }
 }
 
@@ -76,9 +69,7 @@ export default async function ResultsPage({ params }: { params: { gameId: string
         <h2 className="px-3 py-1 text-center text-sm font-medium opacity-65 sm:text-lg">
           {GAME_MODE_DETAILS[game.mode].description}
         </h2>
-        <Badge variant={MapfromDifficultyToBadgeVariant[difficulty]} className="w-fit text-sm">
-          {`${difficulty[0]!.toLocaleUpperCase()}${difficulty.slice(1)} Question`}
-        </Badge>
+        {difficulty && <QuestionDifficultyBadge difficulty={difficulty} className="text-sm" />}
       </div>
 
       <Suspense>

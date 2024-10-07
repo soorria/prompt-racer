@@ -8,6 +8,7 @@ import { GAME_MODE_DETAILS } from "~/lib/games/constants"
 import { MapfromDifficultyToBadgeVariant } from "~/lib/games/types"
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
+import QuestionDifficultyBadge from "../QuestionDifficultyBadge"
 import { Badge } from "../ui/badge"
 import { InfiniteScrollTrigger } from "./InfiniteScrollTrigger"
 
@@ -108,13 +109,7 @@ function GameHistoryItem(props: { item: GameHistoryItem }) {
         </span>
 
         {props.item.difficulty && (
-          <Badge
-            className="mb-2 w-fit text-xs"
-            variant={MapfromDifficultyToBadgeVariant[props.item.difficulty]}
-          >
-            {props.item.difficulty[0]!.toLocaleUpperCase()}
-            {props.item.difficulty.slice(1)} Question
-          </Badge>
+          <QuestionDifficultyBadge difficulty={props.item.difficulty} className="mb-2 text-xs" />
         )}
 
         <span className="flex items-center gap-1 text-sm group-hover/item:underline">
