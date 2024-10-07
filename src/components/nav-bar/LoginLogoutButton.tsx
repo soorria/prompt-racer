@@ -4,10 +4,11 @@
  */
 
 import React, { useState } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { LogIn, LogOut } from "lucide-react"
 
-import { loginWithGitHubAction, logoutAction } from "~/lib/auth/actions"
+import { logoutAction } from "~/lib/auth/actions"
 import { createBrowserClient } from "~/lib/supabase/browser"
 import { Button } from "../ui/button"
 
@@ -31,11 +32,6 @@ export default function LoginLogoutButton({
     })
   }
 
-  const handleLogin = async () => {
-    setIsLoading(true)
-    await loginWithGitHubAction()
-  }
-
   return (
     <>
       {isAuthenticated ? (
@@ -55,10 +51,10 @@ export default function LoginLogoutButton({
           disabled={isLoading}
           Icon={LogIn}
           className="w-full justify-start rounded-none"
-          onClick={handleLogin}
           isLoading={isLoading}
+          asChild
         >
-          Login
+          <Link href="/auth/login">Login</Link>
         </Button>
       )}
     </>
