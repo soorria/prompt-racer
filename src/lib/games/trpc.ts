@@ -297,6 +297,7 @@ export const gameRouter = createTRPCRouter({
       }
 
       if (input.game_state === "finished") {
+        await cancelInngestGameWorkflow(ctx.inngest, game.id)
         await finalizeGame(input.game_id)
         return
       }
