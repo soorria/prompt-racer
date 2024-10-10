@@ -85,6 +85,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           data-api="https://soorria.com/proxy/api/event"
           src="https://soorria.com/js/potato.js"
         />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
       </head>
       <body>
         <TRPCReactProvider>
