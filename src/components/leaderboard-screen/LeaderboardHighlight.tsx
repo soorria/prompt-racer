@@ -131,10 +131,10 @@ export default function LeaderboardHighlight({
     <div className="my-5 sm:my-10">
       <div
         className={cn(
-          "slide-in minw-full flex min-h-72 flex-col gap-3 sm:grid sm:grid-flow-col-dense sm:grid-cols-3 sm:items-center sm:gap-0",
+          "slide-in flex min-h-72 min-w-full flex-col gap-3 sm:grid sm:grid-flow-col-dense sm:grid-cols-3 sm:items-center sm:gap-0",
         )}
       >
-        <div className="relative z-10 h-full w-full sm:col-start-2">
+        <div className="relative z-10 h-full w-full flex-1 sm:col-start-2">
           <div className="h-full sm:scale-110">
             <PlayerCard
               player={players[0]}
