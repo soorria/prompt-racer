@@ -284,7 +284,6 @@ export const playerGameSessionChatHistoryItems = pgTable(
       .references(() => playerGameSessions.id, {
         onDelete: "cascade",
       }),
-    submitted: boolean("submitted").notNull().default(false),
     content: jsonb("content").notNull().$type<ChatHistoryItemContent>(),
     inserted_at: timestamp("inserted_at").notNull().defaultNow(),
   },

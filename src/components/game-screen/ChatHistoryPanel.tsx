@@ -56,10 +56,7 @@ function ChatPanelMessage({
           <div className="z-10 mb-8 grid flex-none place-content-center rounded-full bg-card ring-1 ring-zinc-400 sq-6">
             <Bot className="sq-4" />
           </div>
-          <div
-            ref={contentRef}
-            className={clsx("mb-8 overflow-auto rounded-xl bg-dracula text-xs")}
-          >
+          <div ref={contentRef} className={clsx("overflow-auto rounded-xl bg-dracula text-xs")}>
             <CodeRenderer
               code={
                 message.content.parsedCompletion.state === "error"
@@ -91,20 +88,39 @@ function ChatPanelMessage({
           </p>
         </>
       )}
+      {message.content.type === "submission" && (
+        <>
+          <div className="relative flex flex-none items-center justify-center sq-6">
+            <div className="h-1.5 w-1.5 rounded-full bg-card ring-1 ring-gray-300" />
+          </div>
+          <p className="mt-1 w-full flex-auto rounded-lg border-2 border-zinc-600/20 px-3 py-2 text-center text-xs leading-5 text-card-foreground">
+            {message.content.submission_type === "test-run"
+              ? "Test run submitted"
+              : "Submission submitted"}
+          </p>
+        </>
+      )}
     </li>
   )
 }
 
-export default function ChatHistoryPanel() {
-  const context = useGameManager()
-  const chatMessages = context.gameSessionInfo.chatHistory
-
+/**
+ * Renders chat messages for a game session.
+ *
+ * @param chatMessages - The list of chat messages to render, assumed to be in ascending order of insertion time.
+ */
+export const ChatHistoryView = ({
+  chatMessages,
+}: {
+  chatMessages: Doc<"playerGameSessionChatHistoryItems">[]
+}) => {
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
   const [animateRef] = useAutoAnimate()
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+  // If we wanna scroll to bottom, we need this function
+  // const scrollToBottom = () => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  // }
 
   if (!chatMessages) {
     return <Skeleton className="h-full" />
@@ -153,7 +169,7 @@ export default function ChatHistoryPanel() {
         </div>
       )}
 
-      <ul ref={animateRef} role="list" className="space-y-6 px-3 pt-8">
+      <ul ref={animateRef} role="list" className="space-y-6 px-3 py-8">
         {sortedMessages.map((message, idx) => {
           return (
             <ChatPanelMessage key={idx} index={idx} message={message} len={sortedMessages.length} />
@@ -163,4 +179,11 @@ export default function ChatHistoryPanel() {
       </ul>
     </div>
   )
+}
+
+export default function ChatHistoryPanel() {
+  const context = useGameManager()
+  const chatMessages = context.gameSessionInfo.chatHistory
+
+  return <ChatHistoryView chatMessages={chatMessages} />
 }

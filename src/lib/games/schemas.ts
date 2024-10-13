@@ -2,6 +2,10 @@ import { z } from "zod"
 
 export const ChatHistoryItemContentSchema = z.union([
   z.object({
+    type: z.literal("submission"),
+    submission_type: z.enum(["test-run", "submission"]),
+  }),
+  z.object({
     type: z.literal("instructions"),
     instructions: z.string(),
   }),

@@ -95,9 +95,7 @@ export function ResultsTable({
                     value: (
                       <div className="flex gap-2">
                         <LeaderboardTablePlayerName player={player.user} />
-                        {player.finalSubmittedCode && (
-                          <FinalSubmittedCodeDialog code={player.finalSubmittedCode} />
-                        )}
+                        <FinalSubmittedCodeDialog chatHistory={player.chatHistory} />
                       </div>
                     ),
                     align: "left",
