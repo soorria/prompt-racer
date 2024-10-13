@@ -226,6 +226,7 @@ export async function getGameResultsData(tx: DBOrTransation, gameId: string) {
     with: {
       finalResult: true,
       user: true,
+      chatHistory: true,
     },
   })
 
@@ -233,30 +234,8 @@ export async function getGameResultsData(tx: DBOrTransation, gameId: string) {
     where: cmp.eq(schema.questions.id, game.question_id),
   })
 
-  const playersWithFinalCode = await Promise.all(
-    playerGameSessions.map(async (playerSession) => {
-      const chatHistoryItems = await tx
-        .select()
-        .from(schema.playerGameSessionChatHistoryItems)
-        .where(
-          cmp.and(
-            cmp.eq(
-              schema.playerGameSessionChatHistoryItems.player_game_session_id,
-              playerSession.id,
-            ),
-          ),
-        )
-        .orderBy(orderBy.asc(schema.playerGameSessionChatHistoryItems.inserted_at))
-
-      return {
-        ...playerSession,
-        chatHistory: chatHistoryItems,
-      }
-    }),
-  )
-
   return {
-    players: playersWithFinalCode,
+    players: playerGameSessions,
     game,
     question,
   }

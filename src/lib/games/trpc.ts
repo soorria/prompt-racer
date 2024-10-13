@@ -7,7 +7,7 @@ import { z } from "zod"
 
 import type { QuestionDifficultyLevels } from "~/lib/games/constants"
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
-import { cmp, orderBy, schema } from "~/lib/db"
+import { cmp, schema } from "~/lib/db"
 import { type DBOrTransation, type DocInsert } from "~/lib/db/types"
 import {
   CODE_SUBMISSION_TIMEOUT,
@@ -267,7 +267,6 @@ export const gameRouter = createTRPCRouter({
           tx.insert(schema.playerGameSessionChatHistoryItems).values([
             {
               player_game_session_id: playerGameSession.id,
-              inserted_at: new Date(),
               content: {
                 type: "submission",
                 submission_type: input.submission_type,
