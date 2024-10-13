@@ -7,7 +7,7 @@ import { z } from "zod"
 
 import type { QuestionDifficultyLevels } from "~/lib/games/constants"
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
-import { cmp, schema } from "~/lib/db"
+import { cmp, orderBy, schema } from "~/lib/db"
 import { type DBOrTransation, type DocInsert } from "~/lib/db/types"
 import {
   CODE_SUBMISSION_TIMEOUT,
@@ -263,7 +263,32 @@ export const gameRouter = createTRPCRouter({
       )
 
       await ctx.db.transaction(async (tx) => {
+        const [latestChatHistoryItem] = await tx
+          .select({
+            id: schema.playerGameSessionChatHistoryItems.id,
+          })
+          .from(schema.playerGameSessionChatHistoryItems)
+          .where(
+            cmp.eq(
+              schema.playerGameSessionChatHistoryItems.player_game_session_id,
+              playerGameSession.id,
+            ),
+          )
+          .orderBy(orderBy.desc(schema.playerGameSessionChatHistoryItems.inserted_at))
+          .limit(1)
+
+        if (!latestChatHistoryItem) {
+          throw new TRPCError({
+            message: "Failed to find submitted code",
+            code: "INTERNAL_SERVER_ERROR",
+          })
+        }
+
         return await Promise.all([
+          tx
+            .update(schema.playerGameSessionChatHistoryItems)
+            .set({ submitted: true })
+            .where(cmp.eq(schema.playerGameSessionChatHistoryItems.id, latestChatHistoryItem.id)),
           tx.insert(schema.playerGameSubmissionStateResults).values(submissionResultDocs),
           tx
             .update(schema.playerGameSubmissionStates)

@@ -233,8 +233,38 @@ export async function getGameResultsData(tx: DBOrTransation, gameId: string) {
     where: cmp.eq(schema.questions.id, game.question_id),
   })
 
+  const playersWithFinalCode = await Promise.all(
+    playerGameSessions.map(async (playerSession) => {
+      const [latestSubmittedChatHistoryItem] = await tx
+        .select()
+        .from(schema.playerGameSessionChatHistoryItems)
+        .where(
+          cmp.and(
+            cmp.eq(
+              schema.playerGameSessionChatHistoryItems.player_game_session_id,
+              playerSession.id,
+            ),
+            cmp.eq(schema.playerGameSessionChatHistoryItems.submitted, true),
+          ),
+        )
+        .orderBy(orderBy.desc(schema.playerGameSessionChatHistoryItems.inserted_at))
+        .limit(1)
+
+      const finalCode =
+        latestSubmittedChatHistoryItem?.content?.type === "ai" &&
+        latestSubmittedChatHistoryItem.content.parsedCompletion?.state === "success"
+          ? latestSubmittedChatHistoryItem.content.parsedCompletion.maybeCode
+          : undefined
+
+      return {
+        ...playerSession,
+        finalSubmittedCode: finalCode,
+      }
+    }),
+  )
+
   return {
-    players: playerGameSessions,
+    players: playersWithFinalCode,
     game,
     question,
   }

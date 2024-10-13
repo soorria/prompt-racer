@@ -8,12 +8,10 @@ import LeaderboardHighlight from "~/components/leaderboard-screen/LeaderboardHig
 import { LazyLeaderboardWinnerConfetti } from "~/components/leaderboard-screen/LeaderboardWinnerConfetti.lazy"
 import QuestionDifficultyBadge from "~/components/QuestionDifficultyBadge"
 import { ResultsTable } from "~/components/results/ResultsTable"
-import { Badge } from "~/components/ui/badge"
-import { cmp, db, schema } from "~/lib/db"
+import { db } from "~/lib/db"
 import { GAME_MODE_DETAILS } from "~/lib/games/constants"
 import { getWorseScoreForGameMode } from "~/lib/games/game-modes"
 import { getGameResultsData } from "~/lib/games/queries"
-import { MapfromDifficultyToBadgeVariant } from "~/lib/games/types"
 
 function resolveFinalResult(
   finalResult: Nullable<FinalPlayerResult>,
@@ -57,6 +55,7 @@ export const revalidate = 3600
 
 export default async function ResultsPage({ params }: { params: { gameId: string } }) {
   const { players, game, difficulty } = await getResults(params.gameId)
+  console.log(players)
 
   const { unitLong, description, toDisplayValue } = GAME_MODE_DETAILS[game.mode]
 
