@@ -34,7 +34,7 @@ export default function ClientProfileCard({
             className="w-full justify-start rounded-none"
             asChild
           >
-            <Link href="/games/history">History</Link>
+            <Link href="/games/history">Previous games</Link>
           </Button>
         )}
         <LoginLogoutButton key={user?.id ?? ""} isAuthenticated={!!user} setOpen={setOpen} />
