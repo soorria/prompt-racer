@@ -58,7 +58,7 @@ export const revalidate = 3600
 export default async function ResultsPage({ params }: { params: { gameId: string } }) {
   const { players, game, difficulty } = await getResults(params.gameId)
 
-  const { unitLong } = GAME_MODE_DETAILS[game.mode]
+  const { unitLong, description, toDisplayValue } = GAME_MODE_DETAILS[game.mode]
 
   return (
     <div className="mx-auto max-w-screen-lg">
@@ -67,7 +67,7 @@ export default async function ResultsPage({ params }: { params: { gameId: string
           Results
         </h1>
         <h2 className="px-3 py-1 text-center text-sm font-medium opacity-65 sm:text-lg">
-          {GAME_MODE_DETAILS[game.mode].description}
+          {description}
         </h2>
         {difficulty && <QuestionDifficultyBadge difficulty={difficulty} className="text-sm" />}
       </div>
@@ -83,7 +83,10 @@ export default async function ResultsPage({ params }: { params: { gameId: string
           .filter((u) => u.submission_state_id !== null)
           .map((u) => ({
             ...u.user,
-            winCondition: { label: "Score", value: `${u.finalResult?.score} ${unitLong}` },
+            winCondition: {
+              label: "Score",
+              value: `${toDisplayValue(u.finalResult?.score)} ${unitLong}`,
+            },
           }))}
       />
       <ResultsTable users={players} gameMode={game.mode} />

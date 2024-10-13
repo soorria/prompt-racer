@@ -3,7 +3,6 @@ import type { ChatHistoryItemContentType, ChatHistoryItemContentWithType } from 
 import { orderBy, schema } from "../db"
 import { randomElement } from "../utils/random"
 import { GAME_MODES } from "./constants"
-import { InGameState } from "./types"
 
 export function getRandomGameMode() {
   return randomElement(GAME_MODES)

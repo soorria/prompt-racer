@@ -12,10 +12,10 @@ export function ResultsTable({
   users: GameResultsPlayer[]
   gameMode: GameMode
 }) {
-  const { unitLong, unitShort } = GAME_MODE_DETAILS[gameMode]
+  const { unitLong, unitShort, toDisplayValue } = GAME_MODE_DETAILS[gameMode]
 
   return (
-    <div className="no-scrollbar -mx-4 mt-4 flow-root overflow-x-scroll px-4 sm:mt-16">
+    <div className="-mx-4 mt-4 flow-root overflow-x-scroll px-4 no-scrollbar sm:mt-16">
       <table
         className="slide-in-direct mx-auto w-full max-w-2xl border-separate border-spacing-0"
         style={{
@@ -96,7 +96,7 @@ export function ResultsTable({
                   },
                   {
                     key: "score",
-                    value: player.finalResult.score,
+                    value: toDisplayValue(player.finalResult.score),
                     align: "right",
                   },
                 ].map(({ key, value, align }, valueIdx, valuesArray) => {

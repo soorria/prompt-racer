@@ -100,7 +100,7 @@ type GameModeFinalizationConfigMap = Record<Doc<"gameStates">["mode"], GameModeF
 const gameModeFinalizationConfigMap: GameModeFinalizationConfigMap = {
   "fastest-player": {
     /**
-     * time since start of game. lower is better
+     * time since start of game stored in ms. lower is better
      */
     getScore: (session, gameState) =>
       session.submissionState.last_submitted_at.getTime() - (gameState.start_time?.getTime() ?? 0),
