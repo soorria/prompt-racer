@@ -103,7 +103,7 @@ const gameModeFinalizationConfigMap: GameModeFinalizationConfigMap = {
      * time since start of game. lower is better
      */
     getScore: (session, gameState) =>
-      (gameState.start_time?.getTime() ?? 0) - session.submissionState.last_submitted_at.getTime(),
+      session.submissionState.last_submitted_at.getTime() - (gameState.start_time?.getTime() ?? 0),
     compareScore: compareSortOrderMap.asc,
     worstScore: INTEGER_RANGE.max,
   },
