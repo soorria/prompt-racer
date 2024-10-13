@@ -55,8 +55,6 @@ export const revalidate = 3600
 
 export default async function ResultsPage({ params }: { params: { gameId: string } }) {
   const { players, game, difficulty } = await getResults(params.gameId)
-  console.log(players)
-
   const { unitLong, description, toDisplayValue } = GAME_MODE_DETAILS[game.mode]
 
   return (
