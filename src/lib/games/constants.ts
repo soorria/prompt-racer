@@ -1,7 +1,7 @@
 import ms from "ms"
 
+import type { gameStatusEnum, questionDifficultyEnum } from "../db/schema"
 import type { Doc } from "../db/types"
-import { gameStatusEnum, questionDifficultyEnum } from "../db/schema"
 
 export type KebabToPascalCase<T extends string> = T extends `${infer F}-${infer R}`
   ? `${F}${Capitalize<KebabToPascalCase<R>>}`
@@ -20,12 +20,20 @@ export const GAME_MODES = [
   "fewest-characters-to-llm",
 ] as const
 
-export type QuestionDifficultyLevels = (typeof questionDifficultyEnum)['enumValues'][number]
+export type QuestionDifficultyLevels = (typeof questionDifficultyEnum)["enumValues"][number]
 // this isnt a strict satisfies need to think how to do it strictly
-export const QUESTION_DIFFICULTY_LEVELS = ['easy', 'medium', 'hard'] as const satisfies QuestionDifficultyLevels[];
+export const QUESTION_DIFFICULTY_LEVELS = [
+  "easy",
+  "medium",
+  "hard",
+] as const satisfies QuestionDifficultyLevels[]
 
-export type GameStatus = (typeof gameStatusEnum)['enumValues'][number]
-export const GAME_STATUS = ['waitingForPlayers', 'inProgress', 'finished'] as const satisfies GameStatus[];
+export type GameStatus = (typeof gameStatusEnum)["enumValues"][number]
+export const GAME_STATUS = [
+  "waitingForPlayers",
+  "inProgress",
+  "finished",
+] as const satisfies GameStatus[]
 
 export const LLM_PROMPTING_TIMEOUT = ms("10s")
 export const CODE_SUBMISSION_TIMEOUT = ms("10s")
@@ -44,6 +52,7 @@ export const GAME_MODE_DETAILS: Record<
     description: string
     unitLong: string
     unitShort: string
+    toDisplayValue: (value: number) => number
   }
 > = {
   "fastest-player": {
@@ -51,23 +60,27 @@ export const GAME_MODE_DETAILS: Record<
     description: "The fastest player to submit the correct answer wins!",
     unitLong: "seconds",
     unitShort: "s",
+    toDisplayValue: (ms: number) => ms / 1000,
   },
   "fastest-code": {
     title: "Fastest Code",
     description: "The code that runs the fastest wins!",
     unitLong: "seconds",
     unitShort: "s",
+    toDisplayValue: (ms: number) => ms / 1000,
   },
   "shortest-code": {
     title: "Shortest Code",
     description: "The fewest amount of lines/characters of code wins!",
     unitLong: "characters",
     unitShort: "ch",
+    toDisplayValue: (v) => v,
   },
   "fewest-characters-to-llm": {
     title: "Fewest Characters to LLM",
     description: "The fewest characters able to generate the correct answer wins!",
     unitLong: "characters",
     unitShort: "ch",
+    toDisplayValue: (v) => v,
   },
 }
