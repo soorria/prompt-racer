@@ -26,7 +26,10 @@ const DrawerOverlay = React.forwardRef<
   }
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Overlay
-    onClick={props.onClose}
+    onClick={(e) => {
+      console.log("Its calling this for some reason", e)
+      // props.onClose()
+    }}
     ref={ref}
     className={cn("fixed inset-0 z-50 bg-black/80", className)}
     {...props}

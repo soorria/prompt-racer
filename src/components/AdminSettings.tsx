@@ -34,16 +34,12 @@ export default function AdminSettings({ gameId }: Props) {
       void trpcUtils.games.getGameStateWithQuestion.invalidate()
     },
   })
-  const [difficulty, setDifficulty] = React.useState<QuestionDifficultyLevels>("easy")
   const [gameState, setGameState] = React.useState<ForceGameStatusChange>("waitingForPlayers")
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-2">
-        <Select
-          onValueChange={(a: QuestionDifficultyLevels) => setDifficulty(a)}
-          defaultValue={"easy"}
-        >
+        <Select defaultValue={"easy"}>
           <SelectTrigger className="w-full flex-1">
             <SelectValue placeholder="Difficulty" />
           </SelectTrigger>
@@ -54,8 +50,10 @@ export default function AdminSettings({ gameId }: Props) {
           </SelectContent>
         </Select>
         <Button
-          onClick={() => {
-            joinGame.mutate({ difficulty })
+          onClick={(e) => {
+            console.log("asdf", e)
+
+            // joinGame.mutate({ difficulty })
           }}
         >
           Join game
@@ -64,11 +62,8 @@ export default function AdminSettings({ gameId }: Props) {
       {gameId && (
         <div className="flex gap-2">
           Change game state
-          <Select
-            onValueChange={(a: ForceGameStatusChange) => setGameState(a)}
-            defaultValue={"waitingForPlayers"}
-          >
-            <SelectTrigger className="w-full flex-1">
+          <Select defaultValue={"waitingForPlayers"}>
+            <SelectTrigger className="w-full flex-1" onPointerDown={(e) => e.stopPropagation()}>
               <SelectValue placeholder="Game state" />
             </SelectTrigger>
             <SelectContent>
@@ -78,8 +73,10 @@ export default function AdminSettings({ gameId }: Props) {
             </SelectContent>
           </Select>
           <Button
-            onClick={() => {
-              forceStateChangeMutation.mutate({ game_id: gameId, game_state: gameState })
+            onClick={(e) => {
+              console.log("asdf", e)
+
+              // forceStateChangeMutation.mutate({ game_id: gameId, game_state: gameState })
             }}
           >
             Change state
