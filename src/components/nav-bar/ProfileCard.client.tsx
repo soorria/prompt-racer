@@ -1,6 +1,8 @@
 "use client"
 
 import React from "react"
+import Link from "next/link"
+import { History } from "lucide-react"
 
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
 import { type Doc } from "~/lib/db/types"
@@ -24,6 +26,17 @@ export default function ClientProfileCard({
         <UserAvatar name={user?.name} imageUrl={user?.profile_image_url} />
       </PopoverTrigger>
       <PopoverContent className="p-0 py-2" align="end">
+        {user && (
+          <Button
+            variant={"ghost"}
+            Icon={History}
+            onClick={() => setOpen(false)}
+            className="w-full justify-start rounded-none"
+            asChild
+          >
+            <Link href="/games/history">Previous games</Link>
+          </Button>
+        )}
         <LoginLogoutButton key={user?.id ?? ""} isAuthenticated={!!user} setOpen={setOpen} />
         {user?.role === "admin" && (
           <>
