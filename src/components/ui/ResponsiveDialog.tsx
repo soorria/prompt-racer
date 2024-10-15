@@ -32,12 +32,9 @@ const ResponsiveDialog = (props: ResponsiveDialogProps) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false)
 
   const isOpen = props.isOpen ?? internalIsOpen
-  console.log("isOpen", props.isOpen)
 
   const openDialog = () => setInternalIsOpen(true)
   const closeDialog = (dismiss?: boolean) => {
-    console.log("dismiss", dismiss)
-
     props.onClose?.(dismiss)
     setInternalIsOpen(false)
   }
