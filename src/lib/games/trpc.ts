@@ -264,6 +264,15 @@ export const gameRouter = createTRPCRouter({
 
       await ctx.db.transaction(async (tx) => {
         return await Promise.all([
+          tx.insert(schema.playerGameSessionChatHistoryItems).values([
+            {
+              player_game_session_id: playerGameSession.id,
+              content: {
+                type: "submission",
+                submission_type: input.submission_type,
+              },
+            },
+          ]),
           tx.insert(schema.playerGameSubmissionStateResults).values(submissionResultDocs),
           tx
             .update(schema.playerGameSubmissionStates)

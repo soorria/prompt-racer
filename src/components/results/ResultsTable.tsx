@@ -4,6 +4,7 @@ import { GAME_MODE_DETAILS } from "~/lib/games/constants"
 import { cn } from "~/lib/utils"
 import { getPositionRowClasses } from "../leaderboard-screen/class-utils"
 import LeaderboardTablePlayerName from "../leaderboard-screen/LeaderboardTablePlayerName"
+import FinalSubmittedCodeDialog from "./FinalSubmittedCodeDialog"
 
 export function ResultsTable({
   users,
@@ -91,7 +92,12 @@ export function ResultsTable({
                 {[
                   {
                     key: "player-name",
-                    value: <LeaderboardTablePlayerName player={player.user} />,
+                    value: (
+                      <div className="flex gap-2">
+                        <LeaderboardTablePlayerName player={player.user} />
+                        <FinalSubmittedCodeDialog chatHistory={player.chatHistory} />
+                      </div>
+                    ),
                     align: "left",
                   },
                   {

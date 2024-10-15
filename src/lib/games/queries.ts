@@ -226,6 +226,9 @@ export async function getGameResultsData(tx: DBOrTransation, gameId: string) {
     with: {
       finalResult: true,
       user: true,
+      chatHistory: {
+        orderBy: orderBy.asc(schema.playerGameSessionChatHistoryItems.inserted_at),
+      },
     },
   })
 
