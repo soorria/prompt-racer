@@ -315,6 +315,7 @@ export const gameRouter = createTRPCRouter({
         .update(schema.gameStates)
         .set({
           status: input.game_state,
+          start_time: input.game_state === "inProgress" ? new Date() : undefined,
         })
         .where(cmp.eq(schema.gameStates.id, game.id))
     }),
