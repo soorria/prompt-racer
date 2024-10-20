@@ -3,13 +3,15 @@ import { PostHog } from "posthog-node"
 import { env } from "~/env"
 import { logger } from "../server/logger"
 
+const isLocal = process.env.NODE_ENV === "development"
+
 console.log({
   k: env.NEXT_PUBLIC_POSTHOG_KEY,
+  isLocal,
 })
 
 const posthogServer = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
-  // disabled: process.env.NODE_ENV === "development",
-  disabled: false,
+  disabled: isLocal,
 
   /**
    * Needed for serverless environments
