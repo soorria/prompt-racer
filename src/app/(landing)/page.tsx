@@ -12,14 +12,14 @@ export default async function Home() {
       <PatternBlobBackground />
       <div className="isolate overflow-hidden">
         <div className="mx-auto mb-16 max-w-7xl items-center px-6 lg:flex lg:px-8">
-          <div className="mx-auto max-w-2xl flex-shrink-0 pr-12 lg:mx-0 lg:max-w-xl lg:pt-8">
+          <div className="mx-auto max-w-2xl flex-shrink-0 lg:mx-0 lg:max-w-xl lg:pr-12 lg:pt-8">
             <h1 className="mt-10 text-4xl font-bold tracking-tight text-white sm:text-6xl">
               AI Powered Coding Battles
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-300">
               Put your AI prompting skills to the test in a game of speed and intelligence.
             </p>
-            <div className="mt-10 flex items-center gap-x-4">
+            <div className="mt-10 flex items-center lg:gap-x-4">
               <Button asChild>
                 <Link href={user ? "/games/join" : "/auth/login"}>Play Now</Link>
               </Button>
