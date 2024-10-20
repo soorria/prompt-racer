@@ -5,11 +5,6 @@ import { logger } from "../server/logger"
 
 const isLocal = process.env.NODE_ENV === "development"
 
-console.log({
-  k: env.NEXT_PUBLIC_POSTHOG_KEY,
-  isLocal,
-})
-
 const posthogServer = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
   disabled: isLocal,
 
@@ -20,9 +15,9 @@ const posthogServer = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
   flushInterval: 0,
 })
 
-// if (process.env.NODE_ENV === "development") {
-posthogServer.debug(true)
-//
+if (process.env.NODE_ENV === "development") {
+  posthogServer.debug(true)
+}
 
 posthogServer.on("error", (e: unknown) => {
   logger.error(e, "posthog error")
