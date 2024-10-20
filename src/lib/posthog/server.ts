@@ -23,12 +23,6 @@ const posthogServer = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
   },
 })
 
-console.log({
-  k: env.NEXT_PUBLIC_POSTHOG_KEY,
-  isLocal,
-  phd: posthogServer.disabled,
-})
-
 if (process.env.NODE_ENV === "development") {
   posthogServer.debug(true)
 }
