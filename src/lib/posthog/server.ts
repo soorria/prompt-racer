@@ -13,6 +13,20 @@ const posthogServer = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
    */
   flushAt: 1,
   flushInterval: 0,
+
+  fetch: (url: string, options: RequestInit) => {
+    console.log("fetching", url, options)
+
+    return fetch(url, {
+      ...options,
+    })
+  },
+})
+
+console.log({
+  k: env.NEXT_PUBLIC_POSTHOG_KEY,
+  isLocal,
+  phd: posthogServer.disabled,
 })
 
 if (process.env.NODE_ENV === "development") {
@@ -29,6 +43,8 @@ export function captureUserEvent(
   properties: Record<string, unknown> = {},
 ) {
   try {
+    console.log("capturing user event", { event, userId, properties })
+
     if (process.env.NODE_ENV === "development") {
       logger.debug(`capturing user event`, {
         event,
