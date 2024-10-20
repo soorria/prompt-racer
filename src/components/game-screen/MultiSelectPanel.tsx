@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import { invariant } from "@epic-web/invariant"
+import { AnimatePresence, motion } from "framer-motion"
 
 import type { PanelSlot } from "~/lib/surfaces/panels/panels"
 import { cn } from "~/lib/utils"
@@ -7,11 +8,42 @@ import AnimatedTabs from "../ui/AnimatedTabs"
 
 export type PanelSlotWithTitle = PanelSlot & { title: string }
 
+export enum Direction {
+  Left = -1,
+  Right = 1,
+}
+
+const transition = {
+  type: "spring",
+  duration: 0.4,
+  bounce: 0.3,
+}
+
+export const directionalVariants = {
+  enter: (direction: Direction) => ({
+    x: direction * 100,
+    opacity: 0,
+  }),
+  target: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: Direction) => ({
+    x: direction * -100,
+    opacity: 0,
+  }),
+}
+
 export default function MultiSelectPanel({ panels }: { panels: PanelSlotWithTitle[] }) {
   const [selectedPanel, setSelectedPanel] = useState(panels[0])
+  const [direction, setDirection] = useState<Direction>(Direction.Right)
 
   const handlePanelChange = (panel: string | null) => {
-    if (panel) {
+    if (panel && selectedPanel) {
+      const currIdx = panels.findIndex((p) => p.key === selectedPanel.key)
+      const nextIdx = panels.findIndex((p) => p.key === panel)
+
+      setDirection(nextIdx > currIdx ? Direction.Right : Direction.Left)
       setSelectedPanel(panels.find((p) => p.key === panel))
     }
   }
@@ -25,10 +57,7 @@ export default function MultiSelectPanel({ panels }: { panels: PanelSlotWithTitl
           interaction="click"
           value={selectedPanel.key}
           className="rounded-lg bg-white dark:bg-zinc-700"
-          transition={{
-            ease: "easeInOut",
-            duration: 0.2,
-          }}
+          transition={transition}
           onChange={(key) => {
             handlePanelChange(key)
           }}
@@ -48,13 +77,21 @@ export default function MultiSelectPanel({ panels }: { panels: PanelSlotWithTitl
           ))}
         </AnimatedTabs>
       </div>
-      <div
-        key={selectedPanel.key}
-        className={cn(selectedPanel.className, "no-scrollbar flex-1")}
-        style={{ overflow: "scroll" }}
-      >
-        {selectedPanel.component}
-      </div>
+      <AnimatePresence initial={false} mode="popLayout" custom={direction}>
+        <motion.div
+          key={selectedPanel.key}
+          custom={direction}
+          transition={transition}
+          variants={directionalVariants}
+          initial="enter"
+          animate="target"
+          exit="exit"
+          className={cn(selectedPanel.className, "flex-1 no-scrollbar")}
+          style={{ overflow: "scroll" }}
+        >
+          {selectedPanel.component}
+        </motion.div>
+      </AnimatePresence>
     </div>
   )
 }
