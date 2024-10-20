@@ -13,14 +13,6 @@ const posthogServer = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
    */
   flushAt: 1,
   flushInterval: 0,
-
-  fetch: (url: string, options: RequestInit) => {
-    console.log("fetching", url, options)
-
-    return fetch(url, {
-      ...options,
-    })
-  },
 })
 
 if (process.env.NODE_ENV === "development") {
