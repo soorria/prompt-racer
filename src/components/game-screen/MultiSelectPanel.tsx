@@ -8,7 +8,7 @@ import AnimatedTabs from "../ui/AnimatedTabs"
 
 export type PanelSlotWithTitle = PanelSlot & { title: string }
 
-enum Direction {
+export enum Direction {
   Left = -1,
   Right = 1,
 }
@@ -19,6 +19,21 @@ const transition = {
   bounce: 0.3,
 }
 
+export const directionalVariants = {
+  enter: (direction: Direction) => ({
+    x: direction * 100,
+    opacity: 0,
+  }),
+  target: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: Direction) => ({
+    x: direction * -100,
+    opacity: 0,
+  }),
+}
+
 export default function MultiSelectPanel({ panels }: { panels: PanelSlotWithTitle[] }) {
   const [selectedPanel, setSelectedPanel] = useState(panels[0])
   const [direction, setDirection] = useState<Direction>(Direction.Right)
@@ -27,6 +42,7 @@ export default function MultiSelectPanel({ panels }: { panels: PanelSlotWithTitl
     if (panel && selectedPanel) {
       const currIdx = panels.findIndex((p) => p.key === selectedPanel.key)
       const nextIdx = panels.findIndex((p) => p.key === panel)
+
       setDirection(nextIdx > currIdx ? Direction.Right : Direction.Left)
       setSelectedPanel(panels.find((p) => p.key === panel))
     }
@@ -61,13 +77,15 @@ export default function MultiSelectPanel({ panels }: { panels: PanelSlotWithTitl
           ))}
         </AnimatedTabs>
       </div>
-      <AnimatePresence initial={false} mode="popLayout">
+      <AnimatePresence initial={false} mode="popLayout" custom={direction}>
         <motion.div
           key={selectedPanel.key}
+          custom={direction}
           transition={transition}
-          initial={{ opacity: 0, x: direction * 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: direction * 100 }}
+          variants={directionalVariants}
+          initial="enter"
+          animate="target"
+          exit="exit"
           className={cn(selectedPanel.className, "flex-1 no-scrollbar")}
           style={{ overflow: "scroll" }}
         >
