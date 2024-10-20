@@ -29,8 +29,6 @@ export function captureUserEvent(
   properties: Record<string, unknown> = {},
 ) {
   try {
-    console.log("capturing user event", { event, userId, properties })
-
     if (process.env.NODE_ENV === "development") {
       logger.debug(`capturing user event`, {
         event,
