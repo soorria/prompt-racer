@@ -9,7 +9,15 @@ const Drawer = ({
   shouldScaleBackground = true,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
-  <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} {...props} />
+  <DrawerPrimitive.Root
+    shouldScaleBackground={shouldScaleBackground}
+    onOpenChange={(open) => {
+      if (!open) {
+        props.onClose?.()
+      }
+    }}
+    {...props}
+  />
 )
 Drawer.displayName = "Drawer"
 
@@ -21,12 +29,9 @@ const DrawerClose = DrawerPrimitive.Close
 
 const DrawerOverlay = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay> & {
-    onClose: () => void
-  }
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Overlay
-    onClick={props.onClose}
     ref={ref}
     className={cn("fixed inset-0 z-50 bg-black/80", className)}
     {...props}
@@ -36,12 +41,10 @@ DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName
 
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & {
-    onClose: () => void
-  }
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
   <DrawerPortal>
-    <DrawerOverlay onClose={props.onClose} />
+    <DrawerOverlay />
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(

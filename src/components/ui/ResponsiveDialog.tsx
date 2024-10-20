@@ -78,8 +78,13 @@ const ResponsiveDialogCore = ({
   const isMobile = useMediaQuery(MOBILE_VIEWPORT)
 
   return isMobile ? (
-    <Drawer open={isOpen} noBodyStyles={true} preventScrollRestoration={false}>
-      <DrawerContent onClose={() => closeDialog(true)}>
+    <Drawer
+      open={isOpen}
+      noBodyStyles={true}
+      preventScrollRestoration={false}
+      onClose={() => closeDialog(true)}
+    >
+      <DrawerContent>
         <DrawerHeader className="text-center">
           <DrawerTitle>{title}</DrawerTitle>
           {description && <DrawerDescription>{description}</DrawerDescription>}
