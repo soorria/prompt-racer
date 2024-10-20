@@ -12,7 +12,7 @@ async function ProfileCardImpl() {
   const user = await getAuthUser()
   const dbUser = user ? await getUserProfile(user.id) : null
 
-  captureUserEvent(user?.id ?? "test", "test-event 2222")
+  captureUserEvent(user?.id ?? "test", "test-event 333")
 
   return <ClientProfileCard user={dbUser} />
 }
