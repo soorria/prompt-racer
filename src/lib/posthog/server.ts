@@ -3,8 +3,13 @@ import { PostHog } from "posthog-node"
 import { env } from "~/env"
 import { logger } from "../server/logger"
 
+console.log({
+  k: env.NEXT_PUBLIC_POSTHOG_KEY,
+})
+
 const posthogServer = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
-  disabled: process.env.NODE_ENV === "development",
+  // disabled: process.env.NODE_ENV === "development",
+  disabled: false,
 
   /**
    * Needed for serverless environments
@@ -13,9 +18,9 @@ const posthogServer = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
   flushInterval: 0,
 })
 
-if (process.env.NODE_ENV === "development") {
-  posthogServer.debug(true)
-}
+// if (process.env.NODE_ENV === "development") {
+posthogServer.debug(true)
+//
 
 posthogServer.on("error", (e: unknown) => {
   logger.error(e, "posthog error")
