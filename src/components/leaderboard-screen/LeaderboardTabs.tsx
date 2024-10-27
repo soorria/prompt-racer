@@ -34,14 +34,9 @@ export function LeaderboardTabs({ ordering }: { ordering: LeaderboardOrdering })
             "relative rounded-md px-3 py-2 text-sm font-medium text-gray-400 transition-all hover:text-white",
           )}
         >
-          <motion.span
-            className={cn(
-              { "text-white": tab.ordering === ordering },
-              "relative z-10 transition-all",
-            )}
-          >
+          <span className={cn({ "text-white": tab.ordering === ordering }, "relative z-10")}>
             {tab.title}
-          </motion.span>
+          </span>
           {tab.ordering === ordering && (
             <motion.span
               layoutId="highlight"
