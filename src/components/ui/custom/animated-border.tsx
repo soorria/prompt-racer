@@ -38,6 +38,7 @@ export function AnimatedBorder({ strokeWidth, children, debug }: AnimatedBorderP
           height={elementDetails.height + 2 * offset}
           borderRadius={elementDetails.borderRadius ?? 0}
           strokeWidth={strokeWidth ?? 1}
+          circleRadius={elementDetails.width * 0.2}
           debug={debug}
         />
       </div>
@@ -108,12 +109,14 @@ function AnimatedBorderSVG({
   height,
   borderRadius,
   strokeWidth,
+  circleRadius,
   debug: debugProp,
 }: {
   width: number
   height: number
   borderRadius: number
   strokeWidth: number
+  circleRadius: number
   debug?: true
 }) {
   const rectWidth = width - 2 * strokeWidth
@@ -171,7 +174,7 @@ function AnimatedBorderSVG({
           style={{ offsetPath: `path("M0,0 H${width} V${height} H0 Z")` }}
           cx={0}
           cy={0}
-          r="70"
+          r={circleRadius}
           fill="url('#pulseGradient')"
         />
       </g>

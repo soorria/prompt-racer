@@ -57,7 +57,7 @@ export default async function LeaderboardPage(props: {
 
 function LeaderboardTable({ users }: { users: Doc<"userProfiles">[] }) {
   return (
-    <div className="no-scrollbar -mx-4 mt-16 flow-root overflow-x-scroll px-4">
+    <div className="-mx-4 mt-16 flow-root overflow-x-scroll px-4 no-scrollbar">
       <table
         className="slide-in-direct min-w-full border-separate border-spacing-0"
         style={{

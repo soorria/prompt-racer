@@ -1,4 +1,7 @@
+"use client"
+
 import Link from "next/link"
+import { motion } from "framer-motion"
 
 import { type LeaderboardOrdering } from "~/lib/leaderboard/queries"
 import { cn } from "~/lib/utils"
@@ -28,11 +31,18 @@ export function LeaderboardTabs({ ordering }: { ordering: LeaderboardOrdering })
           href={`/leaderboard/${tab.ordering}`}
           aria-current={tab.ordering === ordering ? "page" : undefined}
           className={cn(
-            tab.ordering === ordering ? "bg-primary text-white" : "text-gray-400 hover:text-white",
-            "rounded-md px-3 py-2 text-sm font-medium transition-all",
+            "relative rounded-md px-3 py-2 text-sm font-medium text-gray-400 transition-all hover:text-white",
           )}
         >
-          {tab.title}
+          <span className={cn({ "text-white": tab.ordering === ordering }, "relative z-10")}>
+            {tab.title}
+          </span>
+          {tab.ordering === ordering && (
+            <motion.span
+              layoutId="highlight"
+              className="absolute inset-0 z-0 block w-full rounded-lg bg-primary"
+            />
+          )}
         </Link>
       ))}
     </nav>
