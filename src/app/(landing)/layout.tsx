@@ -7,7 +7,7 @@ import Navbar from "~/lib/surfaces/navbar/Navbar"
 
 export default async function BaseLayoutWithNavbar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-full flex-col">
+    <div className="mx-auto flex h-full max-w-7xl flex-col">
       <Navbar
         leftContent={<Logo />}
         rightContent={
