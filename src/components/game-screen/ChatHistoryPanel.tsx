@@ -169,7 +169,7 @@ export const ChatHistoryView = ({
         </div>
       )}
 
-      <ul ref={animateRef} role="list" className="space-y-6 px-3 py-8">
+      <ul ref={animateRef} role="list" className="space-y-6 px-1">
         {sortedMessages.map((message, idx) => {
           return (
             <ChatPanelMessage key={idx} index={idx} message={message} len={sortedMessages.length} />

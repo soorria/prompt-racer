@@ -42,20 +42,18 @@ const ResponsiveDialog = (props: ResponsiveDialogProps) => {
   return (
     <>
       {props.renderTrigger?.({ ...props, isOpen, openDialog, closeDialog })}
-      {isOpen && (
-        <ResponsiveDialogCore
-          title={props.title}
-          description={props.description}
-          isOpen={isOpen}
-          closeDialog={closeDialog}
-          content={props.renderContent({
-            ...props,
-            isOpen,
-            openDialog,
-            closeDialog,
-          })}
-        />
-      )}
+      <ResponsiveDialogCore
+        title={props.title}
+        description={props.description}
+        isOpen={isOpen}
+        closeDialog={closeDialog}
+        content={props.renderContent({
+          ...props,
+          isOpen,
+          openDialog,
+          closeDialog,
+        })}
+      />
     </>
   )
 }
