@@ -41,7 +41,7 @@ function ChatPanelMessage({
   }, [generating])
 
   return (
-    <li className="relative flex gap-x-4">
+    <li className="relative flex gap-x-2">
       <div
         className={cn(
           "absolute -bottom-8 left-0 top-0 flex w-6 justify-center",

@@ -62,12 +62,9 @@ const DrawerContent = React.forwardRef<
 DrawerContent.displayName = "DrawerContent"
 
 const DrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn("relative flex h-14 items-center border-b border-gray-700/70 px-6", className)}
-    {...props}
-  >
+  <div className={cn("relative flex h-14 items-end px-6", className)} {...props}>
     {props.children}
-    <DrawerClose className="focus-visible:shadow-focus-ring-button absolute right-6 rounded-full bg-white/30 p-1 transition-transform focus:scale-95 active:scale-75">
+    <DrawerClose className="focus-visible:shadow-focus-ring-button absolute right-5 top-5 rounded-full bg-white/30 p-1 transition-transform focus:scale-95 active:scale-75">
       <X className="h-4 w-4 text-gray-200" />
     </DrawerClose>
   </div>
