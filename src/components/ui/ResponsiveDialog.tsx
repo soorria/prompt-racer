@@ -92,7 +92,7 @@ const ResponsiveDialogCore = ({
     </Drawer>
   ) : (
     <Dialog open={isOpen}>
-      <DialogContent onClose={() => closeDialog(true)} className="rounded-lg">
+      <DialogContent onClose={() => closeDialog(true)}>
         <DialogHeader className="text-left">
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
