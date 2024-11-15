@@ -41,7 +41,7 @@ function ChatPanelMessage({
   }, [generating])
 
   return (
-    <li className="relative flex gap-x-4">
+    <li className="relative flex gap-x-2">
       <div
         className={cn(
           "absolute -bottom-8 left-0 top-0 flex w-6 justify-center",
@@ -169,7 +169,7 @@ export const ChatHistoryView = ({
         </div>
       )}
 
-      <ul ref={animateRef} role="list" className="space-y-6 px-3 py-8">
+      <ul ref={animateRef} role="list" className="space-y-6 px-1">
         {sortedMessages.map((message, idx) => {
           return (
             <ChatPanelMessage key={idx} index={idx} message={message} len={sortedMessages.length} />
