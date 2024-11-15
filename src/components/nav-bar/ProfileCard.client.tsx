@@ -1,17 +1,26 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import Link from "next/link"
-import { History } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { History, Loader2, LogIn, LogOut } from "lucide-react"
 
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
+import { logoutAction } from "~/lib/auth/actions"
 import { type Doc } from "~/lib/db/types"
+import { createBrowserClient } from "~/lib/supabase/browser"
 import { cn } from "~/lib/utils"
 import AdminSettings from "../AdminSettings"
 import { Button } from "../ui/button"
 import { AnimatedBorder } from "../ui/custom/animated-border"
 import ResponsiveDialog from "../ui/ResponsiveDialog"
-import LoginLogoutButton from "./LoginLogoutButton"
 import UserAvatar from "./UserAvatar"
 
 export default function ClientProfileCard({
@@ -19,55 +28,91 @@ export default function ClientProfileCard({
 }: {
   user: Doc<"userProfiles"> | null | undefined
 }) {
+  const router = useRouter()
   const [open, setOpen] = React.useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  const handleLogout = async () => {
+    setIsLoading(true)
+    await logoutAction().then(() => {
+      void createBrowserClient().auth.signOut()
+      router.push("/")
+      setOpen(false)
+      setIsLoading(false)
+    })
+  }
 
   return (
     <>
       {!user ? (
         <AnimatedBorder>
-          <Button variant={"secondary"} className="w-full justify-start rounded-lg" asChild>
-            <Link href="/auth/login">Login</Link>
+          <Button
+            variant="secondary"
+            className="w-full justify-start rounded-lg p-2 px-3"
+            asChild
+            disabled={isLoading}
+            isLoading={isLoading}
+          >
+            <Link href="/auth/login">
+              <LogIn className="h-4 w-4" />
+              Login
+            </Link>
           </Button>
         </AnimatedBorder>
       ) : (
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger className={cn("flex items-center justify-center")}>
-            <UserAvatar name={user?.name} imageUrl={user?.profile_image_url} />
-          </PopoverTrigger>
-          <PopoverContent className="p-0 py-2" align="end">
-            {user && (
-              <Button
-                variant={"ghost"}
-                Icon={History}
-                onClick={() => setOpen(false)}
-                className="w-full justify-start rounded-none"
-                asChild
-              >
-                <Link href="/games/history">Previous games</Link>
-              </Button>
-            )}
-            <LoginLogoutButton key={user?.id ?? ""} isAuthenticated={!!user} setOpen={setOpen} />
-            {user?.role === "admin" && (
-              <>
-                <div className="spacer my-2 h-0.5 w-full bg-gray-200/20" />
-                <ResponsiveDialog
-                  title="Settings"
-                  renderTrigger={(props) => (
-                    <Button
-                      className="w-full"
-                      onClick={() => {
-                        props.openDialog()
-                      }}
-                    >
-                      Admin settings
-                    </Button>
+        <>
+          <DropdownMenu open={open} onOpenChange={setOpen}>
+            <DropdownMenuTrigger className={cn("flex items-center justify-center")}>
+              <UserAvatar name={user?.name} imageUrl={user?.profile_image_url} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end">
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link href="/games/history" className="flex items-center">
+                    <History className="h-4 w-4" />
+                    <span>Previous games</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  disabled={isLoading}
+                  className="flex items-center"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <LogOut className="h-4 w-4" />
                   )}
-                  renderContent={() => <AdminSettings />}
-                />
-              </>
-            )}
-          </PopoverContent>
-        </Popover>
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+
+              {user?.role === "admin" && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setIsDialogOpen(true)
+                      setOpen(false)
+                    }}
+                  >
+                    Admin settings
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {user?.role === "admin" && (
+            <ResponsiveDialog
+              title="Settings"
+              isOpen={isDialogOpen}
+              onClose={() => setIsDialogOpen(false)}
+              renderContent={() => <AdminSettings />}
+            />
+          )}
+        </>
       )}
     </>
   )

@@ -73,7 +73,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, disabled: props.disabled }), className, {
-          "focus-visible:shadow-focus-ring-button focus:scale-95 enabled:active:scale-75":
+          "focus-visible:shadow-focus-ring-button focus:scale-[0.98] enabled:active:scale-[0.97]":
             scalingOnClick,
         })}
         ref={ref}
