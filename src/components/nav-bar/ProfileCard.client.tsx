@@ -5,14 +5,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { History, Loader2, LogIn, LogOut } from "lucide-react"
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
 import { logoutAction } from "~/lib/auth/actions"
 import { type Doc } from "~/lib/db/types"
 import { createBrowserClient } from "~/lib/supabase/browser"
@@ -21,6 +13,7 @@ import AdminSettings from "../AdminSettings"
 import { Button } from "../ui/button"
 import { AnimatedBorder } from "../ui/custom/animated-border"
 import ResponsiveDialog from "../ui/ResponsiveDialog"
+import { ResponsiveDropdownMenu } from "../ui/ResponsiveDropdownMenu"
 import UserAvatar from "./UserAvatar"
 
 export default function ClientProfileCard({
@@ -62,47 +55,57 @@ export default function ClientProfileCard({
         </AnimatedBorder>
       ) : (
         <>
-          <DropdownMenu open={open} onOpenChange={setOpen}>
-            <DropdownMenuTrigger className={cn("flex items-center justify-center")}>
-              <UserAvatar name={user?.name} imageUrl={user?.profile_image_url} />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                  <Link href="/games/history" className="flex items-center">
-                    <History className="h-4 w-4" />
-                    <span>Previous games</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  disabled={isLoading}
-                  className="flex items-center"
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <LogOut className="h-4 w-4" />
-                  )}
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
+          <ResponsiveDropdownMenu open={open} onOpenChange={setOpen}>
+            {({
+              ResponsiveDropdownMenuTrigger,
+              ResponsiveDropdownMenuContent,
+              ResponsiveDropdownMenuGroup,
+              ResponsiveDropdownMenuItem,
+              ResponsiveDropdownMenuSeparator,
+            }) => (
+              <>
+                <ResponsiveDropdownMenuTrigger className={cn("flex items-center justify-center")}>
+                  <UserAvatar name={user?.name} imageUrl={user?.profile_image_url} />
+                </ResponsiveDropdownMenuTrigger>
+                <ResponsiveDropdownMenuContent className="sm:w-56" align="end">
+                  <ResponsiveDropdownMenuGroup>
+                    <ResponsiveDropdownMenuItem asChild>
+                      <Link href="/games/history" className="flex items-center gap-2">
+                        <History className="h-4 w-4" />
+                        <span>Previous games</span>
+                      </Link>
+                    </ResponsiveDropdownMenuItem>
+                    <ResponsiveDropdownMenuItem
+                      onClick={handleLogout}
+                      disabled={isLoading}
+                      className="flex items-center bg-red-500/20 text-red-400 hover:!bg-red-500/30 hover:!text-red-400 sm:bg-transparent"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <LogOut className="h-4 w-4" />
+                      )}
+                      <span>Log out</span>
+                    </ResponsiveDropdownMenuItem>
+                  </ResponsiveDropdownMenuGroup>
 
-              {user?.role === "admin" && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setIsDialogOpen(true)
-                      setOpen(false)
-                    }}
-                  >
-                    Admin settings
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  {user?.role === "admin" && (
+                    <>
+                      <ResponsiveDropdownMenuSeparator />
+                      <ResponsiveDropdownMenuItem
+                        onClick={() => {
+                          setIsDialogOpen(true)
+                          setOpen(false)
+                        }}
+                      >
+                        Admin settings
+                      </ResponsiveDropdownMenuItem>
+                    </>
+                  )}
+                </ResponsiveDropdownMenuContent>
+              </>
+            )}
+          </ResponsiveDropdownMenu>
 
           {user?.role === "admin" && (
             <ResponsiveDialog
