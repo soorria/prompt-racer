@@ -78,7 +78,8 @@ export default function ClientProfileCard({
                     <ResponsiveDropdownMenuItem
                       onClick={handleLogout}
                       disabled={isLoading}
-                      className="flex items-center bg-red-500/20 text-red-400 hover:!bg-red-500/30 hover:!text-red-400 sm:bg-transparent"
+                      variant="destructive"
+                      className="flex items-center"
                     >
                       {isLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />

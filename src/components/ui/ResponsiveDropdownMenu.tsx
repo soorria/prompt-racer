@@ -4,6 +4,7 @@ import * as React from "react"
 import { useMediaQuery } from "@react-hook/media-query"
 
 import { cn } from "~/lib/utils"
+import { MOBILE_VIEWPORT } from "../game-screen/InProgressGame"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "./drawer"
 import {
   DropdownMenu,
@@ -23,7 +24,7 @@ const ResponsiveDropdownMenuTrigger = ({
   className,
   children,
 }: ResponsiveDropdownMenuTriggerProps) => {
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  const isMobile = useMediaQuery(MOBILE_VIEWPORT)
 
   if (isMobile) {
     return <DrawerTrigger className={className}>{children}</DrawerTrigger>
@@ -44,7 +45,7 @@ const ResponsiveDropdownMenuContent = ({
   children,
   align,
 }: ResponsiveDropdownMenuContentProps) => {
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  const isMobile = useMediaQuery(MOBILE_VIEWPORT)
 
   if (isMobile) {
     return (
@@ -71,7 +72,7 @@ type ResponsiveDropdownMenuGroupProps = {
 }
 
 const ResponsiveDropdownMenuGroup = ({ className, children }: ResponsiveDropdownMenuGroupProps) => {
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  const isMobile = useMediaQuery(MOBILE_VIEWPORT)
 
   if (isMobile) {
     return <div className={cn(className, "flex flex-col gap-3")}>{children}</div>
@@ -87,6 +88,7 @@ type ResponsiveDropdownMenuItemProps = {
   onClick?: () => void
   disabled?: boolean
   asChild?: boolean
+  variant?: "default" | "destructive"
 }
 
 const ResponsiveDropdownMenuItem = ({
@@ -95,12 +97,18 @@ const ResponsiveDropdownMenuItem = ({
   onClick,
   disabled,
   asChild,
+  variant = "default",
 }: ResponsiveDropdownMenuItemProps) => {
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  const isMobile = useMediaQuery(MOBILE_VIEWPORT)
 
   if (isMobile) {
-    const commonStyles =
-      "flex w-full cursor-pointer items-center gap-2 rounded-2xl bg-white/10 p-4 text-sm font-semibold outline-none transition-colors hover:bg-accent focus:bg-accent"
+    const commonStyles = cn(
+      "flex w-full cursor-pointer items-center gap-2 rounded-2xl p-4 text-sm font-semibold outline-none transition-colors",
+      variant === "default" && "bg-white/10 hover:bg-accent focus:bg-accent",
+      variant === "destructive" &&
+        "bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-400",
+    )
+
     if (asChild) {
       const child = React.Children.only(children) as React.ReactElement
       return React.cloneElement(child, {
@@ -117,7 +125,12 @@ const ResponsiveDropdownMenuItem = ({
   }
 
   return (
-    <DropdownMenuItem className={className} onClick={onClick} disabled={disabled} asChild={asChild}>
+    <DropdownMenuItem
+      className={cn(className, variant === "destructive" && "text-red-400 hover:!text-red-400")}
+      onClick={onClick}
+      disabled={disabled}
+      asChild={asChild}
+    >
       {children}
     </DropdownMenuItem>
   )
@@ -129,7 +142,7 @@ type ResponsiveDropdownMenuSeparatorProps = {
 }
 
 const ResponsiveDropdownMenuSeparator = ({ className }: ResponsiveDropdownMenuSeparatorProps) => {
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  const isMobile = useMediaQuery(MOBILE_VIEWPORT)
 
   if (isMobile) {
     return <hr className={cn("my-2 border-t border-border", className)} />
@@ -156,7 +169,7 @@ export const ResponsiveDropdownMenu = ({
   open,
   onOpenChange,
 }: ResponsiveDropdownMenuProps) => {
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  const isMobile = useMediaQuery(MOBILE_VIEWPORT)
 
   if (isMobile) {
     return (
