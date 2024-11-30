@@ -238,3 +238,16 @@ export async function sendMessageInGame(gameId: string, instructions: string) {
 
   return result
 }
+
+/**
+ * Updates `gameState.updated_at = Date.now()` to invalidate and cause refetches to
+ * queries for connected clients observing the gameState table.
+ */
+export async function touchGameState(gameId: string): Promise<void> {
+  await db
+    .update(schema.gameStates)
+    .set({
+      updated_at: new Date(),
+    })
+    .where(cmp.eq(schema.gameStates.id, gameId))
+}
