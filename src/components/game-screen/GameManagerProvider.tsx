@@ -111,28 +111,8 @@ function useGameState({ initialState }: { initialState: InGameState }) {
       )
       .subscribe()
 
-    // Subscribe to player_game_sessions changes
-    const playerSessionChannel = supabase
-      .channel("playerGameSession")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "player_game_sessions",
-          filter: `game_id=eq.${gameId}`,
-        },
-        (payload) => {
-          if (!safe) return
-          console.log("Player session change detected:", payload)
-          void utils.games.getGameStateWithQuestion.invalidate({ game_id: gameId })
-        },
-      )
-      .subscribe()
-
     return () => {
       void gameStateChannel.unsubscribe()
-      void playerSessionChannel.unsubscribe()
       void supabase
         .removeChannel(gameStateChannel)
         .catch((e) => console.error("failed to remove channel", e))

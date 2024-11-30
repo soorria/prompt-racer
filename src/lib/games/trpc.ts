@@ -342,6 +342,13 @@ export const gameRouter = createTRPCRouter({
         model: "openai::gpt-4o-mini",
       })
 
+      await ctx.db
+        .update(schema.gameStates)
+        .set({
+          updated_at: new Date(),
+        })
+        .where(cmp.eq(schema.gameStates.id, game.id))
+
       return {
         game_id: game.id,
       }
