@@ -32,7 +32,7 @@ import { createTRPCRouter, protectedProcedure } from "~/lib/trpc/trpc"
 import { randomElement } from "~/lib/utils/random"
 import { getUserProfile } from "../auth/profile"
 import { getPlayerPostionsForGameMode } from "./game-modes"
-import { cancelInngestGameWorkflow, finalizeGame } from "./internal-actions"
+import { cancelInngestGameWorkflow, finalizeGame, touchGameState } from "./internal-actions"
 
 export const gameRouter = createTRPCRouter({
   getPlayerGameSession: protectedProcedure
@@ -342,6 +342,10 @@ export const gameRouter = createTRPCRouter({
         model: "openai::gpt-4o-mini",
       })
 
+      // Update gameState to trigger real-time updates for all connected clients when
+      // players join/leave the lobby
+      await touchGameState(game.id)
+
       return {
         game_id: game.id,
       }
@@ -397,6 +401,10 @@ export const gameRouter = createTRPCRouter({
         await ctx.db.delete(schema.gameStates).where(cmp.eq(schema.gameStates.id, game.id))
         await cancelInngestGameWorkflow(ctx.inngest, game.id)
       }
+
+      // Update gameState to trigger real-time updates for all connected clients when
+      // players join/leave the lobby
+      await touchGameState(game.id)
     }),
 
   exitGameEarly: protectedProcedure
