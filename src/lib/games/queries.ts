@@ -243,6 +243,36 @@ export async function getGameResultsData(tx: DBOrTransation, gameId: string) {
   }
 }
 
+export async function getTop3Players(tx: DBOrTransation, gameId: string) {
+  const results = await tx.query.playerGameSessions.findMany({
+    where: cmp.eq(schema.playerGameSessions.game_id, gameId),
+    with: {
+      user: true,
+      finalResult: true,
+    },
+  })
+  const gameDifficulty = await tx.query.gameStates.findFirst({
+    where: cmp.eq(schema.gameStates.id, gameId),
+    columns: {
+      question_id: true,
+    },
+    with: {
+      question: {
+        columns: {
+          difficulty: true,
+        },
+      },
+    },
+  })
+
+  return {
+    players: results
+      .sort((a, b) => (a.finalResult?.position ?? 0) - (b.finalResult?.position ?? 0))
+      .slice(0, 3),
+    gameMode: gameDifficulty?.question.difficulty,
+  }
+}
+
 export async function getSessionInfoForPlayer(tx: DBOrTransation, userId: string, gameId: string) {
   return await tx.query.playerGameSessions.findFirst({
     where: cmp.and(
