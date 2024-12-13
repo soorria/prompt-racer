@@ -243,6 +243,11 @@ export async function getGameResultsData(tx: DBOrTransation, gameId: string) {
   }
 }
 
+/**
+ * This function gets only the required data to render the OG image. It is intended to be
+ * as lightweight and performant as possible since the time to create the OG image is
+ * critical for certain websites to render the image.
+ */
 export async function getTop3Players(tx: DBOrTransation, gameId: string) {
   const results = await tx.query.playerGameSessions.findMany({
     where: cmp.eq(schema.playerGameSessions.game_id, gameId),
