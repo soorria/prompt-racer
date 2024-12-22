@@ -134,22 +134,33 @@ export default function HeroAnimation() {
 
   return (
     <div
-      className="relative flex flex-col items-center justify-center overflow-hidden rounded-b rounded-t-xl"
+      className="relative flex w-full max-w-md flex-col items-center justify-center overflow-hidden rounded-b rounded-t-xl"
       ref={animateContainerRef}
     >
-      {codeToShow ? (
-        <div
-          className={clsx(
-            "h-full w-full overflow-y-scroll rounded-xl bg-dracula transition-all",
-            showSubmittingOpacityClass,
-          )}
-        >
-          <CodeRenderer code={codeToShow} language="python" />
-        </div>
-      ) : null}
       <div
         className={clsx(
-          "pointer-events-none mt-4 flex w-full transition-all",
+          "relative h-full w-full overflow-y-scroll rounded-2xl rounded-b-none bg-dracula transition-all",
+          showSubmittingOpacityClass,
+        )}
+      >
+        <CodeRenderer
+          code={codeToShow}
+          language="python"
+          preProps={{ className: "h-40 w-full w-[20rem] text-left pl-3 " }}
+          codeProps={{ className: "w-full" }}
+        />
+        {!codeToShow && (
+          <div
+            className="absolute left-3 top-2 inline-block h-4 w-1 animate-[blink_1s_ease-in-out_infinite] bg-white/80"
+            style={{
+              animation: "blink 1s step-end infinite",
+            }}
+          ></div>
+        )}
+      </div>
+      <div
+        className={clsx(
+          "pointer-events-none flex w-full transition-all",
           showSubmittingOpacityClass,
         )}
       >
@@ -159,13 +170,18 @@ export default function HeroAnimation() {
           name="message"
           placeholder="Type your instructions..."
           autoComplete="off"
-          className="rounded-r-none"
+          className="rounded-2xl rounded-r-none rounded-t-none"
           required
           disabled={showLoader}
           // this is to stop React's warning about controlled inputs
           onChange={noop}
         />
-        <Button type="submit" disabled={false} variant={"secondary"} className="rounded-l-none">
+        <Button
+          type="submit"
+          disabled={false}
+          variant={"secondary"}
+          className="rounded-2xl rounded-l-none rounded-t-none"
+        >
           {showLoader ? <Loader2 className="animate-spin sq-5" /> : <Send className="sq-5" />}
 
           <span className="sr-only">Send</span>
