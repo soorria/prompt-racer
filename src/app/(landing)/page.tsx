@@ -70,7 +70,7 @@ export default async function Home() {
           </div>
 
           {/* Mobile-only buttons at bottom */}
-          <div className="order-3 mt-10 flex w-full flex-col items-center justify-center gap-5 pb-8 lg:hidden">
+          <div className="order-3 mt-8 flex w-full flex-col items-center justify-center gap-5 pb-8 sm:mt-10 lg:hidden">
             <Button asChild className="rounded-3xl">
               <Link href={user ? "/games/join" : "/auth/login"}>
                 <PlayButtonIcon />

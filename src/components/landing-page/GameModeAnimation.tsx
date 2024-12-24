@@ -4,9 +4,12 @@ import type { TargetAndTransition } from "framer-motion"
 import React, { useEffect, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { ArrowDownNarrowWide, Code, Gauge, Timer } from "lucide-react"
+import useMeasure from "react-use-measure"
 
 const GameModeAnimation = () => {
   const [activeIndex, setActiveIndex] = useState(0)
+  const [measureRef, bounds] = useMeasure()
+  const [measuredWidth, setMeasuredWidth] = useState(0)
 
   const modes = [
     { icon: Timer, text: "Speed Demon", color: "bg-orange-300" },
@@ -21,7 +24,11 @@ const GameModeAnimation = () => {
     }, 3000)
 
     return () => clearInterval(interval)
-  }, [activeIndex, modes.length]) // Reset interval when activeIndex changes
+  }, [activeIndex, modes.length])
+
+  useEffect(() => {
+    setMeasuredWidth(bounds.width)
+  }, [bounds.width])
 
   const floatingAnimation = (index: number): TargetAndTransition => ({
     y: [0, -4, 0],
@@ -36,6 +43,11 @@ const GameModeAnimation = () => {
 
   return (
     <div className="flex flex-col">
+      {/* Hidden element for measuring text width */}
+      <div className="invisible absolute" ref={measureRef}>
+        {modes[activeIndex]?.text}
+      </div>
+
       <div className="mb-3 flex items-center gap-3">
         {modes.map((mode, index) => {
           const Icon = mode.icon
@@ -44,25 +56,26 @@ const GameModeAnimation = () => {
           return (
             <motion.div
               key={index}
-              className={`flex cursor-pointer items-center rounded-3xl text-black ${mode.color} overflow-hidden p-2`}
+              className={`flex cursor-pointer items-center rounded-3xl text-black ${mode.color} overflow-hidden`}
               whileTap={{ scale: 0.9 }}
               animate={floatingAnimation(index)}
               onClick={() => setActiveIndex(index)}
             >
-              <Icon className="sq-6" />
-              <AnimatePresence mode="wait">
-                {isActive && (
-                  <motion.span
-                    className="whitespace-nowrap"
-                    initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: "auto", opacity: 1 }}
-                    exit={{ width: 0, opacity: 0 }}
-                  >
-                    {"⁠ "}
-                    {mode.text}
-                  </motion.span>
-                )}
-              </AnimatePresence>
+              <div className="m-2 flex">
+                <Icon className="sq-6" />
+                <AnimatePresence mode="wait">
+                  {isActive && (
+                    <motion.div
+                      initial={{ width: 0, opacity: 0 }}
+                      animate={{ width: measuredWidth, opacity: 1 }}
+                      exit={{ width: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      <span className="whitespace-nowrap"> {mode.text} </span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
           )
         })}
