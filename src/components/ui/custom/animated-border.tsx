@@ -9,9 +9,15 @@ type AnimatedBorderProps = {
   children: React.ReactNode
   strokeWidth?: number
   debug?: true
+  sizeMultiplier?: number
 }
 
-export function AnimatedBorder({ strokeWidth, children, debug }: AnimatedBorderProps) {
+export function AnimatedBorder({
+  strokeWidth,
+  children,
+  debug,
+  sizeMultiplier = 1,
+}: AnimatedBorderProps) {
   const elementRef = useRef<HTMLDivElement>(null)
   const elementDetails = useElementDetails(elementRef)
 
@@ -38,7 +44,7 @@ export function AnimatedBorder({ strokeWidth, children, debug }: AnimatedBorderP
           height={elementDetails.height + 2 * offset}
           borderRadius={elementDetails.borderRadius ?? 0}
           strokeWidth={strokeWidth ?? 1}
-          circleRadius={elementDetails.width * 0.2}
+          circleRadius={elementDetails.width * 0.2 * sizeMultiplier}
           debug={debug}
         />
       </div>

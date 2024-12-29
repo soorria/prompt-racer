@@ -1,7 +1,10 @@
+import type { LucideIcon } from "lucide-react"
+import { Gauge, MessageCircle, Minimize2, Timer } from "lucide-react"
 import ms from "ms"
 
 import type { gameStatusEnum, questionDifficultyEnum } from "../db/schema"
 import type { Doc } from "../db/types"
+import { entries } from "../utils/object"
 
 export type KebabToPascalCase<T extends string> = T extends `${infer F}-${infer R}`
   ? `${F}${Capitalize<KebabToPascalCase<R>>}`
@@ -45,42 +48,56 @@ export const GAME_CHARACTER_LIMIT_MAP = {
 } as const satisfies Record<Doc<"questions">["difficulty"], number>
 export const MAX_SEND_MESSAGE_CHARACTER_LIMIT = Math.max(...Object.values(GAME_CHARACTER_LIMIT_MAP))
 
-export const GAME_MODE_DETAILS: Record<
-  Doc<"gameStates">["mode"],
-  {
-    title: string
-    description: string
-    unitLong: string
-    unitShort: string
-    toDisplayValue: (value: number) => number
-  }
-> = {
+export type GameModeIds = Doc<"gameStates">["mode"]
+export type GameModeDetailsItem = {
+  title: string
+  description: string
+  unitLong: string
+  unitShort: string
+  toDisplayValue: (value: number) => number
+  icon: LucideIcon
+  color: string
+}
+export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
   "fastest-player": {
-    title: "Fastest Player",
-    description: "The fastest player to submit the correct answer wins!",
+    title: "Speed Demon",
+    description: "Race against others to solve the challenge first. Fast thinking wins!",
     unitLong: "seconds",
     unitShort: "s",
     toDisplayValue: (ms: number) => ms / 1000,
+    icon: Timer,
+    color: "bg-orange-300",
   },
   "fastest-code": {
-    title: "Fastest Code",
-    description: "The code that runs the fastest wins!",
+    title: "Turbo Code",
+    description: "Your code needs speed! Create the fastest executing solution.",
     unitLong: "seconds",
     unitShort: "s",
-    toDisplayValue: (ms: number) => ms / 1000,
+    // Runtimes longer than `5000ms` are displayed in seconds
+    toDisplayValue: (ms: number) => (ms > 5000 ? ms / 1000 : ms),
+    icon: Gauge,
+    color: "bg-green-300",
   },
   "shortest-code": {
-    title: "Shortest Code",
-    description: "The fewest amount of lines/characters of code wins!",
+    title: "Minimalist",
+    description: "Less is more. Write working code with the fewest characters possible.",
     unitLong: "characters",
     unitShort: "ch",
     toDisplayValue: (v) => v,
+    icon: Minimize2,
+    color: "bg-purple-300",
   },
   "fewest-characters-to-llm": {
-    title: "Fewest Characters to LLM",
-    description: "The fewest characters able to generate the correct answer wins!",
+    title: "AI Whisperer",
+    description: "Master of brevity. Craft the shortest prompt that gets the job done.",
     unitLong: "characters",
     unitShort: "ch",
     toDisplayValue: (v) => v,
+    icon: MessageCircle,
+    color: "bg-blue-300",
   },
 }
+export const GAME_MODE_DETAILS_LIST = entries(GAME_MODE_DETAILS).map(([id, details]) => ({
+  id: id,
+  ...details,
+}))
