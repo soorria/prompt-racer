@@ -21,7 +21,6 @@ const ExpandedCard = ({ mode, layoutId }: ExpandedCardProps) => {
     <motion.div
       layoutId={layoutId}
       className={`relative flex w-full flex-col rounded-2xl p-4 text-black sm:w-64 ${mode.color}`}
-      // exit={{ width: 64, height: 64 }}
       transition={{ type: "spring", duration: 0.3, bounce: 0.2 }}
     >
       <motion.div className="mb-2 flex items-center gap-2">
