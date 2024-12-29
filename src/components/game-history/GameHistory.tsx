@@ -1,15 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Hash, Play } from "lucide-react"
+import { ArrowRight, Hash, Loader2, Play } from "lucide-react"
 
 import type { RouterOutputs } from "~/lib/trpc/react"
 import { GAME_MODE_DETAILS } from "~/lib/games/constants"
-import { MapfromDifficultyToBadgeVariant } from "~/lib/games/types"
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
 import QuestionDifficultyBadge from "../QuestionDifficultyBadge"
-import { Badge } from "../ui/badge"
 import { InfiniteScrollTrigger } from "./InfiniteScrollTrigger"
 
 type GameHistoryPage = RouterOutputs["games"]["getHistory"]
@@ -43,11 +41,20 @@ export function GameHistory(props: GameHistoryProps) {
         Game History
       </h1>
 
-      <div className="mb-24 grid gap-6 md:grid-cols-2">
+      <div
+        className={cn("grid gap-6 md:grid-cols-2", {
+          "mb-24": !gameHistory.isFetchingNextPage,
+        })}
+      >
         {flattenedGameHistory.map((item) => {
           return <GameHistoryItem item={item} key={item.id} />
         })}
       </div>
+      {gameHistory.isFetchingNextPage && (
+        <div className="mt-10 flex justify-center py-4">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      )}
 
       {gameHistory.hasNextPage && (
         <InfiniteScrollTrigger
