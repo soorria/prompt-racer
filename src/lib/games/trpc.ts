@@ -348,6 +348,7 @@ export const gameRouter = createTRPCRouter({
 
       return {
         game_id: game.id,
+        mode: game.mode,
       }
     }),
 
