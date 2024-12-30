@@ -84,7 +84,7 @@ function GameHistoryItem(props: { item: GameHistoryItem }) {
         label: "Back to game",
       } as const)
 
-  const { title, unitShort } = GAME_MODE_DETAILS[props.item.mode]
+  const { title, unitShort, toDisplayValue } = GAME_MODE_DETAILS[props.item.mode]
 
   return (
     <Link
@@ -111,10 +111,12 @@ function GameHistoryItem(props: { item: GameHistoryItem }) {
         <span className="flex w-full items-end justify-between">
           <span>{title}</span>
 
-          <span className="mb-px inline-block text-sm text-zinc-500">
-            {props.item.finalResult?.score}
-            {unitShort}
-          </span>
+          {props.item.finalResult && (
+            <span className="mb-px inline-block text-sm text-zinc-500">
+              {toDisplayValue(props.item.finalResult.score)}
+              {unitShort}
+            </span>
+          )}
         </span>
 
         {props.item.difficulty && (
