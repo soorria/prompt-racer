@@ -73,7 +73,6 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
     description: "Your code needs speed! Create the fastest executing solution.",
     unitLong: "seconds",
     unitShort: "s",
-    // Runtimes longer than `5000ms` are displayed in seconds
     toDisplayValue: (ms: number) => ms / 1000,
     icon: Gauge,
     color: "bg-green-300",
