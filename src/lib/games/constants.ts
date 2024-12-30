@@ -74,7 +74,7 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
     unitLong: "seconds",
     unitShort: "s",
     // Runtimes longer than `5000ms` are displayed in seconds
-    toDisplayValue: (ms: number) => (ms > 5000 ? ms / 1000 : ms),
+    toDisplayValue: (ms: number) => ms / 1000,
     icon: Gauge,
     color: "bg-green-300",
   },
