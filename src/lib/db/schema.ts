@@ -47,21 +47,20 @@ export const userProfiles = pgTable(
 
     inserted_at: timestamp("inserted_at").notNull().defaultNow(),
   },
-  (table) => {
-    return {
-      wins_idx: index("user_wins_games_played_inserted_at_idx")
-        .on(table.wins.desc(), table.gamesPlayed.asc(), table.inserted_at.desc())
-        .concurrently(),
-      games_played_idx: index("user_games_played_inserted_at_idx")
-        .on(table.gamesPlayed.desc(), table.inserted_at.desc())
-        .concurrently(),
+  (table) => [
+    index("user_wins_games_played_inserted_at_idx")
+      .on(table.wins.desc(), table.gamesPlayed.asc(), table.inserted_at.desc())
+      .concurrently(),
 
-      win_rate_idx: index("user_win_rate_wins_inserted_at_idx")
-        .on(table.winRate.desc(), table.wins.desc(), table.inserted_at.desc())
-        .concurrently(),
-    }
-  },
-)
+    index("user_games_played_inserted_at_idx")
+      .on(table.gamesPlayed.desc(), table.inserted_at.desc())
+      .concurrently(),
+
+    index("user_win_rate_wins_inserted_at_idx")
+      .on(table.winRate.desc(), table.wins.desc(), table.inserted_at.desc())
+      .concurrently(),
+  ],
+).enableRLS()
 
 export const usersRelations = relations(userProfiles, ({ many }) => {
   return {
@@ -75,7 +74,7 @@ export const questionSources = pgTable("question_sources", {
   id: customTypes.primaryKey("id"),
   type: questionSourceEnum("type").notNull(),
   link: text("link"),
-})
+}).enableRLS()
 
 export const questionSourcesRelations = relations(questionSources, ({ many }) => {
   return {
@@ -99,14 +98,8 @@ export const questionTestCases = pgTable(
     args: jsonb("args").notNull().$type<unknown[]>(),
     expectedOutput: jsonb("expected_output"),
   },
-  (table) => {
-    return {
-      question_id_idx: index("question_test_cases_question_id_idx")
-        .on(table.question_id)
-        .concurrently(),
-    }
-  },
-)
+  (table) => [index("question_test_cases_question_id_idx").on(table.question_id).concurrently()],
+).enableRLS()
 
 export const questionTestCasesRelations = relations(questionTestCases, ({ one }) => {
   return {
@@ -129,7 +122,7 @@ export const questions = pgTable("questions", {
     .primaryKeyReference("source_id")
     .notNull()
     .references(() => questionSources.id),
-})
+}).enableRLS()
 
 export const questionsRelations = relations(questions, ({ one, many }) => {
   return {
@@ -156,16 +149,12 @@ export const playerGameSessionFinalResults = pgTable(
     position: integer("position").notNull(),
     score: integer("score").notNull(),
   },
-  (table) => {
-    return {
-      player_game_session_id_idx: index(
-        "player_game_session_final_results_player_game_session_id_idx",
-      )
-        .on(table.player_game_session_id)
-        .concurrently(),
-    }
-  },
-)
+  (table) => [
+    index("player_game_session_final_results_player_game_session_id_idx")
+      .on(table.player_game_session_id)
+      .concurrently(),
+  ],
+).enableRLS()
 
 export const playerGameSessionFinalResultsRelations = relations(
   playerGameSessionFinalResults,
@@ -205,16 +194,12 @@ export const playerGameSubmissionStateResults = pgTable(
     is_correct: boolean("is_correct").notNull(),
     run_duration_ms: integer("runDurationMs").notNull(),
   },
-  (table) => {
-    return {
-      player_game_submission_state_id_idx: index(
-        "player_game_submission_state_results_player_game_submission_state_id_idx",
-      )
-        .on(table.player_game_submission_state_id)
-        .concurrently(),
-    }
-  },
-)
+  (table) => [
+    index("player_game_submission_state_results_player_game_submission_state_id_idx")
+      .on(table.player_game_submission_state_id)
+      .concurrently(),
+  ],
+).enableRLS()
 
 export const playerGameSubmissionStateResultsRelations = relations(
   playerGameSubmissionStateResults,
@@ -252,14 +237,12 @@ export const playerGameSubmissionStates = pgTable(
     last_submitted_at: timestamp("last_submitted_at").notNull(),
     status: playerGameSubmissionStateStatusEnum("status").notNull(),
   },
-  (table) => {
-    return {
-      player_game_session_id_idx: index("player_game_submission_states_player_game_session_id_idx")
-        .on(table.player_game_session_id)
-        .concurrently(),
-    }
-  },
-)
+  (table) => [
+    index("player_game_submission_states_player_game_session_id_idx")
+      .on(table.player_game_session_id)
+      .concurrently(),
+  ],
+).enableRLS()
 
 export const playerGameSubmissionStatesRelations = relations(
   playerGameSubmissionStates,
@@ -287,19 +270,15 @@ export const playerGameSessionChatHistoryItems = pgTable(
     content: jsonb("content").notNull().$type<ChatHistoryItemContent>(),
     inserted_at: timestamp("inserted_at").notNull().defaultNow(),
   },
-  (table) => {
-    return {
-      player_game_session_id_idx: index(
-        "player_game_session_chat_history_items_player_game_session_id_idx",
-      )
-        .on(table.player_game_session_id)
-        .concurrently(),
-      inserted_at_idx: index("player_game_session_chat_history_items_inserted_at_idx")
-        .on(table.inserted_at.asc())
-        .concurrently(),
-    }
-  },
-)
+  (table) => [
+    index("player_game_session_chat_history_items_player_game_session_id_idx")
+      .on(table.player_game_session_id)
+      .concurrently(),
+    index("player_game_session_chat_history_items_inserted_at_idx")
+      .on(table.inserted_at.asc())
+      .concurrently(),
+  ],
+).enableRLS()
 
 export const playerGameSessionChatHistoryItemsRelations = relations(
   playerGameSessionChatHistoryItems,
@@ -344,15 +323,13 @@ export const playerGameSessions = pgTable(
       .defaultNow()
       .$onUpdateFn(() => new Date()),
   },
-  (table) => {
-    return {
-      user_id_game_id_idx: index("player_game_sessions_user_id_game_id_idx")
-        .on(table.user_id, table.game_id)
-        .concurrently(),
-      game_id_idx: index("player_game_sessions_game_id_idx").on(table.game_id).concurrently(),
-    }
-  },
-)
+  (table) => [
+    index("player_game_sessions_user_id_game_id_idx")
+      .on(table.user_id, table.game_id)
+      .concurrently(),
+    index("player_game_sessions_game_id_idx").on(table.game_id).concurrently(),
+  ],
+).enableRLS()
 
 export const playerGameSessionsRelations = relations(playerGameSessions, ({ one, many }) => {
   return {
@@ -406,12 +383,8 @@ export const gameStates = pgTable(
     start_time: timestamp("start_time"),
     end_time: timestamp("end_time"),
   },
-  (table) => {
-    return {
-      status_idx: index("status_idx").on(table.status),
-    }
-  },
-)
+  (table) => [index("status_idx").on(table.status)],
+).enableRLS()
 
 export const gameStatesRelations = relations(gameStates, ({ one, many }) => {
   return {
