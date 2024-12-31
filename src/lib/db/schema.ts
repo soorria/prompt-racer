@@ -6,6 +6,8 @@ import {
   integer,
   jsonb,
   pgEnum,
+  pgPolicy,
+  pgRole,
   pgTable,
   real,
   text,
@@ -328,6 +330,14 @@ export const playerGameSessions = pgTable(
       .on(table.user_id, table.game_id)
       .concurrently(),
     index("player_game_sessions_game_id_idx").on(table.game_id).concurrently(),
+    pgPolicy("Players can read their own sessions", {
+      as: "permissive",
+      to: "public",
+      for: "select",
+      using: sql`
+(select auth.uid() as uid) = player_game_sessions.user_id
+`,
+    }),
   ],
 ).enableRLS()
 
@@ -383,7 +393,22 @@ export const gameStates = pgTable(
     start_time: timestamp("start_time"),
     end_time: timestamp("end_time"),
   },
-  (table) => [index("status_idx").on(table.status)],
+  (table) => [
+    index("status_idx").on(table.status),
+    pgPolicy("Players can read game states they're a part of", {
+      as: "permissive",
+      to: "public",
+      for: "select",
+      using: sql`
+(select auth.uid() as uid) IN
+(
+  select player_game_sessions.user_id
+  from player_game_sessions
+  where player_game_sessions.game_id = game_states.id
+)
+`,
+    }),
+  ],
 ).enableRLS()
 
 export const gameStatesRelations = relations(gameStates, ({ one, many }) => {
