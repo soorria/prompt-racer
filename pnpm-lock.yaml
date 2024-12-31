@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  drizzle-kit@0.30.1:
+    hash: dfyexyl4ggnrq3q3lqgkfqxkde
+    path: patches/drizzle-kit@0.30.1.patch
+
 dependencies:
   '@ai-sdk/openai':
     specifier: ^0.0.40
@@ -225,7 +230,7 @@ devDependencies:
     version: 7.4.2
   drizzle-kit:
     specifier: ^0.30.1
-    version: 0.30.1
+    version: 0.30.1(patch_hash=dfyexyl4ggnrq3q3lqgkfqxkde)
   eslint:
     specifier: ^8.57.0
     version: 8.57.0
@@ -3666,7 +3671,7 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /drizzle-kit@0.30.1:
+  /drizzle-kit@0.30.1(patch_hash=dfyexyl4ggnrq3q3lqgkfqxkde):
     resolution: {integrity: sha512-HmA/NeewvHywhJ2ENXD3KvOuM/+K2dGLJfxVfIHsGwaqKICJnS+Ke2L6UcSrSrtMJLJaT0Im1Qv4TFXfaZShyw==}
     hasBin: true
     dependencies:
@@ -3677,6 +3682,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+    patched: true
 
   /drizzle-orm@0.38.3(@types/react@18.3.3)(pg@8.12.0)(postgres@3.4.4)(react@19.0.0-rc-e4953922-20240919):
     resolution: {integrity: sha512-w41Y+PquMpSff/QDRGdItG0/aWca+/J3Sda9PPGkTxBtjWQvgU1jxlFBXdjog5tYvTu58uvi3PwR1NuCx0KeZg==}
