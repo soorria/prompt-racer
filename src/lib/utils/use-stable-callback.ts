@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef } from "react"
 
-export function useStableCallback<T extends (...args: unknown[]) => unknown>(callback: T): T
-export function useStableCallback<T extends (...args: unknown[]) => unknown>(
+import { type Unsafe_AnyFunction } from "./types"
+
+export function useStableCallback<T extends Unsafe_AnyFunction>(callback: T): T
+export function useStableCallback<T extends Unsafe_AnyFunction>(
   callback?: T | undefined,
 ): (...args: Parameters<T>) => ReturnType<T> | undefined
-export function useStableCallback<T extends (...args: unknown[]) => unknown>(callback?: T) {
+export function useStableCallback<T extends Unsafe_AnyFunction>(callback?: T) {
   type Args = Parameters<T>
   type Result = ReturnType<T> | undefined
 
