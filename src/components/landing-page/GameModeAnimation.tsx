@@ -36,7 +36,7 @@ const GameModeAnimation = () => {
   })
 
   return (
-    <div className="flex flex-col">
+    <div className="flex select-none flex-col">
       {/* Hidden element for measuring text width */}
       <div className="invisible absolute" ref={measureRef}>
         {GAME_MODE_DETAILS_LIST[activeIndex]?.title}
