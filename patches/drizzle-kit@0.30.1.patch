@@ -1,0 +1,24 @@
+diff --git a/bin.cjs b/bin.cjs
+index 7357ffe50054bb20d96f228e05d3eeb2d52ecf7c..bae4de1ca76fcf5ed826db961cdaa31c015ed4d0 100755
+--- a/bin.cjs
++++ b/bin.cjs
+@@ -6295,7 +6295,7 @@ var init_pgSchema = __esm({
+       },
+       squashPolicyPush: (policy4) => {
+         var _a;
+-        return `${policy4.name}--${policy4.as}--${policy4.for}--${(_a = policy4.to) == null ? void 0 : _a.join(",")}--${policy4.on}`;
++        return `${policy4.name}--${policy4.as}--${policy4.for}--${(_a = policy4.to) == null ? void 0 : _a.join(",")}--${policy4.using}--${policy4.withCheck}--${policy4.on}`;
+       },
+       unsquashPolicyPush: (policy4) => {
+         const splitted = policy4.split("--");
+@@ -6304,7 +6304,9 @@ var init_pgSchema = __esm({
+           as: splitted[1],
+           for: splitted[2],
+           to: splitted[3].split(","),
+-          on: splitted[4] !== "undefined" ? splitted[4] : void 0
++          using: splitted[4] !== "undefined" ? splitted[4] : void 0,
++          withCheck: splitted[5] !== "undefined" ? splitted[5] : void 0,
++          on: splitted[6] !== "undefined" ? splitted[6] : void 0
+         };
+       },
+       squashPK: (pk) => {

@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  drizzle-kit@0.30.1:
+    hash: dfyexyl4ggnrq3q3lqgkfqxkde
+    path: patches/drizzle-kit@0.30.1.patch
+
 dependencies:
   '@ai-sdk/openai':
     specifier: ^0.0.40
@@ -90,11 +95,11 @@ dependencies:
     specifier: ^2.0.3
     version: 2.0.3
   drizzle-orm:
-    specifier: ^0.32.1
-    version: 0.32.1(@types/react@18.3.3)(pg@8.12.0)(postgres@3.4.4)(react@19.0.0-rc-e4953922-20240919)
+    specifier: ^0.38.3
+    version: 0.38.3(@types/react@18.3.3)(pg@8.12.0)(postgres@3.4.4)(react@19.0.0-rc-e4953922-20240919)
   drizzle-zod:
-    specifier: ^0.5.1
-    version: 0.5.1(drizzle-orm@0.32.1)(zod@3.23.8)
+    specifier: ^0.6.1
+    version: 0.6.1(drizzle-orm@0.38.3)(zod@3.23.8)
   framer-motion:
     specifier: ^11.3.24
     version: 11.3.24(react-dom@19.0.0-rc-e4953922-20240919)(react@19.0.0-rc-e4953922-20240919)
@@ -224,8 +229,8 @@ devDependencies:
     specifier: ^7.4.2
     version: 7.4.2
   drizzle-kit:
-    specifier: ^0.23.1
-    version: 0.23.1
+    specifier: ^0.30.1
+    version: 0.30.1(patch_hash=dfyexyl4ggnrq3q3lqgkfqxkde)
   eslint:
     specifier: ^8.57.0
     version: 8.57.0
@@ -530,8 +535,8 @@ packages:
       '@babel/helper-validator-identifier': 7.24.7
       to-fast-properties: 2.0.0
 
-  /@drizzle-team/brocli@0.8.2:
-    resolution: {integrity: sha512-zTrFENsqGvOkBOuHDC1pXCkDXNd2UhP4lI3gYGhQ1R1SPeAAfqzPsV1dcpMy4uNU6kB5VpU5NGhvwxVNETR02A==}
+  /@drizzle-team/brocli@0.10.2:
+    resolution: {integrity: sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==}
     dev: true
 
   /@emnapi/runtime@1.2.0:
@@ -548,6 +553,7 @@ packages:
 
   /@esbuild-kit/core-utils@3.3.2:
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
+    deprecated: 'Merged into tsx: https://tsx.is'
     dependencies:
       esbuild: 0.18.20
       source-map-support: 0.5.21
@@ -555,6 +561,7 @@ packages:
 
   /@esbuild-kit/esm-loader@2.6.5:
     resolution: {integrity: sha512-FxEMIkJKnodyA1OaCUoEvbYRkoZlLZ4d/eXFu9Fh8CbBBgP5EmZxrfTRyN0qpXZ4vOvqnE5YdRdcrmUUXuU+dA==}
+    deprecated: 'Merged into tsx: https://tsx.is'
     dependencies:
       '@esbuild-kit/core-utils': 3.3.2
       get-tsconfig: 4.7.6
@@ -3664,26 +3671,28 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /drizzle-kit@0.23.1:
-    resolution: {integrity: sha512-posGQhj8/K4S4CPhk7BO9+IcpNdIh96t0DvcAr/NvMKhPhe5D0MELzmpq9R2MpmSP3fd+Z3upwidtetrw7xnjg==}
+  /drizzle-kit@0.30.1(patch_hash=dfyexyl4ggnrq3q3lqgkfqxkde):
+    resolution: {integrity: sha512-HmA/NeewvHywhJ2ENXD3KvOuM/+K2dGLJfxVfIHsGwaqKICJnS+Ke2L6UcSrSrtMJLJaT0Im1Qv4TFXfaZShyw==}
     hasBin: true
     dependencies:
-      '@drizzle-team/brocli': 0.8.2
+      '@drizzle-team/brocli': 0.10.2
       '@esbuild-kit/esm-loader': 2.6.5
       esbuild: 0.19.12
       esbuild-register: 3.6.0(esbuild@0.19.12)
     transitivePeerDependencies:
       - supports-color
     dev: true
+    patched: true
 
-  /drizzle-orm@0.32.1(@types/react@18.3.3)(pg@8.12.0)(postgres@3.4.4)(react@19.0.0-rc-e4953922-20240919):
-    resolution: {integrity: sha512-Wq1J+lL8PzwR5K3a1FfoWsbs8powjr3pGA4+5+2ueN1VTLDNFYEolUyUWFtqy8DVRvYbL2n7sXZkgVmK9dQkng==}
+  /drizzle-orm@0.38.3(@types/react@18.3.3)(pg@8.12.0)(postgres@3.4.4)(react@19.0.0-rc-e4953922-20240919):
+    resolution: {integrity: sha512-w41Y+PquMpSff/QDRGdItG0/aWca+/J3Sda9PPGkTxBtjWQvgU1jxlFBXdjog5tYvTu58uvi3PwR1NuCx0KeZg==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
-      '@cloudflare/workers-types': '>=3'
-      '@electric-sql/pglite': '>=0.1.1'
-      '@libsql/client': '*'
-      '@neondatabase/serverless': '>=0.1'
+      '@cloudflare/workers-types': '>=4'
+      '@electric-sql/pglite': '>=0.2.0'
+      '@libsql/client': '>=0.10.0'
+      '@libsql/client-wasm': '>=0.10.0'
+      '@neondatabase/serverless': '>=0.10.0'
       '@op-engineering/op-sqlite': '>=2'
       '@opentelemetry/api': ^1.4.1
       '@planetscale/database': '>=1'
@@ -3697,7 +3706,7 @@ packages:
       '@xata.io/client': '*'
       better-sqlite3: '>=7'
       bun-types: '*'
-      expo-sqlite: '>=13.2.0'
+      expo-sqlite: '>=14.0.0'
       knex: '*'
       kysely: '*'
       mysql2: '>=2'
@@ -3715,6 +3724,8 @@ packages:
       '@electric-sql/pglite':
         optional: true
       '@libsql/client':
+        optional: true
+      '@libsql/client-wasm':
         optional: true
       '@neondatabase/serverless':
         optional: true
@@ -3771,13 +3782,13 @@ packages:
       react: 19.0.0-rc-e4953922-20240919
     dev: false
 
-  /drizzle-zod@0.5.1(drizzle-orm@0.32.1)(zod@3.23.8):
-    resolution: {integrity: sha512-C/8bvzUH/zSnVfwdSibOgFjLhtDtbKYmkbPbUCq46QZyZCH6kODIMSOgZ8R7rVjoI+tCj3k06MRJMDqsIeoS4A==}
+  /drizzle-zod@0.6.1(drizzle-orm@0.38.3)(zod@3.23.8):
+    resolution: {integrity: sha512-huEbUgnsuR8tupnmLiyB2F1I2H9dswI3GfM36IbIqx9i0YUeYjRsDpJVyFVeziUvI1ogT9JHRL2Q03cC4QmvxA==}
     peerDependencies:
-      drizzle-orm: '>=0.23.13'
-      zod: '*'
+      drizzle-orm: '>=0.36.0'
+      zod: '>=3.0.0'
     dependencies:
-      drizzle-orm: 0.32.1(@types/react@18.3.3)(pg@8.12.0)(postgres@3.4.4)(react@19.0.0-rc-e4953922-20240919)
+      drizzle-orm: 0.38.3(@types/react@18.3.3)(pg@8.12.0)(postgres@3.4.4)(react@19.0.0-rc-e4953922-20240919)
       zod: 3.23.8
     dev: false
 
