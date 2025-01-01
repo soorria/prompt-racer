@@ -6,7 +6,7 @@ import { count } from "drizzle-orm"
 
 import { requireAuthUser } from "../auth/user"
 import { cmp, orderBy, schema } from "../db"
-import { type DBOrTransation, type Doc } from "../db/types"
+import { type DBOrTransaction, type Doc } from "../db/types"
 import { type QuestionDifficultyLevels } from "./constants"
 import {
   type InGameState,
@@ -16,7 +16,7 @@ import {
 import { getQuestionTestCasesOrderBy } from "./utils"
 
 export async function getUserGameHistory(
-  tx: DBOrTransation,
+  tx: DBOrTransaction,
   {
     userId,
     limit = 10,
@@ -77,7 +77,7 @@ export async function getUserGameHistory(
   }
 }
 
-export async function getLatestActiveGameForUser(tx: DBOrTransation, userId: string) {
+export async function getLatestActiveGameForUser(tx: DBOrTransaction, userId: string) {
   const [result] = await tx
     .select({
       session: schema.playerGameSessions,
@@ -97,13 +97,13 @@ export async function getLatestActiveGameForUser(tx: DBOrTransation, userId: str
   return result ?? null
 }
 
-export async function getLatestActiveGameForCurrentUser(tx: DBOrTransation) {
+export async function getLatestActiveGameForCurrentUser(tx: DBOrTransaction) {
   const user = await requireAuthUser()
   return getLatestActiveGameForUser(tx, user.id)
 }
 
 export async function getGamesWithStatus<Status extends Doc<"gameStates">["status"]>(
-  tx: DBOrTransation,
+  tx: DBOrTransaction,
   status: Status,
 ) {
   const results = await tx.query.gameStates.findMany({
@@ -120,7 +120,7 @@ export async function getGamesWithStatus<Status extends Doc<"gameStates">["statu
   return results
 }
 
-export async function getSubmissionMetrics(tx: DBOrTransation, submission_state_id: string) {
+export async function getSubmissionMetrics(tx: DBOrTransaction, submission_state_id: string) {
   const submissionStateResults = await tx.query.playerGameSubmissionStateResults.findMany({
     where: cmp.eq(
       schema.playerGameSubmissionStateResults.player_game_submission_state_id,
@@ -134,7 +134,10 @@ export async function getSubmissionMetrics(tx: DBOrTransation, submission_state_
   }
 }
 
-export async function getRandomQuestion(tx: DBOrTransation, difficulty?: QuestionDifficultyLevels) {
+export async function getRandomQuestion(
+  tx: DBOrTransaction,
+  difficulty?: QuestionDifficultyLevels,
+) {
   const baseQuery = tx.select({ count: count() }).from(schema.questions)
   const queryWithDifficulty = difficulty
     ? baseQuery.where(cmp.eq(schema.questions.difficulty, difficulty))
@@ -158,7 +161,7 @@ export async function getRandomQuestion(tx: DBOrTransation, difficulty?: Questio
   return question
 }
 
-export async function getQuestionById(tx: DBOrTransation, questionId: string) {
+export async function getQuestionById(tx: DBOrTransaction, questionId: string) {
   const question = await tx.query.questions.findFirst({
     where: cmp.eq(schema.questions.id, questionId),
   })
@@ -166,7 +169,7 @@ export async function getQuestionById(tx: DBOrTransation, questionId: string) {
   return question
 }
 
-export async function getGameById(tx: DBOrTransation, gameId: string) {
+export async function getGameById(tx: DBOrTransaction, gameId: string) {
   const game = await tx.query.gameStates.findFirst({
     where: cmp.eq(schema.gameStates.id, gameId),
   })
@@ -175,7 +178,7 @@ export async function getGameById(tx: DBOrTransation, gameId: string) {
 }
 
 export async function getInGameState(
-  tx: DBOrTransation,
+  tx: DBOrTransaction,
   gameId: string,
 ): Promise<InGameState | undefined> {
   const gameState = await tx.query.gameStates.findFirst({
@@ -214,7 +217,7 @@ export async function getInGameState(
 /**
  * Separated out to allow for caching
  */
-export async function getGameResultsData(tx: DBOrTransation, gameId: string) {
+export async function getGameResultsData(tx: DBOrTransaction, gameId: string) {
   const game = await getGameById(tx, gameId)
 
   if (!game) {
@@ -248,7 +251,7 @@ export async function getGameResultsData(tx: DBOrTransation, gameId: string) {
  * as lightweight and performant as possible since the time to create the OG image is
  * critical for certain websites to render the image.
  */
-export async function getTop3Players(tx: DBOrTransation, gameId: string) {
+export async function getTop3Players(tx: DBOrTransaction, gameId: string) {
   const results = await tx.query.playerGameSessions.findMany({
     where: cmp.eq(schema.playerGameSessions.game_id, gameId),
     with: {
@@ -278,7 +281,7 @@ export async function getTop3Players(tx: DBOrTransation, gameId: string) {
   }
 }
 
-export async function getSessionInfoForPlayer(tx: DBOrTransation, userId: string, gameId: string) {
+export async function getSessionInfoForPlayer(tx: DBOrTransaction, userId: string, gameId: string) {
   return await tx.query.playerGameSessions.findFirst({
     where: cmp.and(
       cmp.eq(schema.playerGameSessions.user_id, userId),
