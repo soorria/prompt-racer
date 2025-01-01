@@ -13,8 +13,10 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core"
+import { authenticatedRole, authUid } from "drizzle-orm/supabase"
 
 import { GAME_MODES } from "../games/constants"
+import { type GameEvent } from "../games/events/schema"
 import { type ChatHistoryItemContent } from "../games/schemas"
 import { type ModelId } from "../llm/constants"
 
@@ -419,3 +421,55 @@ export const gameStatesRelations = relations(gameStates, ({ one, many }) => {
     players: many(playerGameSessions),
   }
 })
+
+export const gameEvents = pgTable(
+  "game_events",
+  {
+    id: customTypes.primaryKey("id"),
+
+    game_id: customTypes
+      .primaryKeyReference("game_id")
+      .notNull()
+      .references(() => gameStates.id, {
+        onDelete: "cascade",
+      }),
+
+    /**
+     * The user to sent the event to.
+     *
+     * If `null`, send to all users in a game
+     */
+    user_id: customTypes.primaryKeyReference("user_id").references(() => userProfiles.id, {
+      onDelete: "set null",
+    }),
+
+    payload: jsonb().notNull().$type<GameEvent>(),
+
+    inserted_at: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    pgPolicy("Users can read events not tied to a user", {
+      as: "permissive",
+      to: authenticatedRole,
+      for: "select",
+      using: sql`
+(
+  ${authUid} IN
+  (
+    select ${playerGameSessions.user_id}
+    from ${playerGameSessions}
+    where ${playerGameSessions.game_id} = ${t.game_id}
+  )
+) and (
+  ${t.user_id} is NULL
+)
+`,
+    }),
+    pgPolicy("Users can read their own events", {
+      as: "permissive",
+      to: authenticatedRole,
+      for: "select",
+      using: sql`${authUid} = ${t.user_id}`,
+    }),
+  ],
+).enableRLS()
