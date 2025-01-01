@@ -157,7 +157,7 @@ const GameModeSelectorAnimation = () => {
   }
 
   return (
-    <div className="relative flex min-h-[500px] w-full flex-col items-center justify-center sm:flex-row">
+    <div className="relative flex min-h-[500px] w-full select-none flex-col items-center justify-center sm:flex-row">
       <div className="mb-20 sm:absolute sm:mb-0">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div

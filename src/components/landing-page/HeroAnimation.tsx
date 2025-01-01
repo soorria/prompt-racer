@@ -190,7 +190,7 @@ export default function HeroAnimation() {
 
       <div>
         {showSubmittingFakeModal && (
-          <div className="animate-fade-in absolute inset-0 grid place-items-center">
+          <div className="animate-fade-in absolute inset-0 grid select-none place-items-center">
             <div className="rounded bg-accent px-6 py-4">
               {complete ? (
                 <div className="flex flex-col items-center gap-4">
