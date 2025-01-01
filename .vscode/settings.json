@@ -1,4 +1,9 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
-  "turboConsoleLog.delimiterInsideMessage": "!!"
+  "turboConsoleLog.delimiterInsideMessage": "!!",
+  "cSpell.words": [
+    "contravariance",
+    "posthog",
+    "supabase"
+  ]
 }
