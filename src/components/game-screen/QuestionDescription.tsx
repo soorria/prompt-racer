@@ -8,7 +8,7 @@ import type { GameMode } from "~/lib/games/constants"
 import type { QuestionWithTestCases } from "~/lib/games/types"
 import { Badge } from "~/components/ui/badge"
 import { GAME_MODE_DETAILS } from "~/lib/games/constants"
-import { MapfromDifficultyToBadgeVariant } from "~/lib/games/types"
+import { DifficultyToBadgeVariantMap } from "~/lib/games/types"
 
 export default function QuestionDescription(props: {
   question: QuestionWithTestCases
@@ -17,7 +17,7 @@ export default function QuestionDescription(props: {
   return (
     <div>
       <div className="mb-1 text-2xl font-bold">{props.question.title}</div>
-      <Badge variant={MapfromDifficultyToBadgeVariant[props.question.difficulty]} className="mb-2">
+      <Badge variant={DifficultyToBadgeVariantMap[props.question.difficulty]} className="mb-2">
         {props.question.difficulty}
       </Badge>
       <div className="mb-6 mt-3 rounded bg-primary/40 px-3 py-2">

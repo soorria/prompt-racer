@@ -3,6 +3,10 @@
   "turboConsoleLog.delimiterInsideMessage": "!!",
   "cSpell.words": [
     "dequal",
-    "inngest"
-  ]
+    "formkit",
+    "inngest",
+    "posthog",
+    "sonner"
+  ],
+  "cSpell.language": "en-GB"
 }
