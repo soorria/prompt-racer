@@ -10,7 +10,7 @@ import { streamUpdatedCode } from "../llm/generation"
 import { extractCodeFromRawCompletion } from "../llm/utils"
 import { captureUserEvent } from "../posthog/server"
 import { LLM_PROMPTING_TIMEOUT } from "./constants"
-import { getPlayerPostionsForGameMode } from "./game-modes"
+import { getPlayerPositionsForGameMode } from "./game-modes"
 import { getGameById } from "./queries"
 import { chatHistoryItemTypeIs } from "./utils"
 
@@ -69,7 +69,7 @@ export async function finalizeGame(gameId: string) {
       return
     }
 
-    const positionResults = getPlayerPostionsForGameMode(game, playerGameSessions)
+    const positionResults = getPlayerPositionsForGameMode(game, playerGameSessions)
 
     /**
      * If we _really_ want to allow finalizing a game multiple times, we can

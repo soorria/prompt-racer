@@ -46,7 +46,7 @@ export default function LobbyPlayerCard({ players, user }: Props) {
       {/* Skeleton card */}
       <div className="relative flex items-center space-x-3 rounded-lg border border-gray-700 bg-card px-6 py-5 shadow-sm">
         <div className="flex-shrink-0">
-          <div className="sq-10 animate-pulse rounded-full bg-zinc-600"></div>
+          <div className="animate-pulse rounded-full bg-zinc-600 sq-10"></div>
         </div>
         <div className="min-w-0 flex-1">
           <div className="h-4 w-1/2 animate-pulse rounded-lg bg-zinc-600"></div>

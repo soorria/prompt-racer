@@ -26,7 +26,7 @@ export type PlayerGameSession = NonNullable<Awaited<ReturnType<typeof getSession
 
 export type FinalPlayerResult = Pick<Doc<"playerGameSessionFinalResults">, "position" | "score">
 
-export const MapfromDifficultyToBadgeVariant = {
+export const DifficultyToBadgeVariantMap = {
   easy: "green",
   medium: "yellow",
   hard: "red",

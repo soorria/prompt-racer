@@ -19,7 +19,7 @@ export const MOBILE_VIEWPORT = "(max-width: 640px)"
 function useViews(props: { gameInfo: NotWaitingForPlayersGameState }) {
   return useMemo(() => {
     const QuestionViewImpl = {
-      key: "qdesc",
+      key: "description",
       className: "bg-card p-4",
       component: (
         <QuestionDescription question={props.gameInfo.question} gameMode={props.gameInfo.mode} />

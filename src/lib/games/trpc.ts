@@ -8,7 +8,7 @@ import { z } from "zod"
 import type { QuestionDifficultyLevels } from "~/lib/games/constants"
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
 import { cmp, schema } from "~/lib/db"
-import { type DBOrTransation, type DocInsert } from "~/lib/db/types"
+import { type DBOrTransaction, type DocInsert } from "~/lib/db/types"
 import {
   CODE_SUBMISSION_TIMEOUT,
   DEFAULT_GAME_DURATIONS,
@@ -31,7 +31,7 @@ import { logger } from "~/lib/server/logger"
 import { createTRPCRouter, protectedProcedure } from "~/lib/trpc/trpc"
 import { randomElement } from "~/lib/utils/random"
 import { getUserProfile } from "../auth/profile"
-import { getPlayerPostionsForGameMode } from "./game-modes"
+import { getPlayerPositionsForGameMode } from "./game-modes"
 import { cancelInngestGameWorkflow, finalizeGame, touchGameState } from "./internal-actions"
 
 export const gameRouter = createTRPCRouter({
@@ -104,7 +104,7 @@ export const gameRouter = createTRPCRouter({
       if (!game) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
       }
-      const positionResults = getPlayerPostionsForGameMode(game, playerGameSessions)
+      const positionResults = getPlayerPositionsForGameMode(game, playerGameSessions)
       return positionResults
     }),
 
@@ -182,7 +182,7 @@ export const gameRouter = createTRPCRouter({
               last_submitted_at: new Date(),
               player_game_session_id: playerGameSession.id,
               status: "running",
-              submittion_type: input.submission_type,
+              submission_type: input.submission_type,
             })
             .onConflictDoUpdate({
               target: schema.playerGameSubmissionStates.id,
@@ -505,7 +505,7 @@ export const gameRouter = createTRPCRouter({
     }),
 })
 
-async function triggerPlayerGameSessionUpdate(tx: DBOrTransation, playerGameSessionId: string) {
+async function triggerPlayerGameSessionUpdate(tx: DBOrTransaction, playerGameSessionId: string) {
   return await tx
     .update(schema.playerGameSessions)
     .set({ updated_at: new Date() })
@@ -513,7 +513,7 @@ async function triggerPlayerGameSessionUpdate(tx: DBOrTransation, playerGameSess
 }
 
 async function getOrCreateGameToJoin(
-  tx: DBOrTransation,
+  tx: DBOrTransaction,
   inngest: Inngest,
   difficulty?: QuestionDifficultyLevels,
 ) {
@@ -538,7 +538,7 @@ async function getOrCreateGameToJoin(
 }
 
 async function createGame(
-  tx: DBOrTransation,
+  tx: DBOrTransaction,
   inngest: Inngest,
   difficulty?: QuestionDifficultyLevels,
 ) {

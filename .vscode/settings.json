@@ -1,4 +1,12 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
-  "turboConsoleLog.delimiterInsideMessage": "!!"
+  "turboConsoleLog.delimiterInsideMessage": "!!",
+  "cSpell.words": [
+    "dequal",
+    "formkit",
+    "inngest",
+    "posthog",
+    "sonner"
+  ],
+  "cSpell.language": "en-GB"
 }
