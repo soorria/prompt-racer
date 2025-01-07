@@ -34,4 +34,4 @@ type DBInsertTypeMap = {
  */
 export type DocInsert<TableName extends keyof DBInsertTypeMap> = DBInsertTypeMap[TableName]
 
-export type DBOrTransation = Parameters<Parameters<typeof db.transaction>[0]>[0] | typeof db
+export type DBOrTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0] | typeof db

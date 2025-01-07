@@ -17,7 +17,7 @@ type SortablePlayerGameSession = PlayerGameSessionToSort & {
   submissionState: NonNullable<PlayerGameSessionToSort["submissionState"]>
 }
 
-export type PlayerPostionsMap = Record<
+export type PlayerPositionsMap = Record<
   string,
   {
     position: number
@@ -40,7 +40,7 @@ const getPlayerPositions = (
   gameState: Doc<"gameStates">,
   sessions: PlayerGameSessionToSort[],
   config: GameModeFinalizationConfig,
-): PlayerPostionsMap => {
+): PlayerPositionsMap => {
   const sorted = sessions
     .filter(
       (session): session is SortablePlayerGameSession =>
@@ -137,7 +137,7 @@ export function getWorseScoreForGameMode(gameMode: GameMode) {
   return gameModeFinalizationConfigMap[gameMode].worstScore
 }
 
-export const getPlayerPostionsForGameMode = (
+export const getPlayerPositionsForGameMode = (
   game: Doc<"gameStates">,
   playerGameSessions: PlayerGameSessionToSort[],
 ) => {
@@ -145,7 +145,7 @@ export const getPlayerPostionsForGameMode = (
 
   invariant(finalizationConfig, `Unknown game mode: ${game.mode}`)
 
-  const positions: PlayerPostionsMap = getPlayerPositions(
+  const positions: PlayerPositionsMap = getPlayerPositions(
     game,
     playerGameSessions,
     finalizationConfig,

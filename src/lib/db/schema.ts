@@ -7,7 +7,6 @@ import {
   jsonb,
   pgEnum,
   pgPolicy,
-  pgRole,
   pgTable,
   real,
   text,
@@ -235,7 +234,7 @@ export const playerGameSubmissionStates = pgTable(
         onDelete: "cascade",
       })
       .notNull(),
-    submittion_type: playerGameSubmissionStateSubmissionTypeEnum("submission_type").notNull(),
+    submission_type: playerGameSubmissionStateSubmissionTypeEnum("submission_type").notNull(),
     last_submitted_at: timestamp("last_submitted_at").notNull(),
     status: playerGameSubmissionStateStatusEnum("status").notNull(),
   },
