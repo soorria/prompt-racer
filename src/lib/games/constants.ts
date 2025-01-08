@@ -66,7 +66,7 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
     unitShort: "min",
     toDisplayValue: (ms: number) => parseFloat((ms / 1000 / 60).toFixed(2)),
     icon: Timer,
-    color: "bg-orange-300",
+    color: "#fdba74",
   },
   "fastest-code": {
     title: "Turbo Code",
@@ -75,7 +75,7 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
     unitShort: "ms",
     toDisplayValue: (ms: number) => ms,
     icon: Gauge,
-    color: "bg-green-300",
+    color: "#86efac",
   },
   "shortest-code": {
     title: "Minimalist",
@@ -84,7 +84,7 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
     unitShort: "ch",
     toDisplayValue: (v) => v,
     icon: Minimize2,
-    color: "bg-purple-300",
+    color: "#d8b4fe",
   },
   "fewest-characters-to-llm": {
     title: "AI Whisperer",
@@ -93,7 +93,7 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
     unitShort: "ch",
     toDisplayValue: (v) => v,
     icon: MessageCircle,
-    color: "bg-blue-300",
+    color: "#93c5fd",
   },
 }
 export const GAME_MODE_DETAILS_LIST = entries(GAME_MODE_DETAILS).map(([id, details]) => ({
