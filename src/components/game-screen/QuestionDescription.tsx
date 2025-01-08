@@ -21,7 +21,7 @@ export default function QuestionDescription(props: {
       <Badge variant={DifficultyToBadgeVariantMap[props.question.difficulty]} className="mb-2">
         {props.question.difficulty}
       </Badge>
-      <WinConditionCard mode={GAME_MODE_DETAILS["shortest-code"]} />
+      <WinConditionCard mode={GAME_MODE_DETAILS[props.gameMode]} />
       <div className="text-pretty text-sm">
         <Markdown className={"prose prose-invert"}>{props.question.description}</Markdown>
       </div>
@@ -49,24 +49,24 @@ export default function QuestionDescription(props: {
     </div>
   )
 }
+
 const WinConditionCard = ({ mode }: { mode: GameModeDetailsItem }) => {
   return (
     <div
       className={cn(
-        "@container relative my-4 flex w-full max-w-prose flex-col overflow-hidden rounded-2xl p-3",
-      )} // Added relative positioning
+        "relative my-4 flex w-full max-w-prose flex-col overflow-hidden rounded-2xl p-3 @container",
+      )}
       style={{
         backgroundColor: mode.color,
         boxShadow: "inset 0 0 0 1000px rgba(0,0,0,0.7)",
       }}
     >
-      {/* Badge */}
-      <div className="@[200px]:block absolute right-3 top-3 hidden rounded-full bg-black/30 px-2 py-0.5 text-xs font-medium">
+      <div className="absolute right-3 top-3 hidden rounded-full bg-black/30 px-2 py-0.5 text-xs font-medium @[200px]:block">
         Win condition
       </div>
 
       <div className="mb-2 flex items-center gap-2">
-        <mode.icon className="@sm:block hidden h-4 w-4" />
+        <mode.icon className="hidden h-4 w-4 @sm:block" />
         <h2 className="@sm:text-md text-sm font-medium">{mode.title}</h2>
       </div>
       <p className="text-sm">{mode.description}</p>
