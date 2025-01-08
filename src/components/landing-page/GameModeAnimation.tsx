@@ -49,7 +49,8 @@ const GameModeAnimation = () => {
           return (
             <motion.div
               key={index}
-              className={`flex cursor-pointer items-center rounded-3xl text-black ${mode.color} overflow-hidden ${isActive ? "pr-2" : ""}`}
+              className={`flex cursor-pointer items-center overflow-hidden rounded-3xl text-black ${isActive ? "pr-2" : ""}`}
+              style={{ backgroundColor: mode.color }}
               whileTap={{ scale: 0.9 }}
               animate={floatingAnimation(index)}
               onClick={() => setActiveIndex(index)}

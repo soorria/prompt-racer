@@ -20,7 +20,8 @@ const ExpandedCard = ({ mode, layoutId }: ExpandedCardProps) => {
   return (
     <motion.div
       layoutId={layoutId}
-      className={`relative flex w-full flex-col rounded-2xl p-4 text-black sm:w-64 ${mode.color}`}
+      className={"relative flex w-full flex-col rounded-2xl p-4 text-black sm:w-64"}
+      style={{ backgroundColor: mode.color }}
       transition={{ type: "spring", duration: 0.3, bounce: 0.2 }}
     >
       <motion.div className="mb-2 flex items-center gap-2">
@@ -60,7 +61,8 @@ const CompactCard = ({ mode, layoutId, isSelected, isHighlighted }: CompactCardP
   return (
     <motion.div
       layoutId={layoutId}
-      className={`relative flex h-16 w-16 items-center justify-center rounded-2xl text-black ${mode.color}`}
+      className={`relative flex h-16 w-16 items-center justify-center rounded-2xl text-black`}
+      style={{ backgroundColor: mode.color }}
       animate={
         isHighlighted
           ? {

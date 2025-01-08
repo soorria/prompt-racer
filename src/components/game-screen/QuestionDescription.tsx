@@ -4,11 +4,12 @@ import React from "react"
 import { TestTubeDiagonal } from "lucide-react"
 import Markdown from "react-markdown"
 
-import type { GameMode } from "~/lib/games/constants"
+import type { GameMode, GameModeDetailsItem } from "~/lib/games/constants"
 import type { QuestionWithTestCases } from "~/lib/games/types"
 import { Badge } from "~/components/ui/badge"
 import { GAME_MODE_DETAILS } from "~/lib/games/constants"
 import { DifficultyToBadgeVariantMap } from "~/lib/games/types"
+import { cn } from "~/lib/utils"
 
 export default function QuestionDescription(props: {
   question: QuestionWithTestCases
@@ -20,10 +21,7 @@ export default function QuestionDescription(props: {
       <Badge variant={DifficultyToBadgeVariantMap[props.question.difficulty]} className="mb-2">
         {props.question.difficulty}
       </Badge>
-      <div className="mb-6 mt-3 rounded bg-primary/40 px-3 py-2">
-        <h3 className="mb-2 font-medium">Win condition</h3>
-        <p className="text-sm">{GAME_MODE_DETAILS[props.gameMode].description}</p>
-      </div>
+      <WinConditionCard mode={GAME_MODE_DETAILS["shortest-code"]} />
       <div className="text-pretty text-sm">
         <Markdown className={"prose prose-invert"}>{props.question.description}</Markdown>
       </div>
@@ -48,6 +46,30 @@ export default function QuestionDescription(props: {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+const WinConditionCard = ({ mode }: { mode: GameModeDetailsItem }) => {
+  return (
+    <div
+      className={cn(
+        "@container relative my-4 flex w-full max-w-prose flex-col overflow-hidden rounded-2xl p-3",
+      )} // Added relative positioning
+      style={{
+        backgroundColor: mode.color,
+        boxShadow: "inset 0 0 0 1000px rgba(0,0,0,0.7)",
+      }}
+    >
+      {/* Badge */}
+      <div className="@[200px]:block absolute right-3 top-3 hidden rounded-full bg-black/30 px-2 py-0.5 text-xs font-medium">
+        Win condition
+      </div>
+
+      <div className="mb-2 flex items-center gap-2">
+        <mode.icon className="@sm:block hidden h-4 w-4" />
+        <h2 className="@sm:text-md text-sm font-medium">{mode.title}</h2>
+      </div>
+      <p className="text-sm">{mode.description}</p>
     </div>
   )
 }
