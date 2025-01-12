@@ -2,12 +2,12 @@ import { type BadgeProps } from "~/components/ui/badge"
 import { type Doc } from "../db/types"
 import { type getSessionInfoForPlayer } from "./queries"
 
-type FullGameState = Doc<"gameStates"> & {
+type FullGameState = Omit<Doc<"gameStates">, "question_id"> & {
   question: Doc<"questions"> & {
     testCases: Doc<"questionTestCases">[]
   }
   players: {
-    user: Doc<"userProfiles">
+    user: Pick<Doc<"userProfiles">, "id" | "name" | "profile_image_url" | "wins">
   }[]
 }
 
@@ -31,3 +31,8 @@ export const DifficultyToBadgeVariantMap = {
   medium: "yellow",
   hard: "red",
 } satisfies Record<Doc<"questions">["difficulty"], NonNullable<BadgeProps["variant"]>>
+
+export type ClientGameState = {
+  gameState: InGameState
+  gameSession: PlayerGameSession
+}

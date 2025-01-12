@@ -3,6 +3,7 @@ import { type SupabaseClient } from "@supabase/supabase-js"
 
 import { type Doc } from "~/lib/db/types"
 import { useStableCallback } from "~/lib/utils/use-stable-callback"
+import { type ClientGameState } from "../types"
 import { type GameEvent } from "./schema"
 
 export function useHandleGameEvent(props: {
@@ -29,8 +30,6 @@ export function useHandleGameEvent(props: {
         (payload) => {
           if (!safe) return
 
-          console.log(payload)
-
           stableHandleEvent(payload.new.payload)
         },
       )
@@ -44,4 +43,41 @@ export function useHandleGameEvent(props: {
       safe = false
     }
   }, [props.gameId, props.supabase, stableHandleEvent])
+}
+
+export function gameEventReducer(state: ClientGameState, event: GameEvent): ClientGameState {
+  if (event.type in gameEventReducers) {
+    return {
+      ...state,
+      ...gameEventReducers[event.type](state, event),
+    } as ClientGameState
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    throw new Error(`Got unknown event type ${event.type} - full payload: ${JSON.stringify(event)}`)
+  }
+
+  return state
+}
+
+type GameEventReducers = {
+  [EventType in GameEvent["type"]]: (
+    state: ClientGameState,
+    event: Extract<GameEvent, { type: EventType }>,
+  ) => Partial<ClientGameState>
+}
+const gameEventReducers: GameEventReducers = {
+  "player-joined"(state, event) {
+    return {
+      gameState: {
+        ...state.gameState,
+        players: [
+          ...state.gameState.players,
+          {
+            user: event.data.player,
+          },
+        ],
+      },
+    }
+  },
 }

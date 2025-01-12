@@ -12,6 +12,16 @@ function defineEventSchema<Type extends string, Schema extends ZodObject<ZodRawS
 }
 
 export const gameEventSchema = z.discriminatedUnion("type", [
-  defineEventSchema("test", z.object({})),
+  defineEventSchema(
+    "player-joined",
+    z.object({
+      player: z.object({
+        id: z.string(),
+        name: z.string(),
+        profile_image_url: z.string().nullable(),
+        wins: z.number(),
+      }),
+    }),
+  ),
 ])
 export type GameEvent = z.infer<typeof gameEventSchema>

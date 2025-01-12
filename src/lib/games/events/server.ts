@@ -7,7 +7,7 @@ import { type DBOrTransaction } from "~/lib/db/types"
 import { type GameEvent } from "./schema"
 
 const ALL_USERS: unique symbol = Symbol("push-event:all-users")
-export async function pushEvent(
+export async function pushGameEvent(
   db: DBOrTransaction,
   args: { gameId: string; event: GameEvent; userId: string | typeof ALL_USERS },
 ) {
@@ -17,7 +17,7 @@ export async function pushEvent(
     user_id: args.userId === ALL_USERS ? null : args.userId,
   })
 }
-pushEvent.ALL_USERS = ALL_USERS
+pushGameEvent.ALL_USERS = ALL_USERS
 
 export async function deleteOldGameEvents(db: DBOrTransaction) {
   const oneWeekAgo = subWeeks(new Date(), 1)
