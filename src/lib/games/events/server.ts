@@ -1,12 +1,14 @@
 import "server-only"
 
-import { schema } from "~/lib/db"
-import { type DBOrTransation } from "~/lib/db/types"
+import { subWeeks } from "date-fns"
+
+import { cmp, schema } from "~/lib/db"
+import { type DBOrTransaction } from "~/lib/db/types"
 import { type GameEvent } from "./schema"
 
 const ALL_USERS: unique symbol = Symbol("push-event:all-users")
 export async function pushEvent(
-  db: DBOrTransation,
+  db: DBOrTransaction,
   args: { gameId: string; event: GameEvent; userId: string | typeof ALL_USERS },
 ) {
   await db.insert(schema.gameEvents).values({
@@ -16,3 +18,8 @@ export async function pushEvent(
   })
 }
 pushEvent.ALL_USERS = ALL_USERS
+
+export async function deleteOldGameEvents(db: DBOrTransaction) {
+  const oneWeekAgo = subWeeks(new Date(), 1)
+  await db.delete(schema.gameEvents).where(cmp.lte(schema.gameEvents.inserted_at, oneWeekAgo))
+}
