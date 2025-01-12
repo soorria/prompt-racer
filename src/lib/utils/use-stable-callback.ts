@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useLayoutEffect, useRef } from "react"
 
 import { type Unsafe_AnyFunction } from "./types"
 
@@ -12,7 +12,7 @@ export function useStableCallback<T extends Unsafe_AnyFunction>(callback?: T) {
 
   const callbackRef = useRef(callback)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     callbackRef.current = callback
   })
 
