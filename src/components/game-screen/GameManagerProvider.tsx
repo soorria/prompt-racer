@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useMediaQuery } from "@react-hook/media-query"
 import { type User } from "@supabase/supabase-js"
@@ -9,6 +9,7 @@ import { useCompletion } from "ai/react"
 import { usePostHog } from "posthog-js/react"
 
 import type { InGameState, PlayerGameSession } from "~/lib/games/types"
+import { gameEventReducer, useHandleGameEvent } from "~/lib/games/events/client"
 import { extractCodeFromRawCompletion } from "~/lib/llm/utils"
 import { createBrowserClient } from "~/lib/supabase/browser"
 import { api } from "~/lib/trpc/react"
@@ -54,6 +55,27 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
     })
 
     const leaveGameMutation = api.games.leave.useMutation()
+
+    useHandleGameEvent({
+      supabase: createBrowserClient(),
+      gameId: props.initialGameState.id,
+      handleEvent(event) {
+        const inputGameState = {
+          gameState: gameStateQuery.data,
+          gameSession: gameSessionQuery.data,
+        }
+
+        const updatedState = gameEventReducer(inputGameState, event)
+
+        if (updatedState.gameState !== inputGameState.gameState) {
+          gameStateQuery.setData(updatedState.gameState)
+        }
+
+        if (updatedState.gameSession !== inputGameState.gameSession) {
+          gameSessionQuery.setData(updatedState.gameSession)
+        }
+      },
+    })
 
     return {
       isMobile,
@@ -120,7 +142,14 @@ function useGameState({ initialState }: { initialState: InGameState }) {
     }
   }, [utils, gameId, supabase, router])
 
-  return gameStateQuery
+  const setData = useCallback(
+    (data: InGameState) => {
+      utils.games.getGameStateWithQuestion.setData({ game_id: gameId }, data)
+    },
+    [utils, gameId],
+  )
+
+  return Object.assign(gameStateQuery, { setData })
 }
 
 function useGameSessionForUser({ initialSession }: { initialSession: PlayerGameSession }) {
@@ -175,7 +204,14 @@ function useGameSessionForUser({ initialSession }: { initialSession: PlayerGameS
     }
   }, [supabase, sessionId, gameId, utils, router])
 
-  return gameSessionInfoQuery
+  const setData = useCallback(
+    (data: PlayerGameSession) => {
+      utils.games.getPlayerGameSession.setData({ game_id: gameId }, data)
+    },
+    [utils, gameId],
+  )
+
+  return Object.assign(gameSessionInfoQuery, { setData })
 }
 
 function useGenerateUpdatedCode(props: { gameId: string }) {

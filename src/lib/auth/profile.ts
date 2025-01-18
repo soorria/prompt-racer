@@ -1,5 +1,6 @@
 import { cache } from "react"
 import { type User } from "@supabase/supabase-js"
+import { TRPCError } from "@trpc/server"
 import { isAfter, subSeconds } from "date-fns"
 
 import { cmp, db, schema } from "../db"
@@ -55,6 +56,19 @@ export async function upsertProfile(authUser: User) {
       provider: "github",
     })
   }
+}
+
+export async function requireUserProfile(userId: string) {
+  const profile = await getUserProfile(userId)
+
+  if (!profile) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to access this resource",
+    })
+  }
+
+  return profile
 }
 
 async function getUserProfileImpl(userId: string) {

@@ -30,7 +30,8 @@ import { getQuestionTestCasesOrderBy, getRandomGameMode } from "~/lib/games/util
 import { logger } from "~/lib/server/logger"
 import { createTRPCRouter, protectedProcedure } from "~/lib/trpc/trpc"
 import { randomElement } from "~/lib/utils/random"
-import { getUserProfile } from "../auth/profile"
+import { getUserProfile, requireUserProfile } from "../auth/profile"
+import { pushGameEvent } from "./events/server"
 import { getPlayerPositionsForGameMode } from "./game-modes"
 import { cancelInngestGameWorkflow, finalizeGame, touchGameState } from "./internal-actions"
 
@@ -327,24 +328,43 @@ export const gameRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const currentGame = await getLatestActiveGameForUser(ctx.db, ctx.user.id)
+      const [currentGame, profile] = await Promise.all([
+        getLatestActiveGameForUser(ctx.db, ctx.user.id),
+        requireUserProfile(ctx.user.id),
+      ])
 
       if (currentGame) {
         throw new Error("You are already in a game")
       }
 
-      const { game, question } = await getOrCreateGameToJoin(ctx.db, ctx.inngest, input.difficulty)
+      const { game } = await ctx.db.transaction(async (tx) => {
+        const { game, question } = await getOrCreateGameToJoin(tx, ctx.inngest, input.difficulty)
 
-      await ctx.db.insert(schema.playerGameSessions).values({
-        user_id: ctx.user.id,
-        game_id: game.id,
-        code: question.starterCode,
-        model: "openai::gpt-4o-mini",
+        await tx.insert(schema.playerGameSessions).values({
+          user_id: ctx.user.id,
+          game_id: game.id,
+          code: question.starterCode,
+          model: "openai::gpt-4o-mini",
+        })
+
+        await pushGameEvent(tx, {
+          gameId: game.id,
+          userId: pushGameEvent.ALL_USERS,
+          event: {
+            type: "player-joined",
+            data: {
+              player: {
+                id: ctx.user.id,
+                name: profile.name,
+                profile_image_url: profile.profile_image_url,
+                wins: profile.wins,
+              },
+            },
+          },
+        })
+
+        return { game }
       })
-
-      // Update gameState to trigger real-time updates for all connected clients when
-      // players join/leave the lobby
-      await touchGameState(game.id)
 
       return {
         game_id: game.id,
