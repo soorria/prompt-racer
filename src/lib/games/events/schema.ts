@@ -24,4 +24,5 @@ export const gameEventSchema = z.discriminatedUnion("type", [
     }),
   ),
 ])
+
 export type GameEvent = z.infer<typeof gameEventSchema>

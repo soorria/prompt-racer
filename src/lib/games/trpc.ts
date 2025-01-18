@@ -366,10 +366,6 @@ export const gameRouter = createTRPCRouter({
         return { game }
       })
 
-      // Update gameState to trigger real-time updates for all connected clients when
-      // players join/leave the lobby
-      await touchGameState(game.id)
-
       return {
         game_id: game.id,
         mode: game.mode,
