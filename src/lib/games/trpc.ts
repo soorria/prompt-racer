@@ -8,7 +8,7 @@ import { z } from "zod"
 import type { QuestionDifficultyLevels } from "~/lib/games/constants"
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
 import { cmp, schema } from "~/lib/db"
-import { type DBOrTransaction, type DocInsert } from "~/lib/db/types"
+import { type DBOrTransaction, type Doc, type DocInsert } from "~/lib/db/types"
 import {
   CODE_SUBMISSION_TIMEOUT,
   DEFAULT_GAME_DURATIONS,
@@ -21,7 +21,7 @@ import {
   getInGameState,
   getLatestActiveGameForUser,
   getQuestionById,
-  getRandomQuestion,
+  getRandomProgrammingQuestion,
   getSessionInfoForPlayer,
   getSubmissionMetrics,
   getUserGameHistory,
@@ -96,7 +96,7 @@ export const gameRouter = createTRPCRouter({
             chatHistory: true,
             submissionState: {
               with: {
-                results: true,
+                programmingResults: true,
               },
             },
           },
@@ -128,12 +128,16 @@ export const gameRouter = createTRPCRouter({
             with: {
               question: {
                 with: {
-                  testCases: {
-                    where:
-                      input.submission_type === "test-run"
-                        ? cmp.eq(schema.questionTestCases.type, "public")
-                        : undefined,
-                    orderBy: getQuestionTestCasesOrderBy(),
+                  programmingQuestion: {
+                    with: {
+                      testCases: {
+                        where:
+                          input.submission_type === "test-run"
+                            ? cmp.eq(schema.programmingQuestionTestCases.type, "public")
+                            : undefined,
+                        orderBy: getQuestionTestCasesOrderBy(),
+                      },
+                    },
                   },
                 },
               },
@@ -197,10 +201,11 @@ export const gameRouter = createTRPCRouter({
             }),
           submissionState &&
             tx
-              .delete(schema.playerGameSubmissionStateResults)
+              .delete(schema.playerProgrammingGameSubmissionStateResults)
               .where(
                 cmp.eq(
-                  schema.playerGameSubmissionStateResults.player_game_submission_state_id,
+                  schema.playerProgrammingGameSubmissionStateResults
+                    .player_game_submission_state_id,
                   submissionState.id,
                 ),
               ),
@@ -223,8 +228,8 @@ export const gameRouter = createTRPCRouter({
         })
         .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
 
-      const testCases = playerGameSession.game.question.testCases.filter((testCase) =>
-        isTestRun ? testCase.type === "public" : true,
+      const testCases = playerGameSession.game.question.programmingQuestion!.testCases.filter(
+        (testCase) => (isTestRun ? testCase.type === "public" : true),
       )
 
       const runResults = await runPythonCodeAgainstTestCases(
@@ -232,8 +237,8 @@ export const gameRouter = createTRPCRouter({
         testCases.map((testCase) => testCase.args),
       )
 
-      const submissionResultDocs: DocInsert<"playerGameSubmissionStateResults">[] = testCases.map(
-        (testCase, index) => {
+      const submissionResultDocs: DocInsert<"playerProgrammingGameSubmissionStateResults">[] =
+        testCases.map((testCase, index) => {
           const result = runResults[index]
 
           const commonParts = {
@@ -260,8 +265,7 @@ export const gameRouter = createTRPCRouter({
               result.status === "success" && dequal(testCase.expectedOutput, result.result),
             run_duration_ms: Math.max(Math.round(result.time), 1),
           }
-        },
-      )
+        })
 
       await ctx.db.transaction(async (tx) => {
         return await Promise.all([
@@ -274,7 +278,9 @@ export const gameRouter = createTRPCRouter({
               },
             },
           ]),
-          tx.insert(schema.playerGameSubmissionStateResults).values(submissionResultDocs),
+          tx
+            .insert(schema.playerProgrammingGameSubmissionStateResults)
+            .values(submissionResultDocs),
           tx
             .update(schema.playerGameSubmissionStates)
             .set({
@@ -343,7 +349,7 @@ export const gameRouter = createTRPCRouter({
         await tx.insert(schema.playerGameSessions).values({
           user_id: ctx.user.id,
           game_id: game.id,
-          code: question.starterCode,
+          code: question.programmingQuestion!.starterCode,
           model: "openai::gpt-4o-mini",
         })
 
@@ -479,8 +485,12 @@ export const gameRouter = createTRPCRouter({
           game: {
             with: {
               question: {
-                columns: {
-                  starterCode: true,
+                with: {
+                  programmingQuestion: {
+                    columns: {
+                      starterCode: true,
+                    },
+                  },
                 },
               },
             },
@@ -504,7 +514,7 @@ export const gameRouter = createTRPCRouter({
       await ctx.db
         .update(schema.playerGameSessions)
         .set({
-          code: game.question.starterCode,
+          code: game.question.programmingQuestion!.starterCode,
         })
         .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
     }),
@@ -536,7 +546,12 @@ async function getOrCreateGameToJoin(
   tx: DBOrTransaction,
   inngest: Inngest,
   difficulty?: QuestionDifficultyLevels,
-) {
+): Promise<{
+  game: Doc<"gameStates">
+  question: Doc<"questions"> & {
+    programmingQuestion?: Doc<"programmingQuestions"> | null
+  }
+}> {
   let waitingForPlayersGames = await getGamesWithStatus(tx, "waitingForPlayers")
   if (difficulty) {
     waitingForPlayersGames = waitingForPlayersGames.filter(
@@ -562,7 +577,7 @@ async function createGame(
   inngest: Inngest,
   difficulty?: QuestionDifficultyLevels,
 ) {
-  const question = await getRandomQuestion(tx, difficulty)
+  const question = await getRandomProgrammingQuestion(tx, difficulty)
   const gameMode = getRandomGameMode()
 
   const [game] = await tx

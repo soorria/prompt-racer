@@ -1,8 +1,9 @@
 import type { SQL } from "drizzle-orm"
+import { pl } from "@faker-js/faker"
 import { relations, sql } from "drizzle-orm"
-import { primaryKey } from "drizzle-orm/mysql-core"
 import {
   boolean,
+  check,
   index,
   integer,
   jsonb,
@@ -52,17 +53,11 @@ export const userProfiles = pgTable(
     inserted_at: timestamp("inserted_at").notNull().defaultNow(),
   },
   (table) => [
-    index("user_wins_games_played_inserted_at_idx")
-      .on(table.wins.desc(), table.gamesPlayed.asc(), table.inserted_at.desc())
-      .concurrently(),
+    index().on(table.wins.desc(), table.gamesPlayed.asc(), table.inserted_at.desc()).concurrently(),
 
-    index("user_games_played_inserted_at_idx")
-      .on(table.gamesPlayed.desc(), table.inserted_at.desc())
-      .concurrently(),
+    index().on(table.gamesPlayed.desc(), table.inserted_at.desc()).concurrently(),
 
-    index("user_win_rate_wins_inserted_at_idx")
-      .on(table.winRate.desc(), table.wins.desc(), table.inserted_at.desc())
-      .concurrently(),
+    index().on(table.winRate.desc(), table.wins.desc(), table.inserted_at.desc()).concurrently(),
   ],
 ).enableRLS()
 
@@ -72,69 +67,122 @@ export const usersRelations = relations(userProfiles, ({ many }) => {
   }
 })
 
-export const questionSourceEnum = pgEnum("question_source_type", ["ai"])
+export const programmingQuestionSourceTypeEnum = pgEnum("programming_question_source_type", ["ai"])
 
-export const questionSources = pgTable("question_sources", {
+export const programmingQuestionSources = pgTable("programming_question_sources", {
   id: customTypes.primaryKey(),
-  type: questionSourceEnum("type").notNull(),
+  type: programmingQuestionSourceTypeEnum("type").notNull(),
   link: text("link"),
 }).enableRLS()
 
-export const questionSourcesRelations = relations(questionSources, ({ many }) => {
-  return {
-    questions: many(questions),
-  }
-})
+export const programmingQuestionSourcesRelations = relations(
+  programmingQuestionSources,
+  ({ many }) => {
+    return {
+      programmingQuestions: many(programmingQuestions),
+    }
+  },
+)
 
-export const questionTestCaseTypeEnum = pgEnum("question_test_case_type", ["hidden", "public"])
+export const programmingQuestionTestCaseTypeEnum = pgEnum("programming_question_test_case_type", [
+  "hidden",
+  "public",
+])
 
-export const questionTestCases = pgTable(
-  "question_test_cases",
+export const programmingQuestionTestCases = pgTable(
+  "programming_question_test_cases",
   {
     id: customTypes.primaryKey(),
-    question_id: customTypes
+    programming_question_id: customTypes
       .primaryKeyReference()
       .notNull()
-      .references(() => questions.id, {
+      .references(() => programmingQuestions.id, {
         onDelete: "cascade",
       }),
-    type: questionTestCaseTypeEnum("type").notNull(),
+    type: programmingQuestionTestCaseTypeEnum("type").notNull(),
     args: jsonb("args").notNull().$type<unknown[]>(),
-    expectedOutput: jsonb("expected_output"),
+    expectedOutput: jsonb("expected_output").$type<unknown>(),
   },
-  (table) => [index("question_test_cases_question_id_idx").on(table.question_id).concurrently()],
+  (table) => [index().on(table.programming_question_id).concurrently()],
 ).enableRLS()
 
-export const questionTestCasesRelations = relations(questionTestCases, ({ one }) => {
-  return {
-    question: one(questions, {
-      fields: [questionTestCases.question_id],
-      references: [questions.id],
-    }),
-  }
-})
+export const programmingQuestionTestCasesRelations = relations(
+  programmingQuestionTestCases,
+  ({ one }) => {
+    return {
+      programmingQuestion: one(programmingQuestions, {
+        fields: [programmingQuestionTestCases.programming_question_id],
+        references: [programmingQuestions.id],
+      }),
+    }
+  },
+)
 
 export const questionDifficultyEnum = pgEnum("question_difficulty", ["easy", "medium", "hard"])
 
-export const questions = pgTable("questions", {
+export const pictureQuestions = pgTable("picture_question", {
   id: customTypes.primaryKey(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  difficulty: questionDifficultyEnum("difficulty").notNull(),
+}).enableRLS()
+
+export const programmingQuestions = pgTable("programming_question", {
+  id: customTypes.primaryKey(),
+
   starterCode: text("starter_code").notNull(),
   source_id: customTypes
     .primaryKeyReference()
     .notNull()
-    .references(() => questionSources.id),
+    .references(() => programmingQuestionSources.id),
+
+  title: text("title").notNull(),
+  description: text("description").notNull(),
 }).enableRLS()
+
+export const programmingQuestionsRelations = relations(programmingQuestions, ({ one, many }) => {
+  return {
+    source: one(programmingQuestionSources, {
+      fields: [programmingQuestions.source_id],
+      references: [programmingQuestionSources.id],
+    }),
+    testCases: many(programmingQuestionTestCases),
+  }
+})
+
+export const questions = pgTable(
+  "questions",
+  {
+    id: customTypes.primaryKey(),
+    difficulty: questionDifficultyEnum("difficulty").notNull(),
+
+    programming_question_id: customTypes
+      .primaryKeyReference()
+      .references(() => programmingQuestions.id, {
+        onDelete: "cascade",
+      }),
+
+    picture_question_id: customTypes.primaryKeyReference().references(() => pictureQuestions.id, {
+      onDelete: "cascade",
+    }),
+  },
+  (table) => [
+    check(
+      "question_reference_check",
+      sql`num_nonnulls(${table.programming_question_id}, ${table.picture_question_id}) = 1`,
+    ),
+  ],
+).enableRLS()
 
 export const questionsRelations = relations(questions, ({ one, many }) => {
   return {
-    source: one(questionSources, {
-      fields: [questions.source_id],
-      references: [questionSources.id],
+    programmingQuestion: one(programmingQuestions, {
+      fields: [questions.programming_question_id],
+      references: [programmingQuestions.id],
     }),
-    testCases: many(questionTestCases),
+
+    pictureQuestion: one(pictureQuestions, {
+      fields: [questions.picture_question_id],
+      references: [pictureQuestions.id],
+    }),
+
     gameStates: many(gameStates),
   }
 })
@@ -153,11 +201,7 @@ export const playerGameSessionFinalResults = pgTable(
     position: integer("position").notNull(),
     score: integer("score").notNull(),
   },
-  (table) => [
-    index("player_game_session_final_results_player_game_session_id_idx")
-      .on(table.player_game_session_id)
-      .concurrently(),
-  ],
+  (table) => [index().on(table.player_game_session_id).concurrently()],
 ).enableRLS()
 
 export const playerGameSessionFinalResultsRelations = relations(
@@ -172,13 +216,43 @@ export const playerGameSessionFinalResultsRelations = relations(
   },
 )
 
-export const playerGameSubmissionStateResultStatusEnum = pgEnum(
+export const playerPictureGameSubmissionStateResults = pgTable(
+  "player_picture_game_submission_state_results",
+  {
+    id: customTypes.primaryKey(),
+
+    player_game_submission_state_id: customTypes
+      .primaryKeyReference()
+      .notNull()
+      .references(() => playerGameSubmissionStates.id, {
+        onDelete: "cascade",
+      }),
+
+    error_message: text("error_message"),
+
+    match_percentage: real("match_percentage").notNull(),
+  },
+)
+
+export const playerPictureGameSubmissionStateResultsRelations = relations(
+  playerPictureGameSubmissionStateResults,
+  ({ one }) => {
+    return {
+      playerGameSubmissionState: one(playerGameSubmissionStates, {
+        fields: [playerPictureGameSubmissionStateResults.player_game_submission_state_id],
+        references: [playerGameSubmissionStates.id],
+      }),
+    }
+  },
+)
+
+export const playerProgrammingGameSubmissionStateResultStatusEnum = pgEnum(
   "player_game_submission_state_result_status",
   ["success", "error"],
 )
 
-export const playerGameSubmissionStateResults = pgTable(
-  "player_game_submission_state_results",
+export const playerProgrammingGameSubmissionStateResults = pgTable(
+  "player_programming_game_submission_state_results",
   {
     id: customTypes.primaryKey(),
     player_game_submission_state_id: customTypes
@@ -187,30 +261,26 @@ export const playerGameSubmissionStateResults = pgTable(
       .references(() => playerGameSubmissionStates.id, {
         onDelete: "cascade",
       }),
-    question_test_case_id: customTypes
+    programming_question_test_case_id: customTypes
       .primaryKeyReference()
-      .references(() => questionTestCases.id, {
+      .references(() => programmingQuestionTestCases.id, {
         onDelete: "set null",
       }),
-    status: playerGameSubmissionStateResultStatusEnum("status").notNull(),
+    status: playerProgrammingGameSubmissionStateResultStatusEnum("status").notNull(),
     result: jsonb("result"),
     reason: text("reason"),
     is_correct: boolean("is_correct").notNull(),
     run_duration_ms: integer("runDurationMs").notNull(),
   },
-  (table) => [
-    index("player_game_submission_state_results_player_game_submission_state_id_idx")
-      .on(table.player_game_submission_state_id)
-      .concurrently(),
-  ],
+  (table) => [index().on(table.player_game_submission_state_id).concurrently()],
 ).enableRLS()
 
-export const playerGameSubmissionStateResultsRelations = relations(
-  playerGameSubmissionStateResults,
+export const playerProgrammingGameSubmissionStateResultsRelations = relations(
+  playerProgrammingGameSubmissionStateResults,
   ({ one }) => {
     return {
       playerGameSubmissionState: one(playerGameSubmissionStates, {
-        fields: [playerGameSubmissionStateResults.player_game_submission_state_id],
+        fields: [playerProgrammingGameSubmissionStateResults.player_game_submission_state_id],
         references: [playerGameSubmissionStates.id],
       }),
     }
@@ -241,11 +311,7 @@ export const playerGameSubmissionStates = pgTable(
     last_submitted_at: timestamp("last_submitted_at").notNull(),
     status: playerGameSubmissionStateStatusEnum("status").notNull(),
   },
-  (table) => [
-    index("player_game_submission_states_player_game_session_id_idx")
-      .on(table.player_game_session_id)
-      .concurrently(),
-  ],
+  (table) => [index().on(table.player_game_session_id).concurrently()],
 ).enableRLS()
 
 export const playerGameSubmissionStatesRelations = relations(
@@ -256,7 +322,11 @@ export const playerGameSubmissionStatesRelations = relations(
         fields: [playerGameSubmissionStates.player_game_session_id],
         references: [playerGameSessions.id],
       }),
-      results: many(playerGameSubmissionStateResults),
+      programmingResults: many(playerProgrammingGameSubmissionStateResults),
+      pictureResult: one(playerPictureGameSubmissionStateResults, {
+        fields: [playerGameSubmissionStates.id],
+        references: [playerPictureGameSubmissionStateResults.player_game_submission_state_id],
+      }),
     }
   },
 )
@@ -275,12 +345,8 @@ export const playerGameSessionChatHistoryItems = pgTable(
     inserted_at: timestamp("inserted_at").notNull().defaultNow(),
   },
   (table) => [
-    index("player_game_session_chat_history_items_player_game_session_id_idx")
-      .on(table.player_game_session_id)
-      .concurrently(),
-    index("player_game_session_chat_history_items_inserted_at_idx")
-      .on(table.inserted_at.asc())
-      .concurrently(),
+    index().on(table.player_game_session_id).concurrently(),
+    index().on(table.inserted_at.asc()).concurrently(),
   ],
 ).enableRLS()
 
@@ -328,10 +394,8 @@ export const playerGameSessions = pgTable(
       .$onUpdateFn(() => new Date()),
   },
   (table) => [
-    index("player_game_sessions_user_id_game_id_idx")
-      .on(table.user_id, table.game_id)
-      .concurrently(),
-    index("player_game_sessions_game_id_idx").on(table.game_id).concurrently(),
+    index().on(table.user_id, table.game_id).concurrently(),
+    index().on(table.game_id).concurrently(),
     pgPolicy("Players can read their own sessions", {
       as: "permissive",
       to: "public",
@@ -396,7 +460,7 @@ export const gameStates = pgTable(
     end_time: timestamp("end_time"),
   },
   (table) => [
-    index("status_idx").on(table.status),
+    index().on(table.status),
     pgPolicy("Players can read game states they're a part of", {
       as: "permissive",
       to: "public",

@@ -1,6 +1,6 @@
 import { z } from "zod"
-import { MAX_SEND_MESSAGE_CHARACTER_LIMIT } from "~/lib/games/constants"
 
+import { MAX_SEND_MESSAGE_CHARACTER_LIMIT } from "~/lib/games/constants"
 import { sendMessageInGame } from "~/lib/games/internal-actions"
 
 const BodySchema = z.object({

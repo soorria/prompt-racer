@@ -7,36 +7,48 @@ import { z } from "zod"
 
 import { cmp, db, schema } from "~/lib/db"
 import { type DocInsert } from "~/lib/db/types"
+import { type MaybeArray } from "~/lib/utils/types"
 
 const QuestionDocSchema = createInsertSchema(schema.questions, {})
-const QuestionTestCaseDocSchema = createInsertSchema(schema.questionTestCases, {
-  args: z.unknown().array(),
-  expectedOutput: z.unknown().refine((v) => v !== null && v !== undefined),
-})
+const ProgrammingQuestionDocSchema = createInsertSchema(schema.programmingQuestions, {})
+const ProgrammingQuestionTestCaseDocSchema = createInsertSchema(
+  schema.programmingQuestionTestCases,
+  {
+    args: z.unknown().array(),
+    expectedOutput: z.unknown().refine((v) => v !== null && v !== undefined),
+  },
+)
 
 const QuestionSchema = QuestionDocSchema.omit({
   id: true,
-  source_id: true,
-}).and(
-  z.object({
-    testCases: QuestionTestCaseDocSchema.omit({
-      question_id: true,
+})
+  .and(
+    z.object({
+      testCases: ProgrammingQuestionTestCaseDocSchema.omit({
+        programming_question_id: true,
+        id: true,
+        type: true,
+      })
+        .array()
+        .min(5),
+    }),
+  )
+  .and(
+    ProgrammingQuestionDocSchema.omit({
       id: true,
-      type: true,
-    })
-      .array()
-      .min(5),
-  }),
-)
+      source_id: true,
+    }),
+  )
 
 const QuestionJSONFileSchema = z.array(QuestionSchema)
 
 function getDbDocuments(args: { question: z.infer<typeof QuestionSchema>; source_id: string }): {
   questionSlug: string
-  question: DocInsert<"questions">
-  testCases: DocInsert<"questionTestCases">[]
+  question: DocInsert<"questions"> & { programmingQuestion: DocInsert<"programmingQuestions"> }
+  testCases: DocInsert<"programmingQuestionTestCases">[]
 } {
   const questionId = crypto.randomUUID()
+  const programmingQuestionId = crypto.randomUUID()
 
   const numPublicTestCases = 0.4 * args.question.testCases.length
 
@@ -45,17 +57,21 @@ function getDbDocuments(args: { question: z.infer<typeof QuestionSchema>; source
 
     question: {
       id: questionId,
-      title: args.question.title,
-      description: args.question.description,
       difficulty: args.question.difficulty,
-      starterCode: args.question.starterCode,
-      source_id: args.source_id,
+      programming_question_id: programmingQuestionId,
+      programmingQuestion: {
+        id: programmingQuestionId,
+        title: args.question.title,
+        description: args.question.description,
+        starterCode: args.question.starterCode,
+        source_id: args.source_id,
+      },
     },
 
-    testCases: args.question.testCases.map(
-      (testCase, index): DocInsert<"questionTestCases"> => ({
+    testCases: args.question.testCases.flatMap(
+      (testCase, index): DocInsert<"programmingQuestionTestCases"> => ({
         id: crypto.randomUUID(),
-        question_id: questionId,
+        programming_question_id: programmingQuestionId,
         args: testCase.args,
         expectedOutput: testCase.expectedOutput,
         type: index < numPublicTestCases ? "public" : "hidden",
@@ -66,12 +82,18 @@ function getDbDocuments(args: { question: z.infer<typeof QuestionSchema>; source
 
 async function getExistingQuestionSlugs() {
   const allQuestions = await db.query.questions.findMany({
-    columns: {
-      title: true,
+    columns: {},
+
+    with: {
+      programmingQuestion: {
+        columns: {
+          title: true,
+        },
+      },
     },
   })
 
-  const slugs = allQuestions.map((q) => slugify(q.title))
+  const slugs = allQuestions.map((q) => slugify(q.programmingQuestion?.title ?? ""))
 
   return new Set(slugs)
 }
@@ -86,8 +108,8 @@ async function main() {
   const rawData = await readFile(file, { encoding: "utf-8" })
   const newQuestionInputs = await QuestionJSONFileSchema.parseAsync(JSON.parse(rawData))
 
-  const source = await db.query.questionSources.findFirst({
-    where: cmp.eq(schema.questionSources.type, "ai"),
+  const source = await db.query.programmingQuestionSources.findFirst({
+    where: cmp.eq(schema.programmingQuestionSources.type, "ai"),
   })
   invariant(source, "No AI source found")
 
@@ -97,7 +119,9 @@ async function main() {
     .map((question) => getDbDocuments({ question, source_id: source.id }))
     .filter((q) => {
       if (existingQuestionSlugs.has(q.questionSlug)) {
-        console.log(`Skipping ${q.question.title} because it probably already exists`)
+        console.log(
+          `Skipping ${q.question.programmingQuestion.title} because it probably already exists`,
+        )
         return false
       }
 
@@ -111,18 +135,21 @@ async function main() {
   }
 
   await db.transaction(async (tx) => {
+    await tx
+      .insert(schema.programmingQuestions)
+      .values(dbDocuments.map(({ question }) => question.programmingQuestion))
     await tx.insert(schema.questions).values(dbDocuments.map(({ question }) => question))
     await tx
-      .insert(schema.questionTestCases)
+      .insert(schema.programmingQuestionTestCases)
       .values(dbDocuments.flatMap(({ testCases }) => testCases))
   })
 }
 
-void main()
-  .catch((e) => {
-    console.error("FAILED", e)
-    process.exit(1)
-  })
-  .finally(() => {
-    process.exit(0)
-  })
+// void main()
+//   .catch((e) => {
+//     console.error("FAILED", e)
+//     process.exit(1)
+//   })
+//   .finally(() => {
+//     process.exit(0)
+//   })
