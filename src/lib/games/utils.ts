@@ -18,5 +18,5 @@ export function chatHistoryItemTypeIs<Type extends ChatHistoryItemContentType>(
 }
 
 export function getQuestionTestCasesOrderBy() {
-  return orderBy.asc(schema.questionTestCases.id)
+  return orderBy.asc(schema.programmingQuestionTestCases.id)
 }

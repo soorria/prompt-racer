@@ -4,7 +4,9 @@ import { type getSessionInfoForPlayer } from "./queries"
 
 type FullGameState = Omit<Doc<"gameStates">, "question_id"> & {
   question: Doc<"questions"> & {
-    testCases: Doc<"questionTestCases">[]
+    programmingQuestion: Doc<"programmingQuestions"> & {
+      testCases: Doc<"programmingQuestionTestCases">[]
+    }
   }
   players: {
     user: Pick<Doc<"userProfiles">, "id" | "name" | "profile_image_url" | "wins">

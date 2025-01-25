@@ -12,20 +12,23 @@ function QuestionTestCaseResults(props: {
   testState: PlayerGameSession["testState"]
 }) {
   const testResultByTestCaseId = Object.fromEntries(
-    props.testState?.results.map((result) => [`${result.question_test_case_id}`, result]) ?? [],
+    props.testState?.programmingResults.map((result) => [
+      `${result.programming_question_test_case_id}`,
+      result,
+    ]) ?? [],
   )
 
-  const correctTestCases = props.question.testCases.filter((tc) => {
+  const correctTestCases = props.question.programmingQuestion.testCases.filter((tc) => {
     const result = testResultByTestCaseId[tc.id]
     return result?.status === "success" && result.is_correct
   })
 
-  const incorrectTestCases = props.question.testCases.filter((tc) => {
+  const incorrectTestCases = props.question.programmingQuestion.testCases.filter((tc) => {
     const result = testResultByTestCaseId[tc.id]
     return result && (result.status === "error" || !result.is_correct)
   })
 
-  const unsubmittedTestCases = props.question.testCases.filter((tc) => {
+  const unsubmittedTestCases = props.question.programmingQuestion.testCases.filter((tc) => {
     return !testResultByTestCaseId[tc.id]
   })
 
@@ -34,8 +37,8 @@ function QuestionTestCaseResults(props: {
   return (
     <div className="flex flex-col space-y-6 text-sm">
       {sortedTestCases.map((testCase, i) => {
-        const result = props.testState?.results.find(
-          (result) => result.question_test_case_id === testCase.id,
+        const result = props.testState?.programmingResults.find(
+          (result) => result.programming_question_test_case_id === testCase.id,
         )
 
         let testEmoji: ReactNode
@@ -142,7 +145,7 @@ export default function CodeRunning() {
             )}
           </p>
         </div>
-        {gameInfo.question ? (
+        {gameInfo.question?.programmingQuestion ? (
           <QuestionTestCaseResults
             question={gameInfo.question}
             testState={gameSessionInfo.testState}

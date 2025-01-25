@@ -58,7 +58,7 @@ export async function finalizeGame(gameId: string) {
           chatHistory: true,
           submissionState: {
             with: {
-              results: true,
+              programmingResults: true,
             },
           },
         },

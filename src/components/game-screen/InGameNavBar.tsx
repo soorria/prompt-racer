@@ -24,7 +24,7 @@ export default function InGameNavBar() {
   })
   const userQuery = api.auth.getUser.useQuery()
   const [hasShownEarlyExitToast, setHasShownEarlyExitToast] = useState(false)
-  const gameSessionResults = gameSessionInfo.submissionState?.results
+  const gameSessionResults = gameSessionInfo.submissionState?.programmingResults
   const canExitEarly = gameInfo.status === "inProgress" && gameInfo.players.length === 1
   const shouldShowExitEarlyToast =
     (canExitEarly && gameSessionResults?.length && gameSessionResults.every((r) => r.is_correct)) ??

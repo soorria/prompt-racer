@@ -113,6 +113,13 @@ export async function getGamesWithStatus<Status extends Doc<"gameStates">["statu
         columns: {
           difficulty: true,
         },
+        with: {
+          programmingQuestion: {
+            columns: {
+              starterCode: true,
+            },
+          },
+        },
       },
     },
   })
@@ -121,12 +128,13 @@ export async function getGamesWithStatus<Status extends Doc<"gameStates">["statu
 }
 
 export async function getSubmissionMetrics(tx: DBOrTransaction, submission_state_id: string) {
-  const submissionStateResults = await tx.query.playerGameSubmissionStateResults.findMany({
-    where: cmp.eq(
-      schema.playerGameSubmissionStateResults.player_game_submission_state_id,
-      submission_state_id,
-    ),
-  })
+  const submissionStateResults =
+    await tx.query.playerProgrammingGameSubmissionStateResults.findMany({
+      where: cmp.eq(
+        schema.playerProgrammingGameSubmissionStateResults.player_game_submission_state_id,
+        submission_state_id,
+      ),
+    })
   return {
     numPassingSubmissionsTestCases: submissionStateResults.filter((result) => result.is_correct)
       .length,
@@ -134,27 +142,30 @@ export async function getSubmissionMetrics(tx: DBOrTransaction, submission_state
   }
 }
 
-export async function getRandomQuestion(
+export async function getRandomProgrammingQuestion(
   tx: DBOrTransaction,
   difficulty?: QuestionDifficultyLevels,
 ) {
-  const baseQuery = tx.select({ count: count() }).from(schema.questions)
-  const queryWithDifficulty = difficulty
-    ? baseQuery.where(cmp.eq(schema.questions.difficulty, difficulty))
-    : baseQuery
+  let condition: SQL<unknown> | undefined = cmp.isNotNull(schema.questions.programming_question_id)
+  if (difficulty) {
+    condition = cmp.and(condition, cmp.eq(schema.questions.difficulty, difficulty))
+  }
 
-  const [numQuestions] = await queryWithDifficulty
+  const countQuery = tx.select({ count: count() }).from(schema.questions).where(condition)
+
+  const [numQuestions] = await countQuery
 
   invariant(numQuestions?.count, "No questions found")
 
   const randomIndex = Math.floor(Math.random() * numQuestions.count)
 
-  const baseQuestionQuery = tx.select().from(schema.questions)
-  const questionQueryWithDifficulty = difficulty
-    ? baseQuestionQuery.where(cmp.eq(schema.questions.difficulty, difficulty))
-    : baseQuestionQuery
-
-  const [question] = await questionQueryWithDifficulty.offset(randomIndex)
+  const question = await tx.query.questions.findFirst({
+    where: condition,
+    offset: randomIndex,
+    with: {
+      programmingQuestion: true,
+    },
+  })
 
   invariant(question, "No question found")
 
@@ -164,6 +175,9 @@ export async function getRandomQuestion(
 export async function getQuestionById(tx: DBOrTransaction, questionId: string) {
   const question = await tx.query.questions.findFirst({
     where: cmp.eq(schema.questions.id, questionId),
+    with: {
+      programmingQuestion: true,
+    },
   })
 
   return question
@@ -189,9 +203,13 @@ export async function getInGameState(
     with: {
       question: {
         with: {
-          testCases: {
-            where: cmp.eq(schema.questionTestCases.type, "public"),
-            orderBy: getQuestionTestCasesOrderBy(),
+          programmingQuestion: {
+            with: {
+              testCases: {
+                where: cmp.eq(schema.programmingQuestionTestCases.type, "public"),
+                orderBy: getQuestionTestCasesOrderBy(),
+              },
+            },
           },
         },
       },
@@ -290,7 +308,7 @@ export async function getSessionInfoForPlayer(tx: DBOrTransaction, userId: strin
     with: {
       submissionState: {
         with: {
-          results: {
+          programmingResults: {
             columns: {
               is_correct: true,
             },
@@ -299,7 +317,7 @@ export async function getSessionInfoForPlayer(tx: DBOrTransaction, userId: strin
       },
       testState: {
         with: {
-          results: true,
+          programmingResults: true,
         },
       },
       chatHistory: {

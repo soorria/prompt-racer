@@ -17,20 +17,22 @@ export default function QuestionDescription(props: {
 }) {
   return (
     <div>
-      <div className="mb-1 text-2xl font-bold">{props.question.title}</div>
+      <div className="mb-1 text-2xl font-bold">{props.question.programmingQuestion.title}</div>
       <Badge variant={DifficultyToBadgeVariantMap[props.question.difficulty]} className="mb-2">
         {props.question.difficulty}
       </Badge>
       <WinConditionCard mode={GAME_MODE_DETAILS[props.gameMode]} />
       <div className="text-pretty text-sm">
-        <Markdown className={"prose prose-invert"}>{props.question.description}</Markdown>
+        <Markdown className={"prose prose-invert"}>
+          {props.question.programmingQuestion.description}
+        </Markdown>
       </div>
 
       <div>
         <div className="mb-4 mt-8">
           <h3 className="mb-2 font-medium">Test cases</h3>
           <div className="space-y-2 text-sm">
-            {props.question.testCases.map((testCase, i) => (
+            {props.question.programmingQuestion.testCases.map((testCase, i) => (
               <div key={i} className="whitespace-pre-wrap font-mono">
                 <div className="flex items-center gap-2">
                   <span className="justify-self-center">

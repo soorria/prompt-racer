@@ -8,7 +8,7 @@ export type PlayerGameSessionToSort = Doc<"playerGameSessions"> & {
   chatHistory: Doc<"playerGameSessionChatHistoryItems">[]
   submissionState:
     | (Doc<"playerGameSubmissionStates"> & {
-        results: Doc<"playerGameSubmissionStateResults">[]
+        programmingResults: Doc<"playerProgrammingGameSubmissionStateResults">[]
       })
     | null
 }
@@ -47,7 +47,9 @@ const getPlayerPositions = (
         session.submissionState !== null && session.submissionState?.status === "complete",
     )
     .map((session) => {
-      const passing = session.submissionState.results.filter((r) => r.status === "success")
+      const passing = session.submissionState.programmingResults.filter(
+        (r) => r.status === "success",
+      )
       const numPassing = passing.length
       return {
         ...session,
@@ -60,7 +62,7 @@ const getPlayerPositions = (
                   ...session,
                   submissionState: {
                     ...session.submissionState,
-                    results: passing,
+                    programmingResults: passing,
                   },
                 },
                 gameState,
@@ -85,7 +87,7 @@ const getPlayerPositions = (
 }
 
 const getTotalRuntime = (session: SortablePlayerGameSession) => {
-  return session.submissionState.results
+  return session.submissionState.programmingResults
     .filter((r) => r.status === "success" && r.run_duration_ms)
     .reduce((acc, r) => acc + r.run_duration_ms, 0)
 }
@@ -157,9 +159,9 @@ export const getPlayerPositionsForGameMode = (
       position: positions[session.user_id]?.position ?? playerGameSessions.length + 2,
       score: positions[session.user_id]?.score ?? 0,
       percentageOfTestCasesPassed:
-        (session.submissionState?.results.filter((r) => r.is_correct)?.length ?? 0) /
+        (session.submissionState?.programmingResults.filter((r) => r.is_correct)?.length ?? 0) /
         // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        (session.submissionState?.results?.length || 1),
+        (session.submissionState?.programmingResults?.length || 1),
     }
   })
 }

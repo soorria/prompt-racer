@@ -6,10 +6,6 @@ import type { gameStatusEnum, questionDifficultyEnum } from "../db/schema"
 import type { Doc } from "../db/types"
 import { entries } from "../utils/object"
 
-export type KebabToPascalCase<T extends string> = T extends `${infer F}-${infer R}`
-  ? `${F}${Capitalize<KebabToPascalCase<R>>}`
-  : Capitalize<T>
-
 export const DEFAULT_GAME_DURATIONS = {
   waitingForPlayers: ms("30s"),
   inProgress: ms("5m"),
@@ -41,12 +37,6 @@ export const GAME_STATUS = [
 export const LLM_PROMPTING_TIMEOUT = ms("10s")
 export const CODE_SUBMISSION_TIMEOUT = ms("10s")
 export const FINALIZING_SUBMISSION_BUFFER_TIME = ms("2s")
-export const GAME_CHARACTER_LIMIT_MAP = {
-  easy: 50,
-  medium: 60,
-  hard: 70,
-} as const satisfies Record<Doc<"questions">["difficulty"], number>
-export const MAX_SEND_MESSAGE_CHARACTER_LIMIT = Math.max(...Object.values(GAME_CHARACTER_LIMIT_MAP))
 
 export type GameModeIds = Doc<"gameStates">["mode"]
 export type GameModeDetailsItem = {
@@ -100,3 +90,5 @@ export const GAME_MODE_DETAILS_LIST = entries(GAME_MODE_DETAILS).map(([id, detai
   id: id,
   ...details,
 }))
+
+export const MAX_SEND_MESSAGE_CHARACTER_LIMIT = 80
