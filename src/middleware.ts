@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 import { updateSupabaseSessionInMiddleware } from "~/lib/supabase/middleware"
 
 const publicRoutes = [
+  "/api/og",
   "/auth/login",
   "/auth/callback",
   "/",
