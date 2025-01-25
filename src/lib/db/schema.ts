@@ -232,7 +232,7 @@ export const playerPictureGameSubmissionStateResults = pgTable(
 
     match_percentage: real("match_percentage").notNull(),
   },
-)
+).enableRLS()
 
 export const playerPictureGameSubmissionStateResultsRelations = relations(
   playerPictureGameSubmissionStateResults,
