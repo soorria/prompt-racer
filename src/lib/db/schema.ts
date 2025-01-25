@@ -1,5 +1,6 @@
 import type { SQL } from "drizzle-orm"
 import { relations, sql } from "drizzle-orm"
+import { primaryKey } from "drizzle-orm/mysql-core"
 import {
   boolean,
   index,
@@ -21,9 +22,9 @@ import { type ChatHistoryItemContent } from "../games/schemas"
 import { type ModelId } from "../llm/constants"
 
 const customTypes = {
-  primaryKey: (name: string) => uuid(name).primaryKey().defaultRandom().notNull(),
-  primaryKeyWithoutDefault: (name: string) => uuid(name).primaryKey().notNull(),
-  primaryKeyReference: (name: string) => uuid(name),
+  primaryKey: () => uuid().primaryKey().defaultRandom().notNull(),
+  primaryKeyWithoutDefault: () => uuid().primaryKey().notNull(),
+  primaryKeyReference: () => uuid(),
 }
 
 export const roleEnum = pgEnum("role", ["admin", "user"])
@@ -34,7 +35,7 @@ export const userProfiles = pgTable(
     /**
      * Supabase auth user id
      */
-    id: customTypes.primaryKeyWithoutDefault("id"),
+    id: customTypes.primaryKeyWithoutDefault(),
     name: text("name").notNull(),
     profile_image_url: text("profile_image_url"),
     role: roleEnum("role").default("user").notNull(),
@@ -74,7 +75,7 @@ export const usersRelations = relations(userProfiles, ({ many }) => {
 export const questionSourceEnum = pgEnum("question_source_type", ["ai"])
 
 export const questionSources = pgTable("question_sources", {
-  id: customTypes.primaryKey("id"),
+  id: customTypes.primaryKey(),
   type: questionSourceEnum("type").notNull(),
   link: text("link"),
 }).enableRLS()
@@ -90,9 +91,9 @@ export const questionTestCaseTypeEnum = pgEnum("question_test_case_type", ["hidd
 export const questionTestCases = pgTable(
   "question_test_cases",
   {
-    id: customTypes.primaryKey("id"),
+    id: customTypes.primaryKey(),
     question_id: customTypes
-      .primaryKeyReference("question_id")
+      .primaryKeyReference()
       .notNull()
       .references(() => questions.id, {
         onDelete: "cascade",
@@ -116,13 +117,13 @@ export const questionTestCasesRelations = relations(questionTestCases, ({ one })
 export const questionDifficultyEnum = pgEnum("question_difficulty", ["easy", "medium", "hard"])
 
 export const questions = pgTable("questions", {
-  id: customTypes.primaryKey("id"),
+  id: customTypes.primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
   difficulty: questionDifficultyEnum("difficulty").notNull(),
   starterCode: text("starter_code").notNull(),
   source_id: customTypes
-    .primaryKeyReference("source_id")
+    .primaryKeyReference()
     .notNull()
     .references(() => questionSources.id),
 }).enableRLS()
@@ -141,9 +142,9 @@ export const questionsRelations = relations(questions, ({ one, many }) => {
 export const playerGameSessionFinalResults = pgTable(
   "player_game_session_final_results",
   {
-    id: customTypes.primaryKey("id"),
+    id: customTypes.primaryKey(),
     player_game_session_id: customTypes
-      .primaryKeyReference("player_game_session_id")
+      .primaryKeyReference()
       .notNull()
       .unique()
       .references(() => playerGameSessions.id, {
@@ -179,15 +180,15 @@ export const playerGameSubmissionStateResultStatusEnum = pgEnum(
 export const playerGameSubmissionStateResults = pgTable(
   "player_game_submission_state_results",
   {
-    id: customTypes.primaryKey("id"),
+    id: customTypes.primaryKey(),
     player_game_submission_state_id: customTypes
-      .primaryKeyReference("player_game_submission_state_id")
+      .primaryKeyReference()
       .notNull()
       .references(() => playerGameSubmissionStates.id, {
         onDelete: "cascade",
       }),
     question_test_case_id: customTypes
-      .primaryKeyReference("question_test_case_id")
+      .primaryKeyReference()
       .references(() => questionTestCases.id, {
         onDelete: "set null",
       }),
@@ -229,9 +230,9 @@ export const playerGameSubmissionStateStatusEnum = pgEnum("player_game_submissio
 export const playerGameSubmissionStates = pgTable(
   "player_game_submission_states",
   {
-    id: customTypes.primaryKey("id"),
+    id: customTypes.primaryKey(),
     player_game_session_id: customTypes
-      .primaryKeyReference("player_game_session_id")
+      .primaryKeyReference()
       .references(() => playerGameSessions.id, {
         onDelete: "cascade",
       })
@@ -263,9 +264,9 @@ export const playerGameSubmissionStatesRelations = relations(
 export const playerGameSessionChatHistoryItems = pgTable(
   "player_game_session_chat_history_items",
   {
-    id: customTypes.primaryKey("id"),
+    id: customTypes.primaryKey(),
     player_game_session_id: customTypes
-      .primaryKeyReference("player_game_session_id")
+      .primaryKeyReference()
       .notNull()
       .references(() => playerGameSessions.id, {
         onDelete: "cascade",
@@ -298,29 +299,29 @@ export const playerGameSessionChatHistoryItemsRelations = relations(
 export const playerGameSessions = pgTable(
   "player_game_sessions",
   {
-    id: customTypes.primaryKey("id"),
+    id: customTypes.primaryKey(),
     user_id: customTypes
-      .primaryKeyReference("user_id")
+      .primaryKeyReference()
       .notNull()
       .references(() => userProfiles.id, {
         onDelete: "cascade",
       }),
     game_id: customTypes
-      .primaryKeyReference("game_id")
+      .primaryKeyReference()
       .notNull()
       .references(() => gameStates.id, {
         onDelete: "cascade",
       }),
 
-    test_state_id: customTypes.primaryKeyReference("test_state_id"),
-    submission_state_id: customTypes.primaryKeyReference("submission_state_id"),
+    test_state_id: customTypes.primaryKeyReference(),
+    submission_state_id: customTypes.primaryKeyReference(),
 
     model: text("string").notNull().$type<ModelId>(),
 
     code: text("code").notNull(),
     last_prompted_at: timestamp("last_prompted_at"),
 
-    final_result_id: customTypes.primaryKeyReference("final_result_id"),
+    final_result_id: customTypes.primaryKeyReference(),
 
     updated_at: timestamp("updated_at")
       .defaultNow()
@@ -378,9 +379,9 @@ export const gameModeEnum = pgEnum("game_mode", GAME_MODES)
 export const gameStates = pgTable(
   "game_states",
   {
-    id: customTypes.primaryKey("id"),
+    id: customTypes.primaryKey(),
     question_id: customTypes
-      .primaryKeyReference("question_id")
+      .primaryKeyReference()
       .notNull()
       .references(() => questions.id),
     status: gameStatusEnum("status").notNull(),
@@ -425,10 +426,10 @@ export const gameStatesRelations = relations(gameStates, ({ one, many }) => {
 export const gameEvents = pgTable(
   "game_events",
   {
-    id: customTypes.primaryKey("id"),
+    id: customTypes.primaryKey(),
 
     game_id: customTypes
-      .primaryKeyReference("game_id")
+      .primaryKeyReference()
       .notNull()
       .references(() => gameStates.id, {
         onDelete: "cascade",
@@ -439,7 +440,7 @@ export const gameEvents = pgTable(
      *
      * If `null`, send to all users in a game
      */
-    user_id: customTypes.primaryKeyReference("user_id").references(() => userProfiles.id, {
+    user_id: customTypes.primaryKeyReference().references(() => userProfiles.id, {
       onDelete: "set null",
     }),
 
