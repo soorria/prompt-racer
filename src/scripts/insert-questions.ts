@@ -145,11 +145,11 @@ async function main() {
   })
 }
 
-// void main()
-//   .catch((e) => {
-//     console.error("FAILED", e)
-//     process.exit(1)
-//   })
-//   .finally(() => {
-//     process.exit(0)
-//   })
+void main()
+  .catch((e) => {
+    console.error("FAILED", e)
+    process.exit(1)
+  })
+  .finally(() => {
+    process.exit(0)
+  })
