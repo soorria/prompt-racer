@@ -66,7 +66,7 @@ export default async function Home() {
           {/* Animation (second on mobile, right column on desktop) */}
           <div className="order-2 mt-8 flex flex-col items-center justify-center gap-y-9 lg:order-none lg:mt-0">
             <HeroAnimation />
-            <GameModeAnimation />
+            <GameModeAnimation questionType="programming" />
           </div>
 
           {/* Mobile-only buttons at bottom */}

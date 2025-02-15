@@ -1,24 +1,32 @@
 "use client"
 
 import type { TargetAndTransition } from "framer-motion"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import useMeasure from "react-use-measure"
 
+import type { QuestionType } from "~/lib/games/constants"
 import { GAME_MODE_DETAILS_LIST } from "~/lib/games/constants"
 
-const GameModeAnimation = () => {
+const GameModeAnimation = ({ questionType }: { questionType: QuestionType }) => {
+  const gameModeItems = useMemo(
+    () =>
+      GAME_MODE_DETAILS_LIST.filter(({ supportedQuestionTypes }) =>
+        supportedQuestionTypes.includes(questionType),
+      ),
+    [questionType],
+  )
   const [activeIndex, setActiveIndex] = useState(0)
   const [measureRef, bounds] = useMeasure()
   const [measuredWidth, setMeasuredWidth] = useState(0)
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveIndex((current) => (current + 1) % GAME_MODE_DETAILS_LIST.length)
+      setActiveIndex((current) => (current + 1) % gameModeItems.length)
     }, 3000)
 
     return () => clearInterval(interval)
-  }, [activeIndex])
+  }, [activeIndex, gameModeItems.length])
 
   useEffect(() => {
     setMeasuredWidth(bounds.width)
@@ -39,11 +47,11 @@ const GameModeAnimation = () => {
     <div className="flex select-none flex-col">
       {/* Hidden element for measuring text width */}
       <div className="invisible absolute" ref={measureRef}>
-        {GAME_MODE_DETAILS_LIST[activeIndex]?.title}
+        {gameModeItems[activeIndex]?.title}
       </div>
 
       <div className="mb-3 flex items-center gap-3">
-        {GAME_MODE_DETAILS_LIST.map((mode, index) => {
+        {gameModeItems.map((mode, index) => {
           const isActive = index === activeIndex
 
           return (

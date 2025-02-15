@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react"
-import { Gauge, MessageCircle, Minimize2, Timer } from "lucide-react"
+import { Crosshair, Gauge, MessageCircle, Minimize2, Timer } from "lucide-react"
 import ms from "ms"
 
 import type { gameStatusEnum, questionDifficultyEnum } from "../db/schema"
@@ -11,12 +11,16 @@ export const DEFAULT_GAME_DURATIONS = {
   inProgress: ms("5m"),
 }
 
+export type QuestionType = (typeof QUESTION_TYPES)[number]
+export const QUESTION_TYPES = ["programming", "picture"] as const
+
 export type GameMode = (typeof GAME_MODES)[number]
 export const GAME_MODES = [
   "fastest-player",
   "fastest-code",
   "shortest-code",
   "fewest-characters-to-llm",
+  "picture-accuracy",
 ] as const
 
 export type QuestionDifficultyLevels = (typeof questionDifficultyEnum)["enumValues"][number]
@@ -41,6 +45,7 @@ export const FINALIZING_SUBMISSION_BUFFER_TIME = ms("2s")
 export type GameModeIds = Doc<"gameStates">["mode"]
 export type GameModeDetailsItem = {
   title: string
+  supportedQuestionTypes: QuestionType[]
   description: string
   unitLong: string
   unitShort: string
@@ -51,6 +56,7 @@ export type GameModeDetailsItem = {
 export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
   "fastest-player": {
     title: "Speed Demon",
+    supportedQuestionTypes: ["programming", "picture"],
     description: "Race against others to solve the challenge first. Fast thinking wins!",
     unitLong: "minutes",
     unitShort: "min",
@@ -60,6 +66,7 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
   },
   "fastest-code": {
     title: "Turbo Code",
+    supportedQuestionTypes: ["programming"],
     description: "Your code needs speed! Create the fastest executing solution.",
     unitLong: "milliseconds",
     unitShort: "ms",
@@ -67,8 +74,19 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
     icon: Gauge,
     color: "#86efac",
   },
+  "picture-accuracy": {
+    title: "Pixel Perfect",
+    supportedQuestionTypes: ["picture"],
+    description: "Craft pixel-perfect recreations. Closer to the target, the better your score!",
+    unitLong: "%",
+    unitShort: "%",
+    toDisplayValue: (v) => v,
+    icon: Crosshair,
+    color: "#f472b6",
+  },
   "shortest-code": {
     title: "Minimalist",
+    supportedQuestionTypes: ["programming", "picture"],
     description: "Less is more. Write working code with the fewest characters possible.",
     unitLong: "characters",
     unitShort: "ch",
@@ -78,6 +96,7 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
   },
   "fewest-characters-to-llm": {
     title: "AI Whisperer",
+    supportedQuestionTypes: ["programming", "picture"],
     description: "Master of brevity. Craft the shortest prompt that gets the job done.",
     unitLong: "characters",
     unitShort: "ch",

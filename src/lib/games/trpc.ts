@@ -5,7 +5,7 @@ import { count } from "drizzle-orm"
 import { type Inngest } from "inngest"
 import { z } from "zod"
 
-import type { QuestionDifficultyLevels } from "~/lib/games/constants"
+import type { QuestionDifficultyLevels, QuestionType } from "~/lib/games/constants"
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
 import { cmp, schema } from "~/lib/db"
 import { type DBOrTransaction, type Doc, type DocInsert } from "~/lib/db/types"
@@ -14,6 +14,7 @@ import {
   DEFAULT_GAME_DURATIONS,
   GAME_STATUS,
   QUESTION_DIFFICULTY_LEVELS,
+  QUESTION_TYPES,
 } from "~/lib/games/constants"
 import {
   getGameById,
@@ -21,7 +22,7 @@ import {
   getInGameState,
   getLatestActiveGameForUser,
   getQuestionById,
-  getRandomProgrammingQuestion,
+  getRandomQuestion,
   getSessionInfoForPlayer,
   getSubmissionMetrics,
   getUserGameHistory,
@@ -330,6 +331,7 @@ export const gameRouter = createTRPCRouter({
   join: protectedProcedure
     .input(
       z.object({
+        questionType: z.enum(QUESTION_TYPES),
         difficulty: z.optional(z.enum(QUESTION_DIFFICULTY_LEVELS)),
       }),
     )
@@ -344,7 +346,10 @@ export const gameRouter = createTRPCRouter({
       }
 
       const { game } = await ctx.db.transaction(async (tx) => {
-        const { game, question } = await getOrCreateGameToJoin(tx, ctx.inngest, input.difficulty)
+        const { game, question } = await getOrCreateGameToJoin(tx, ctx.inngest, {
+          questionType: input.questionType,
+          difficulty: input.difficulty,
+        })
 
         await tx.insert(schema.playerGameSessions).values({
           user_id: ctx.user.id,
@@ -545,7 +550,10 @@ async function triggerPlayerGameSessionUpdate(tx: DBOrTransaction, playerGameSes
 async function getOrCreateGameToJoin(
   tx: DBOrTransaction,
   inngest: Inngest,
-  difficulty?: QuestionDifficultyLevels,
+  options: {
+    difficulty?: QuestionDifficultyLevels
+    questionType: QuestionType
+  },
 ): Promise<{
   game: Doc<"gameStates">
   question: Doc<"questions"> & {
@@ -553,10 +561,16 @@ async function getOrCreateGameToJoin(
   }
 }> {
   let waitingForPlayersGames = await getGamesWithStatus(tx, "waitingForPlayers")
-  if (difficulty) {
-    waitingForPlayersGames = waitingForPlayersGames.filter(
-      (game) => game.question.difficulty === difficulty,
-    )
+  if (options.difficulty) {
+    waitingForPlayersGames = waitingForPlayersGames.filter((game) => {
+      const matchesDifficulty = game.question.difficulty === options.difficulty
+      const matchesQuestionType =
+        options.questionType === "programming"
+          ? game.question.programmingQuestion !== null
+          : game.question.pictureQuestion !== null
+
+      return matchesDifficulty && matchesQuestionType
+    })
   }
   const existingGameToJoin = randomElement(waitingForPlayersGames)
 
@@ -569,16 +583,19 @@ async function getOrCreateGameToJoin(
     }
   }
 
-  return await createGame(tx, inngest, difficulty)
+  return await createGame(tx, inngest, options)
 }
 
 async function createGame(
   tx: DBOrTransaction,
   inngest: Inngest,
-  difficulty?: QuestionDifficultyLevels,
+  options: {
+    difficulty?: QuestionDifficultyLevels
+    questionType: QuestionType
+  },
 ) {
-  const question = await getRandomProgrammingQuestion(tx, difficulty)
-  const gameMode = getRandomGameMode()
+  const question = await getRandomQuestion(tx, options)
+  const gameMode = getRandomGameMode(options.questionType)
 
   const [game] = await tx
     .insert(schema.gameStates)

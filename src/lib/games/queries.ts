@@ -4,10 +4,11 @@ import type { SQL } from "drizzle-orm"
 import { invariant } from "@epic-web/invariant"
 import { count } from "drizzle-orm"
 
+import type { QuestionDifficultyLevels } from "./constants"
 import { requireAuthUser } from "../auth/user"
 import { cmp, orderBy, schema } from "../db"
 import { type DBOrTransaction, type Doc } from "../db/types"
-import { type QuestionDifficultyLevels } from "./constants"
+import { QuestionType } from "./constants"
 import {
   type InGameState,
   type NotWaitingForPlayersGameState,
@@ -114,6 +115,7 @@ export async function getGamesWithStatus<Status extends Doc<"gameStates">["statu
           difficulty: true,
         },
         with: {
+          pictureQuestion: true,
           programmingQuestion: {
             columns: {
               starterCode: true,
@@ -142,13 +144,21 @@ export async function getSubmissionMetrics(tx: DBOrTransaction, submission_state
   }
 }
 
-export async function getRandomProgrammingQuestion(
+export async function getRandomQuestion(
   tx: DBOrTransaction,
-  difficulty?: QuestionDifficultyLevels,
+  options: {
+    difficulty?: QuestionDifficultyLevels
+    questionType: QuestionType
+  },
 ) {
   let condition: SQL<unknown> | undefined = cmp.isNotNull(schema.questions.programming_question_id)
-  if (difficulty) {
-    condition = cmp.and(condition, cmp.eq(schema.questions.difficulty, difficulty))
+  if (options.difficulty) {
+    condition = cmp.and(condition, cmp.eq(schema.questions.difficulty, options.difficulty))
+  }
+  if (options.questionType === "programming") {
+    condition = cmp.and(condition, cmp.isNotNull(schema.questions.programming_question_id))
+  } else {
+    condition = cmp.and(condition, cmp.isNotNull(schema.questions.picture_question_id))
   }
 
   const countQuery = tx.select({ count: count() }).from(schema.questions).where(condition)
@@ -164,6 +174,7 @@ export async function getRandomProgrammingQuestion(
     offset: randomIndex,
     with: {
       programmingQuestion: true,
+      pictureQuestion: true,
     },
   })
 
@@ -177,6 +188,7 @@ export async function getQuestionById(tx: DBOrTransaction, questionId: string) {
     where: cmp.eq(schema.questions.id, questionId),
     with: {
       programmingQuestion: true,
+      pictureQuestion: true,
     },
   })
 
