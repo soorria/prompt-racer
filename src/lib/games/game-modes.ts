@@ -51,7 +51,6 @@ const getPlayerPositions = (
       const passing = session.submissionState.programmingResults.filter(
         (r) => r.status === "success",
       )
-      const passingPictureResults = session.submissionState
       const numPassing = passing.length
       return {
         ...session,
