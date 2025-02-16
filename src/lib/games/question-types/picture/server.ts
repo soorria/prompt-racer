@@ -6,10 +6,10 @@ import type { ServerQuestionStrategy } from "../base"
 import type { DBOrTransaction, Doc } from "~/lib/db/types"
 import { cmp, schema } from "~/lib/db"
 import { type QuestionDifficultyLevels } from "../../constants"
-import { ProgrammingQuestionStrategy } from "../client/programming"
+import { PictureQuestionStrategy } from "./client"
 
-export class ServerProgrammingStrategy
-  extends ProgrammingQuestionStrategy
+export class ServerPictureStrategy
+  extends PictureQuestionStrategy
   implements ServerQuestionStrategy
 {
   async getOrGenerateQuestion(
@@ -24,7 +24,7 @@ export class ServerProgrammingStrategy
     if (options.difficulty) {
       condition = cmp.and(condition, cmp.eq(schema.questions.difficulty, options.difficulty))
     }
-    condition = cmp.and(condition, cmp.isNotNull(schema.questions.programming_question_id))
+    condition = cmp.and(condition, cmp.isNotNull(schema.questions.picture_question_id))
 
     const countQuery = tx.select({ count: count() }).from(schema.questions).where(condition)
 
@@ -52,6 +52,6 @@ export class ServerProgrammingStrategy
     programmingQuestion: Doc<"programmingQuestions"> | null
     pictureQuestion: Doc<"pictureQuestions"> | null
   }) {
-    return question.programmingQuestion !== null
+    return question.pictureQuestion !== null
   }
 }

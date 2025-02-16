@@ -6,10 +6,10 @@ import { AnimatePresence, motion } from "framer-motion"
 import useMeasure from "react-use-measure"
 
 import type { QuestionType } from "~/lib/games/constants"
-import { getClientQuestionStrategy } from "~/lib/games/question-types/client/create"
+import { createClientQuestionStrategy } from "~/lib/games/question-types/create"
 
 const GameModeAnimation = ({ questionType }: { questionType: QuestionType }) => {
-  const questionStrategy = getClientQuestionStrategy(questionType)
+  const questionStrategy = createClientQuestionStrategy(questionType)
   const [activeIndex, setActiveIndex] = useState(0)
   const [measureRef, bounds] = useMeasure()
   const [measuredWidth, setMeasuredWidth] = useState(0)

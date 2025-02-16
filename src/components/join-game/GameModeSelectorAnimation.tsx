@@ -7,7 +7,7 @@ import { Play } from "lucide-react"
 import { usePostHog } from "posthog-js/react"
 
 import type { GameModeDetailsItem, GameModeIds, QuestionType } from "~/lib/games/constants"
-import { getClientQuestionStrategy } from "~/lib/games/question-types/client/create"
+import { createClientQuestionStrategy } from "~/lib/games/question-types/create"
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
 import { AnimatedBorder } from "../ui/custom/animated-border"
@@ -114,7 +114,7 @@ const PlayButton = ({ onClick, isLoading }: PlayButtonProps) => {
 }
 
 const GameModeSelectorAnimation = ({ questionType }: { questionType: QuestionType }) => {
-  const questionStrategy = getClientQuestionStrategy(questionType)
+  const questionStrategy = createClientQuestionStrategy(questionType)
   const router = useRouter()
   const posthog = usePostHog()
 

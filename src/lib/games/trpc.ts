@@ -34,7 +34,7 @@ import { getUserProfile, requireUserProfile } from "../auth/profile"
 import { pushGameEvent } from "./events/server"
 import { cancelInngestGameWorkflow, finalizeGame, touchGameState } from "./internal-actions"
 import { type ServerQuestionStrategy } from "./question-types/base"
-import { getServerQuestionStrategy } from "./question-types/server/create"
+import { createServerQuestionStrategy } from "./question-types/create"
 
 export const gameRouter = createTRPCRouter({
   getPlayerGameSession: protectedProcedure
@@ -317,7 +317,7 @@ export const gameRouter = createTRPCRouter({
         throw new Error("You are already in a game")
       }
 
-      const questionStrategy = getServerQuestionStrategy(input.questionType)
+      const questionStrategy = createServerQuestionStrategy(input.questionType)
 
       const { game } = await ctx.db.transaction(async (tx) => {
         const { game, question } = await getOrCreateGameToJoin(tx, ctx.inngest, questionStrategy, {
