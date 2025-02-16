@@ -9,6 +9,7 @@ export type PlayerGameSessionToSort = Doc<"playerGameSessions"> & {
   submissionState:
     | (Doc<"playerGameSubmissionStates"> & {
         programmingResults: Doc<"playerProgrammingGameSubmissionStateResults">[]
+        pictureResult: Doc<"playerPictureGameSubmissionStateResults"> | null
       })
     | null
 }
@@ -50,6 +51,7 @@ const getPlayerPositions = (
       const passing = session.submissionState.programmingResults.filter(
         (r) => r.status === "success",
       )
+      const passingPictureResults = session.submissionState
       const numPassing = passing.length
       return {
         ...session,
@@ -97,7 +99,7 @@ const getTotalCharactersUsed = (session: PlayerGameSessionToSort) => {
     .reduce((acc, v) => acc + v, 0)
 }
 
-type GameModeFinalizationConfigMap = Record<Doc<"gameStates">["mode"], GameModeFinalizationConfig>
+type GameModeFinalizationConfigMap = Record<GameMode, GameModeFinalizationConfig>
 
 const gameModeFinalizationConfigMap: GameModeFinalizationConfigMap = {
   "fastest-player": {
@@ -119,9 +121,9 @@ const gameModeFinalizationConfigMap: GameModeFinalizationConfigMap = {
   },
   "picture-accuracy": {
     /**
-     * returns number of characters sent to LLM. lower is better
+     * returns match percentage. higher is better
      */
-    getScore: (session) => session.code.length,
+    getScore: (session) => session.submissionState.pictureResult?.match_percentage ?? 0,
     compareScore: compareSortOrderMap.asc,
     worstScore: 0,
   },
