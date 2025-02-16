@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import useMeasure from "react-use-measure"
 
 import type { QuestionType } from "~/lib/games/constants"
-import { createClientQuestionStrategy } from "~/lib/games/question-types/create"
+import { createClientQuestionStrategy } from "~/lib/games/question-types/client_create"
 
 const GameModeAnimation = ({ questionType }: { questionType: QuestionType }) => {
   const questionStrategy = createClientQuestionStrategy(questionType)

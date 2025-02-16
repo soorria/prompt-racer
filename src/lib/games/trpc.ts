@@ -34,7 +34,7 @@ import { getUserProfile, requireUserProfile } from "../auth/profile"
 import { pushGameEvent } from "./events/server"
 import { cancelInngestGameWorkflow, finalizeGame, touchGameState } from "./internal-actions"
 import { type ServerQuestionStrategy } from "./question-types/base"
-import { createServerQuestionStrategy } from "./question-types/create"
+import { createServerQuestionStrategy } from "./question-types/server_create"
 
 export const gameRouter = createTRPCRouter({
   getPlayerGameSession: protectedProcedure

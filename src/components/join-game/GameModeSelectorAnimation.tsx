@@ -7,7 +7,7 @@ import { Play } from "lucide-react"
 import { usePostHog } from "posthog-js/react"
 
 import type { GameModeDetailsItem, GameModeIds, QuestionType } from "~/lib/games/constants"
-import { createClientQuestionStrategy } from "~/lib/games/question-types/create"
+import { createClientQuestionStrategy } from "~/lib/games/question-types/client_create"
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
 import { AnimatedBorder } from "../ui/custom/animated-border"
