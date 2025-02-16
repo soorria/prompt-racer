@@ -33,7 +33,6 @@ import { createTRPCRouter, protectedProcedure } from "~/lib/trpc/trpc"
 import { randomElement } from "~/lib/utils/random"
 import { getUserProfile, requireUserProfile } from "../auth/profile"
 import { pushGameEvent } from "./events/server"
-import { getPlayerPositionsForGameMode } from "./game-modes"
 import { cancelInngestGameWorkflow, finalizeGame, touchGameState } from "./internal-actions"
 
 export const gameRouter = createTRPCRouter({
@@ -80,34 +79,6 @@ export const gameRouter = createTRPCRouter({
         return getSubmissionMetrics(ctx.db, sessionInfo.submission_state_id)
       }
       return null
-    }),
-
-  getPlayerPositionMetrics: protectedProcedure
-    .input(
-      z.object({
-        game_id: z.string(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const [game, playerGameSessions] = await Promise.all([
-        getGameById(ctx.db, input.game_id),
-        ctx.db.query.playerGameSessions.findMany({
-          where: cmp.eq(schema.playerGameSessions.game_id, input.game_id),
-          with: {
-            chatHistory: true,
-            submissionState: {
-              with: {
-                programmingResults: true,
-              },
-            },
-          },
-        }),
-      ])
-      if (!game) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
-      }
-      const positionResults = getPlayerPositionsForGameMode(game, playerGameSessions)
-      return positionResults
     }),
 
   submitCode: protectedProcedure
