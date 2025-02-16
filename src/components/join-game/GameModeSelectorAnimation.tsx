@@ -1,13 +1,13 @@
 "use client"
 
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 import { Play } from "lucide-react"
 import { usePostHog } from "posthog-js/react"
 
 import type { GameModeDetailsItem, GameModeIds, QuestionType } from "~/lib/games/constants"
-import { GAME_MODE_DETAILS_LIST } from "~/lib/games/constants"
+import { getClientQuestionStrategy } from "~/lib/games/question-types/client/create"
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
 import { AnimatedBorder } from "../ui/custom/animated-border"
@@ -114,13 +114,7 @@ const PlayButton = ({ onClick, isLoading }: PlayButtonProps) => {
 }
 
 const GameModeSelectorAnimation = ({ questionType }: { questionType: QuestionType }) => {
-  const gameModeItems = useMemo(
-    () =>
-      GAME_MODE_DETAILS_LIST.filter(({ supportedQuestionTypes }) =>
-        supportedQuestionTypes.includes(questionType),
-      ),
-    [questionType],
-  )
+  const questionStrategy = getClientQuestionStrategy(questionType)
   const router = useRouter()
   const posthog = usePostHog()
 
@@ -149,11 +143,11 @@ const GameModeSelectorAnimation = ({ questionType }: { questionType: QuestionTyp
     let intervalId: NodeJS.Timeout
     if (isSelecting) {
       intervalId = setInterval(() => {
-        setHighlightedIndex((prev) => (prev + 1) % gameModeItems.length)
+        setHighlightedIndex((prev) => (prev + 1) % questionStrategy.supportedGameModes.length)
       }, 200)
     }
     return () => clearInterval(intervalId)
-  }, [gameModeItems.length, isSelecting])
+  }, [questionStrategy.supportedGameModes.length, isSelecting])
 
   const handleClick = () => {
     setShowPlayButton(false)
@@ -176,7 +170,7 @@ const GameModeSelectorAnimation = ({ questionType }: { questionType: QuestionTyp
             })}
             key={isCompact ? "compact" : "expanded"}
           >
-            {gameModeItems.map((mode, index) =>
+            {questionStrategy.supportedGameModes.map((mode, index) =>
               isCompact ? (
                 <CompactCard
                   key={`compact-${index}`}

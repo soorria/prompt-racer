@@ -45,7 +45,6 @@ export const FINALIZING_SUBMISSION_BUFFER_TIME = ms("2s")
 export type GameModeIds = Doc<"gameStates">["mode"]
 export type GameModeDetailsItem = {
   title: string
-  supportedQuestionTypes: QuestionType[]
   description: string
   unitLong: string
   unitShort: string
@@ -56,7 +55,6 @@ export type GameModeDetailsItem = {
 export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
   "fastest-player": {
     title: "Speed Demon",
-    supportedQuestionTypes: ["programming", "picture"],
     description: "Race against others to solve the challenge first. Fast thinking wins!",
     unitLong: "minutes",
     unitShort: "min",
@@ -66,7 +64,6 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
   },
   "fastest-code": {
     title: "Turbo Code",
-    supportedQuestionTypes: ["programming"],
     description: "Your code needs speed! Create the fastest executing solution.",
     unitLong: "milliseconds",
     unitShort: "ms",
@@ -76,7 +73,6 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
   },
   "picture-accuracy": {
     title: "Pixel Perfect",
-    supportedQuestionTypes: ["picture"],
     description: "Craft pixel-perfect recreations. Closer to the target, the better your score!",
     unitLong: "%",
     unitShort: "%",
@@ -86,7 +82,6 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
   },
   "shortest-code": {
     title: "Minimalist",
-    supportedQuestionTypes: ["programming", "picture"],
     description: "Less is more. Write working code with the fewest characters possible.",
     unitLong: "characters",
     unitShort: "ch",
@@ -96,7 +91,6 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
   },
   "fewest-characters-to-llm": {
     title: "AI Whisperer",
-    supportedQuestionTypes: ["programming", "picture"],
     description: "Master of brevity. Craft the shortest prompt that gets the job done.",
     unitLong: "characters",
     unitShort: "ch",

@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { Play } from "lucide-react"
 
 import GameModeAnimation from "~/components/landing-page/GameModeAnimation"
 import HeroAnimation from "~/components/landing-page/HeroAnimation"

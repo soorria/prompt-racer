@@ -1,14 +1,10 @@
 import "server-only"
 
 import type { SQL } from "drizzle-orm"
-import { invariant } from "@epic-web/invariant"
-import { count } from "drizzle-orm"
 
-import type { QuestionDifficultyLevels } from "./constants"
 import { requireAuthUser } from "../auth/user"
 import { cmp, orderBy, schema } from "../db"
 import { type DBOrTransaction, type Doc } from "../db/types"
-import { QuestionType } from "./constants"
 import {
   type InGameState,
   type NotWaitingForPlayersGameState,
@@ -142,45 +138,6 @@ export async function getSubmissionMetrics(tx: DBOrTransaction, submission_state
       .length,
     numTestCases: submissionStateResults.length,
   }
-}
-
-export async function getRandomQuestion(
-  tx: DBOrTransaction,
-  options: {
-    difficulty?: QuestionDifficultyLevels
-    questionType: QuestionType
-  },
-) {
-  let condition: SQL<unknown> | undefined = cmp.isNotNull(schema.questions.programming_question_id)
-  if (options.difficulty) {
-    condition = cmp.and(condition, cmp.eq(schema.questions.difficulty, options.difficulty))
-  }
-  if (options.questionType === "programming") {
-    condition = cmp.and(condition, cmp.isNotNull(schema.questions.programming_question_id))
-  } else {
-    condition = cmp.and(condition, cmp.isNotNull(schema.questions.picture_question_id))
-  }
-
-  const countQuery = tx.select({ count: count() }).from(schema.questions).where(condition)
-
-  const [numQuestions] = await countQuery
-
-  invariant(numQuestions?.count, "No questions found")
-
-  const randomIndex = Math.floor(Math.random() * numQuestions.count)
-
-  const question = await tx.query.questions.findFirst({
-    where: condition,
-    offset: randomIndex,
-    with: {
-      programmingQuestion: true,
-      pictureQuestion: true,
-    },
-  })
-
-  invariant(question, "No question found")
-
-  return question
 }
 
 export async function getQuestionById(tx: DBOrTransaction, questionId: string) {
