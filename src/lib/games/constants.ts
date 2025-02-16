@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react"
-import { Crosshair, Gauge, MessageCircle, Minimize2, Timer } from "lucide-react"
+import { Gauge, MessageCircle, Minimize2, Timer } from "lucide-react"
 import ms from "ms"
 
 import type { gameStatusEnum, questionDifficultyEnum } from "../db/schema"
@@ -20,7 +20,6 @@ export const GAME_MODES = [
   "fastest-code",
   "shortest-code",
   "fewest-characters-to-llm",
-  "picture-accuracy",
 ] as const
 
 export type QuestionDifficultyLevels = (typeof questionDifficultyEnum)["enumValues"][number]
@@ -70,15 +69,6 @@ export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
     toDisplayValue: (ms: number) => ms,
     icon: Gauge,
     color: "#86efac",
-  },
-  "picture-accuracy": {
-    title: "Pixel Perfect",
-    description: "Craft pixel-perfect recreations. Closer to the target, the better your score!",
-    unitLong: "%",
-    unitShort: "%",
-    toDisplayValue: (v) => v,
-    icon: Crosshair,
-    color: "#f472b6",
   },
   "shortest-code": {
     title: "Minimalist",

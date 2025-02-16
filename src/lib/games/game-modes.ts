@@ -118,14 +118,6 @@ const gameModeFinalizationConfigMap: GameModeFinalizationConfigMap = {
     compareScore: compareSortOrderMap.asc,
     worstScore: INTEGER_RANGE.max,
   },
-  "picture-accuracy": {
-    /**
-     * returns match percentage. higher is better
-     */
-    getScore: (session) => session.submissionState.pictureResult?.match_percentage ?? 0,
-    compareScore: compareSortOrderMap.asc,
-    worstScore: 0,
-  },
   "shortest-code": {
     /**
      * returns code length. lower is better

@@ -33,9 +33,11 @@ export interface ServerQuestionStrategy extends ClientQuestionStrategy {
 export abstract class BaseQuestionStrategy implements ClientQuestionStrategy {
   protected abstract readonly supportedModeIds: readonly GameMode[]
 
-  readonly supportedGameModes = entries(GAME_MODE_DETAILS)
-    .filter(([id]) => this.supportedModeIds.includes(id))
-    .map(([id, details]) => ({ id, ...details }))
+  get supportedGameModes() {
+    return entries(GAME_MODE_DETAILS)
+      .filter(([id]) => this.supportedModeIds.includes(id))
+      .map(([id, details]) => ({ id, ...details }))
+  }
 
   getRandomGameMode() {
     invariant(this.supportedModeIds.length > 0, "No supported game modes")
