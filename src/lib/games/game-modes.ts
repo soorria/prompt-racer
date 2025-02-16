@@ -117,6 +117,14 @@ const gameModeFinalizationConfigMap: GameModeFinalizationConfigMap = {
     compareScore: compareSortOrderMap.asc,
     worstScore: INTEGER_RANGE.max,
   },
+  "picture-accuracy": {
+    /**
+     * returns number of characters sent to LLM. lower is better
+     */
+    getScore: (session) => session.code.length,
+    compareScore: compareSortOrderMap.asc,
+    worstScore: 0,
+  },
   "shortest-code": {
     /**
      * returns code length. lower is better
@@ -153,15 +161,9 @@ export const getPlayerPositionsForGameMode = (
     finalizationConfig,
   )
 
-  return playerGameSessions.map((session) => {
-    return {
-      player_game_session_id: session.id,
-      position: positions[session.user_id]?.position ?? playerGameSessions.length + 2,
-      score: positions[session.user_id]?.score ?? 0,
-      percentageOfTestCasesPassed:
-        (session.submissionState?.programmingResults.filter((r) => r.is_correct)?.length ?? 0) /
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        (session.submissionState?.programmingResults?.length || 1),
-    }
-  })
+  return playerGameSessions.map((session) => ({
+    player_game_session_id: session.id,
+    position: positions[session.user_id]?.position ?? playerGameSessions.length + 2,
+    score: positions[session.user_id]?.score ?? 0,
+  }))
 }
