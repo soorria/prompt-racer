@@ -33,7 +33,7 @@ import { randomElement } from "~/lib/utils/random"
 import { getUserProfile, requireUserProfile } from "../auth/profile"
 import { pushGameEvent } from "./events/server"
 import { cancelInngestGameWorkflow, finalizeGame, touchGameState } from "./internal-actions"
-import { type ServerQuestionStrategy } from "./question-types/base"
+import { type ServerQuestionStrategy } from "./question-types/server_base"
 import { createServerQuestionStrategy } from "./question-types/server_create"
 
 export const gameRouter = createTRPCRouter({
@@ -537,7 +537,7 @@ async function getOrCreateGameToJoin(
   if (options.difficulty) {
     waitingForPlayersGames = waitingForPlayersGames.filter((game) => {
       const matchesDifficulty = game.question.difficulty === options.difficulty
-      return matchesDifficulty && questionStrategy.isCompatibleQuestion(game.question)
+      return matchesDifficulty && questionStrategy.config.isCompatibleQuestion(game.question)
     })
   }
   const existingGameToJoin = randomElement(waitingForPlayersGames)
@@ -563,7 +563,7 @@ async function createGame(
   },
 ) {
   const question = await questionStrategy.getOrGenerateQuestion(tx, options)
-  const gameMode = questionStrategy.getRandomGameMode()
+  const gameMode = questionStrategy.config.getRandomGameMode()
 
   const [game] = await tx
     .insert(schema.gameStates)

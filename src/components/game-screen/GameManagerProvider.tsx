@@ -32,7 +32,6 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
     const gameStateQuery = useGameState({
       initialState: props.initialGameState,
     })
-
     const completion = useGenerateUpdatedCode({
       gameId: gameSessionQuery.data.game_id,
     })

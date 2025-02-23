@@ -3,9 +3,12 @@
 import React, { useMemo } from "react"
 import { useMediaQuery } from "@react-hook/media-query"
 
+import type { ClientQuestionStrategy } from "~/lib/games/question-types/base"
 import { ChatHistoryPanelImpl } from "~/components/game-screen/ChatHistoryPanel"
 import MobileMultiSelectPanel from "~/components/game-screen/MobileMultiSelectPanel"
 import QuestionDescription from "~/components/game-screen/QuestionDescription"
+import { getQuestionType } from "~/lib/games/question-types/base"
+import { createClientQuestionStrategy } from "~/lib/games/question-types/client_create"
 import { type NotWaitingForPlayersGameState } from "~/lib/games/types"
 import { createDefaultLayout, createDefaultMobileLayout } from "~/lib/surfaces/panels/layouts"
 import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
@@ -16,13 +19,19 @@ import RunCodePanel from "./RunCodePanel"
 
 export const MOBILE_VIEWPORT = "(max-width: 640px)"
 
-function useViews(props: { gameInfo: NotWaitingForPlayersGameState }) {
+function useViews(props: {
+  gameInfo: NotWaitingForPlayersGameState
+  questionStrategy: ClientQuestionStrategy
+}) {
   return useMemo(() => {
     const QuestionViewImpl = {
       key: "description",
       className: "bg-card p-4",
       component: (
-        <QuestionDescription question={props.gameInfo.question} gameMode={props.gameInfo.mode} />
+        <QuestionDescription
+          questionStrategy={props.questionStrategy}
+          gameMode={props.gameInfo.mode}
+        />
       ),
     }
     const CodeRunningViewImpl = {
@@ -65,12 +74,17 @@ function useViews(props: { gameInfo: NotWaitingForPlayersGameState }) {
       QuestionAndTestCasesImpl,
       CodeRunningViewImpl,
     }
-  }, [props.gameInfo])
+  }, [props.gameInfo.mode, props.questionStrategy])
 }
 
 export function InProgressGame(props: { gameInfo: NotWaitingForPlayersGameState }) {
   const isMobile = useMediaQuery(MOBILE_VIEWPORT)
-  const { MobileLayout, QuestionAndTestCasesImpl, CodeRunningViewImpl } = useViews(props)
+  const questionType = getQuestionType(props.gameInfo.question)
+  const questionStrategy = createClientQuestionStrategy(questionType, props.gameInfo.question)
+  const { MobileLayout, QuestionAndTestCasesImpl, CodeRunningViewImpl } = useViews({
+    gameInfo: props.gameInfo,
+    questionStrategy,
+  })
   const defaultDesktopLayout = createDefaultLayout({
     rightSection: { top: CodeViewImpl, bottom: CodeRunningViewImpl },
     leftSection: QuestionAndTestCasesImpl,

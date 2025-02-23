@@ -2,16 +2,18 @@ import type { SQL } from "drizzle-orm"
 import { invariant } from "@epic-web/invariant"
 import { count } from "drizzle-orm"
 
-import type { ServerQuestionStrategy } from "../base"
-import type { DBOrTransaction, Doc } from "~/lib/db/types"
+import type { DBOrTransaction } from "~/lib/db/types"
 import { cmp, schema } from "~/lib/db"
 import { type QuestionDifficultyLevels } from "../../constants"
-import { PictureQuestionStrategy } from "./client"
+import { BaseQuestionStrategy } from "../base"
+import { type ServerQuestionStrategy } from "../server_base"
+import { PictureQuestionConfig } from "./config"
 
-export class ServerPictureStrategy
-  extends PictureQuestionStrategy
-  implements ServerQuestionStrategy
-{
+export class ServerPictureStrategy extends BaseQuestionStrategy implements ServerQuestionStrategy {
+  constructor() {
+    super(new PictureQuestionConfig())
+  }
+
   async getOrGenerateQuestion(
     tx: DBOrTransaction,
     options: {
@@ -46,12 +48,5 @@ export class ServerPictureStrategy
     invariant(question, "No question found")
 
     return question
-  }
-
-  isCompatibleQuestion(question: {
-    programmingQuestion: Doc<"programmingQuestions"> | null
-    pictureQuestion: Doc<"pictureQuestions"> | null
-  }) {
-    return question.pictureQuestion !== null
   }
 }
