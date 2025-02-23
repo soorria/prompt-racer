@@ -10,8 +10,6 @@ import { usePostHog } from "posthog-js/react"
 
 import type { InGameState, PlayerGameSession } from "~/lib/games/types"
 import { gameEventReducer, useHandleGameEvent } from "~/lib/games/events/client"
-import { getQuestionType } from "~/lib/games/question-types/base"
-import { createClientQuestionStrategy } from "~/lib/games/question-types/client_create"
 import { extractCodeFromRawCompletion } from "~/lib/llm/utils"
 import { createBrowserClient } from "~/lib/supabase/browser"
 import { api } from "~/lib/trpc/react"
@@ -34,15 +32,6 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
     const gameStateQuery = useGameState({
       initialState: props.initialGameState,
     })
-    const questionType = getQuestionType({
-      programming_question_id: gameStateQuery.data.question?.programming_question_id,
-      picture_question_id: gameStateQuery.data.question?.picture_question_id,
-    })
-    const questionStrategy = createClientQuestionStrategy(
-      questionType,
-      gameStateQuery.data.question,
-    )
-
     const completion = useGenerateUpdatedCode({
       gameId: gameSessionQuery.data.game_id,
     })
@@ -90,7 +79,6 @@ export const [GameManagerProvider, useGameManager] = createTypedContext(
     return {
       isMobile,
       gameInfo: gameStateQuery.data,
-      questionStrategy,
       gameSessionInfo: {
         ...gameSessionQuery.data,
         code: completion.completion ?? gameSessionQuery.data.code,
