@@ -1,7 +1,6 @@
 import { invariant } from "@epic-web/invariant"
 
-import type { GameMode, QuestionDifficultyLevels } from "../constants"
-import type { DBOrTransaction, Doc } from "~/lib/db/types"
+import type { GameMode, QuestionDifficultyLevels, QuestionType } from "../constants"
 import { entries } from "~/lib/utils/object"
 import { randomElement } from "~/lib/utils/random"
 import { GAME_MODE_DETAILS } from "../constants"
@@ -17,19 +16,6 @@ export interface ClientQuestionStrategy extends BaseQuestionStrategy {
   readonly preview: JSX.Element
 }
 
-export abstract class ServerQuestionStrategy extends BaseQuestionStrategy {
-  abstract getOrGenerateQuestion(
-    tx: DBOrTransaction,
-    options: {
-      difficulty?: QuestionDifficultyLevels
-    },
-  ): Promise<
-    Doc<"questions"> & {
-      programmingQuestion: Doc<"programmingQuestions"> | null
-      pictureQuestion: Doc<"pictureQuestions"> | null
-    }
-  >
-}
 export abstract class QuestionTypeConfig {
   abstract readonly supportedModeIds: readonly GameMode[]
 
@@ -48,4 +34,17 @@ export abstract class QuestionTypeConfig {
     programmingQuestion: object | null
     pictureQuestion: object | null
   }): boolean
+}
+
+export function getQuestionType(question: {
+  programming_question_id: string | null | undefined
+  picture_question_id: string | null | undefined
+}): QuestionType {
+  if (question.programming_question_id) {
+    return "programming"
+  }
+  if (question.picture_question_id) {
+    return "picture"
+  }
+  throw new Error("Invalid question: neither programming nor picture question found")
 }

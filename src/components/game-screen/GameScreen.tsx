@@ -9,7 +9,7 @@ import { InProgressGame } from "./InProgressGame"
 import { Lobby } from "./Lobby"
 
 export function GameScreen() {
-  const { gameInfo } = useGameManager()
+  const { gameInfo, questionStrategy } = useGameManager()
 
   if (gameInfo.status === "waitingForPlayers") {
     return <Lobby />
@@ -18,7 +18,7 @@ export function GameScreen() {
   if (gameInfo.status === "inProgress") {
     return (
       <ClientOnly fallback={<GameLayoutLoadingPage />}>
-        <InProgressGame gameInfo={gameInfo} />
+        <InProgressGame gameInfo={gameInfo} questionStrategy={questionStrategy} />
       </ClientOnly>
     )
   }

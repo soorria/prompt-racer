@@ -5,7 +5,6 @@ import { count } from "drizzle-orm"
 import { type Inngest } from "inngest"
 import { z } from "zod"
 
-import type { ServerQuestionStrategy } from "./question-types/base"
 import type { QuestionDifficultyLevels } from "~/lib/games/constants"
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
 import { cmp, schema } from "~/lib/db"
@@ -34,6 +33,7 @@ import { randomElement } from "~/lib/utils/random"
 import { getUserProfile, requireUserProfile } from "../auth/profile"
 import { pushGameEvent } from "./events/server"
 import { cancelInngestGameWorkflow, finalizeGame, touchGameState } from "./internal-actions"
+import { type ServerQuestionStrategy } from "./question-types/server_base"
 import { createServerQuestionStrategy } from "./question-types/server_create"
 
 export const gameRouter = createTRPCRouter({
