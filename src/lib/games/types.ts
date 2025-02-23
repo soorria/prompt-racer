@@ -2,12 +2,26 @@ import { type BadgeProps } from "~/components/ui/badge"
 import { type Doc } from "../db/types"
 import { type getSessionInfoForPlayer } from "./queries"
 
+export type FullQuestion = Doc<"questions"> &
+  (
+    | {
+        programming_question_id: string
+        programmingQuestion: Doc<"programmingQuestions"> & {
+          testCases: Doc<"programmingQuestionTestCases">[]
+        }
+        picture_question_id: null
+        pictureQuestion: null
+      }
+    | {
+        picture_question_id: string
+        pictureQuestion: Doc<"pictureQuestions">
+        programming_question_id: null
+        programmingQuestion: null
+      }
+  )
+
 type FullGameState = Omit<Doc<"gameStates">, "question_id"> & {
-  question: Doc<"questions"> & {
-    programmingQuestion: Doc<"programmingQuestions"> & {
-      testCases: Doc<"programmingQuestionTestCases">[]
-    }
-  }
+  question: FullQuestion
   players: {
     user: Pick<Doc<"userProfiles">, "id" | "name" | "profile_image_url" | "wins">
   }[]
@@ -22,8 +36,11 @@ export type NotWaitingForPlayersGameState = Omit<FullGameState, "status"> & {
 }
 
 export type InGameState = WaitingForPlayersGameState | NotWaitingForPlayersGameState
-export type QuestionWithTestCases = FullGameState["question"]
-
+export type ProgrammingQuestionWithTestCases = FullGameState["question"] & {
+  programmingQuestion: Doc<"programmingQuestions"> & {
+    testCases: Doc<"programmingQuestionTestCases">[]
+  }
+}
 export type PlayerGameSession = NonNullable<Awaited<ReturnType<typeof getSessionInfoForPlayer>>>
 
 export type FinalPlayerResult = Pick<Doc<"playerGameSessionFinalResults">, "position" | "score">

@@ -2,13 +2,14 @@ import type { ReactNode } from "react"
 import React from "react"
 import { CheckCircle2, Loader2, MinusCircleIcon, XCircle } from "lucide-react"
 
-import { type PlayerGameSession, type QuestionWithTestCases } from "~/lib/games/types"
+import type { PlayerGameSession } from "~/lib/games/types"
+import { type ProgrammingQuestionWithTestCases } from "~/lib/games/types"
 import { api } from "~/lib/trpc/react"
 import { Skeleton } from "../ui/skeleton"
 import { useGameManager } from "./GameManagerProvider"
 
 function QuestionTestCaseResults(props: {
-  question: QuestionWithTestCases
+  question: ProgrammingQuestionWithTestCases
   testState: PlayerGameSession["testState"]
 }) {
   const testResultByTestCaseId = Object.fromEntries(

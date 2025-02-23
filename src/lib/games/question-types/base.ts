@@ -1,18 +1,24 @@
 import { invariant } from "@epic-web/invariant"
 
-import type { GameMode, GameModeDetailsItem, QuestionDifficultyLevels } from "../constants"
+import type { GameMode, QuestionDifficultyLevels } from "../constants"
 import type { DBOrTransaction, Doc } from "~/lib/db/types"
 import { entries } from "~/lib/utils/object"
 import { randomElement } from "~/lib/utils/random"
 import { GAME_MODE_DETAILS } from "../constants"
 
-export interface ClientQuestionStrategy {
-  readonly supportedGameModes: ({ id: GameMode } & GameModeDetailsItem)[]
-  readonly getRandomGameMode: () => GameMode
+export abstract class BaseQuestionStrategy {
+  constructor(readonly config: QuestionTypeConfig) {}
 }
 
-export interface ServerQuestionStrategy extends ClientQuestionStrategy {
-  getOrGenerateQuestion(
+export interface ClientQuestionStrategy extends BaseQuestionStrategy {
+  readonly difficulty: QuestionDifficultyLevels
+  readonly title: string
+  readonly description: string
+  readonly preview: JSX.Element
+}
+
+export abstract class ServerQuestionStrategy extends BaseQuestionStrategy {
+  abstract getOrGenerateQuestion(
     tx: DBOrTransaction,
     options: {
       difficulty?: QuestionDifficultyLevels
@@ -23,15 +29,9 @@ export interface ServerQuestionStrategy extends ClientQuestionStrategy {
       pictureQuestion: Doc<"pictureQuestions"> | null
     }
   >
-
-  isCompatibleQuestion(question: {
-    programmingQuestion: object | null
-    pictureQuestion: object | null
-  }): boolean
 }
-
-export abstract class BaseQuestionStrategy implements ClientQuestionStrategy {
-  protected abstract readonly supportedModeIds: readonly GameMode[]
+export abstract class QuestionTypeConfig {
+  abstract readonly supportedModeIds: readonly GameMode[]
 
   get supportedGameModes() {
     return entries(GAME_MODE_DETAILS)
@@ -43,4 +43,9 @@ export abstract class BaseQuestionStrategy implements ClientQuestionStrategy {
     invariant(this.supportedModeIds.length > 0, "No supported game modes")
     return randomElement(this.supportedModeIds)!
   }
+
+  abstract isCompatibleQuestion(question: {
+    programmingQuestion: object | null
+    pictureQuestion: object | null
+  }): boolean
 }

@@ -172,6 +172,7 @@ export async function getInGameState(
     with: {
       question: {
         with: {
+          pictureQuestion: true,
           programmingQuestion: {
             with: {
               testCases: {

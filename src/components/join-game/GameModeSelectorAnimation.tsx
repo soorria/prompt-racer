@@ -7,7 +7,7 @@ import { Play } from "lucide-react"
 import { usePostHog } from "posthog-js/react"
 
 import type { GameModeDetailsItem, GameModeIds, QuestionType } from "~/lib/games/constants"
-import { createClientQuestionStrategy } from "~/lib/games/question-types/client_create"
+import { getQuestionConfig } from "~/lib/games/question-types/config_create"
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
 import { AnimatedBorder } from "../ui/custom/animated-border"
@@ -114,7 +114,7 @@ const PlayButton = ({ onClick, isLoading }: PlayButtonProps) => {
 }
 
 const GameModeSelectorAnimation = ({ questionType }: { questionType: QuestionType }) => {
-  const questionStrategy = createClientQuestionStrategy(questionType)
+  const questionConfig = getQuestionConfig(questionType)
   const router = useRouter()
   const posthog = usePostHog()
 
@@ -143,11 +143,11 @@ const GameModeSelectorAnimation = ({ questionType }: { questionType: QuestionTyp
     let intervalId: NodeJS.Timeout
     if (isSelecting) {
       intervalId = setInterval(() => {
-        setHighlightedIndex((prev) => (prev + 1) % questionStrategy.supportedGameModes.length)
+        setHighlightedIndex((prev) => (prev + 1) % questionConfig.supportedGameModes.length)
       }, 200)
     }
     return () => clearInterval(intervalId)
-  }, [questionStrategy.supportedGameModes.length, isSelecting])
+  }, [questionConfig.supportedGameModes.length, isSelecting])
 
   const handleClick = () => {
     setShowPlayButton(false)
@@ -170,7 +170,7 @@ const GameModeSelectorAnimation = ({ questionType }: { questionType: QuestionTyp
             })}
             key={isCompact ? "compact" : "expanded"}
           >
-            {questionStrategy.supportedGameModes.map((mode, index) =>
+            {questionConfig.supportedGameModes.map((mode, index) =>
               isCompact ? (
                 <CompactCard
                   key={`compact-${index}`}

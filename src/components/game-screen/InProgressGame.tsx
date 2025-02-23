@@ -6,7 +6,9 @@ import { useMediaQuery } from "@react-hook/media-query"
 import { ChatHistoryPanelImpl } from "~/components/game-screen/ChatHistoryPanel"
 import MobileMultiSelectPanel from "~/components/game-screen/MobileMultiSelectPanel"
 import QuestionDescription from "~/components/game-screen/QuestionDescription"
+import { createClientQuestionStrategy } from "~/lib/games/question-types/client_create"
 import { type NotWaitingForPlayersGameState } from "~/lib/games/types"
+import { getQuestionType } from "~/lib/games/utils"
 import { createDefaultLayout, createDefaultMobileLayout } from "~/lib/surfaces/panels/layouts"
 import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
 import CodeRunningFooter from "./CodeRunningFooter"
@@ -17,12 +19,18 @@ import RunCodePanel from "./RunCodePanel"
 export const MOBILE_VIEWPORT = "(max-width: 640px)"
 
 function useViews(props: { gameInfo: NotWaitingForPlayersGameState }) {
+  const questionStrategy = useMemo(() => {
+    return createClientQuestionStrategy(
+      getQuestionType(props.gameInfo.question),
+      props.gameInfo.question,
+    )
+  }, [props.gameInfo.question])
   return useMemo(() => {
     const QuestionViewImpl = {
       key: "description",
       className: "bg-card p-4",
       component: (
-        <QuestionDescription question={props.gameInfo.question} gameMode={props.gameInfo.mode} />
+        <QuestionDescription questionStrategy={questionStrategy} gameMode={props.gameInfo.mode} />
       ),
     }
     const CodeRunningViewImpl = {
@@ -65,7 +73,7 @@ function useViews(props: { gameInfo: NotWaitingForPlayersGameState }) {
       QuestionAndTestCasesImpl,
       CodeRunningViewImpl,
     }
-  }, [props.gameInfo])
+  }, [props.gameInfo.mode, questionStrategy])
 }
 
 export function InProgressGame(props: { gameInfo: NotWaitingForPlayersGameState }) {
