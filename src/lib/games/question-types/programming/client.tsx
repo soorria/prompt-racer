@@ -1,11 +1,16 @@
 import { invariant } from "@epic-web/invariant"
 import { TestTubeDiagonal } from "lucide-react"
 
-import { type FullQuestion } from "../../types"
+import type { FullQuestion, QuestionTestState } from "../../types"
+import type { ClientQuestionStrategy } from "../base"
+import { ProgrammingQuestionResults } from "~/components/game-screen/ProgrammingQuestionResults"
 import { BaseQuestionStrategy } from "../base"
 import { ProgrammingQuestionConfig } from "./config"
 
-export class ProgrammingQuestionStrategy extends BaseQuestionStrategy {
+export class ProgrammingQuestionStrategy
+  extends BaseQuestionStrategy
+  implements ClientQuestionStrategy
+{
   private readonly question: FullQuestion & {
     programmingQuestion: NonNullable<FullQuestion["programmingQuestion"]>
   }
@@ -51,5 +56,9 @@ export class ProgrammingQuestionStrategy extends BaseQuestionStrategy {
         </div>
       </div>
     )
+  }
+
+  results(testState: QuestionTestState | null) {
+    return <ProgrammingQuestionResults question={this.question} testState={testState} />
   }
 }

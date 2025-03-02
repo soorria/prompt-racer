@@ -41,6 +41,12 @@ export type ProgrammingQuestionWithTestCases = FullGameState["question"] & {
     testCases: Doc<"programmingQuestionTestCases">[]
   }
 }
+export type PictureQuestion = FullGameState["question"] & {
+  pictureQuestion: Doc<"pictureQuestions">
+}
+export type QuestionTestState = NonNullable<
+  NonNullable<Awaited<ReturnType<typeof getSessionInfoForPlayer>>>["testState"]
+>
 export type PlayerGameSession = NonNullable<Awaited<ReturnType<typeof getSessionInfoForPlayer>>>
 
 export type FinalPlayerResult = Pick<Doc<"playerGameSessionFinalResults">, "position" | "score">
