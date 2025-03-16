@@ -61,3 +61,17 @@ export type ClientGameState = {
   gameState: InGameState
   gameSession: PlayerGameSession
 }
+
+export type ProgrammingSubmissionState = {
+  type: "programming"
+  submission_state_id: string
+  metrics: { numPassingSubmissionsTestCases: number; numTestCases: number }
+}
+
+type PictureSubmissionState = {
+  type: "picture"
+  submission_state_id: string
+  metrics: { match_percentage: number }
+}
+
+export type SubmissionState = ProgrammingSubmissionState | PictureSubmissionState
