@@ -2,7 +2,6 @@ import { invariant } from "@epic-web/invariant"
 
 import type { FullQuestion } from "../../types"
 import type { ClientQuestionStrategy } from "../base"
-import { PictureQuestionResults } from "~/components/game-screen/PictureQuestionResults"
 import { BaseQuestionStrategy } from "../base"
 import { PictureQuestionConfig } from "./config"
 
@@ -33,9 +32,7 @@ export class PictureQuestionStrategy
   }
 
   resultsPanel() {
-    return {
-      content: <PictureQuestionResults question={this.question} />,
-      footer: <></>,
-    }
+    throw new Error("Not implemented")
+    return { content: <></>, footer: <></> }
   }
 }
