@@ -4,7 +4,7 @@ import { CheckCircle2, Loader2, MinusCircleIcon, XCircle } from "lucide-react"
 
 import type { PlayerGameSession } from "~/lib/games/types"
 import { type ProgrammingQuestionWithTestCases } from "~/lib/games/types"
-import { useGameManager } from "./GameManagerProvider"
+import { useGameManager } from "../GameManagerProvider"
 import { ProgrammingSubmissionStatus } from "./ProgrammingSubmissionStatus"
 
 function ProgrammingQuestionResultCases(props: {

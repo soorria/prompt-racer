@@ -4,9 +4,9 @@ import Markdown from "react-markdown"
 import type { ProgrammingQuestionWithTestCases } from "~/lib/games/types"
 import { GAME_MODE_DETAILS } from "~/lib/games/constants"
 import { DifficultyToBadgeVariantMap } from "~/lib/games/types"
-import { Badge } from "../ui/badge"
-import { WinConditionCard } from "../WinConditionCard"
-import { useGameManager } from "./GameManagerProvider"
+import { Badge } from "../../ui/badge"
+import { WinConditionCard } from "../../WinConditionCard"
+import { useGameManager } from "../GameManagerProvider"
 
 export function ProgrammingQuestionDescription({
   question,

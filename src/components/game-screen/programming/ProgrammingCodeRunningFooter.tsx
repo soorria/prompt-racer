@@ -4,8 +4,8 @@ import React from "react"
 import { Play, UploadCloud } from "lucide-react"
 
 import { api } from "~/lib/trpc/react"
-import { Button } from "../ui/button"
-import { useGameManager } from "./GameManagerProvider"
+import { Button } from "../../ui/button"
+import { useGameManager } from "../GameManagerProvider"
 
 export default function ProgrammingCodeRunningFooter() {
   const utils = api.useUtils()

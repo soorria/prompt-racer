@@ -5,8 +5,8 @@ import { invariant } from "@epic-web/invariant"
 import { AnimatePresence, motion } from "framer-motion"
 
 import type { PanelSlot } from "~/lib/surfaces/panels/panels"
+import AnimatedTabs from "~/components/ui/AnimatedTabs"
 import { cn } from "~/lib/utils"
-import AnimatedTabs from "../ui/AnimatedTabs"
 import { Direction, directionalVariants } from "./MultiSelectPanel"
 
 const transition = {
