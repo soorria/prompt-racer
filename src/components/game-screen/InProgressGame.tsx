@@ -12,8 +12,6 @@ import { createClientQuestionStrategy } from "~/lib/games/question-types/client_
 import { type NotWaitingForPlayersGameState } from "~/lib/games/types"
 import { createDefaultLayout, createDefaultMobileLayout } from "~/lib/surfaces/panels/layouts"
 import PanelSkeleton from "~/lib/surfaces/panels/PanelSkeleton"
-import CodeRunning from "./CodeRunning"
-import CodeRunningFooter from "./CodeRunningFooter"
 import { CodeViewImpl } from "./CodeView"
 import MultiSelectPanel from "./MultiSelectPanel"
 
@@ -24,6 +22,7 @@ function useViews(props: {
   questionStrategy: ClientQuestionStrategy
 }) {
   return useMemo(() => {
+    const resultsPanel = props.questionStrategy.resultsPanel()
     const QuestionViewImpl = {
       key: "description",
       className: "bg-card p-4",
@@ -37,8 +36,8 @@ function useViews(props: {
     const CodeRunningViewImpl = {
       key: "run-code",
       className: "p-4",
-      component: <CodeRunning questionStrategy={props.questionStrategy} />,
-      footer: <CodeRunningFooter />,
+      component: resultsPanel.content,
+      footer: resultsPanel.footer,
       footerClassName: "px-4 pb-4 pt-2",
     }
 

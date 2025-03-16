@@ -7,10 +7,10 @@ import { api } from "~/lib/trpc/react"
 import { Button } from "../ui/button"
 import { useGameManager } from "./GameManagerProvider"
 
-export default function CodeRunningFooter() {
+export default function ProgrammingCodeRunningFooter() {
   const utils = api.useUtils()
   const { gameInfo, gameSessionInfo, submitCodeMutation, isGeneratingCode } = useGameManager()
-  const submisisonMetricsQuery = api.games.getSubmissionMetrics.useQuery({
+  const submisisonMetricsQuery = api.games.getProgrammingSubmissionMetrics.useQuery({
     game_id: gameSessionInfo.game_id,
   })
   const handleRunTests = () => {
