@@ -6,7 +6,6 @@ import { useMediaQuery } from "@react-hook/media-query"
 import type { ClientQuestionStrategy } from "~/lib/games/question-types/base"
 import { ChatHistoryPanelImpl } from "~/components/game-screen/ChatHistoryPanel"
 import MobileMultiSelectPanel from "~/components/game-screen/MobileMultiSelectPanel"
-import QuestionDescription from "~/components/game-screen/QuestionDescription"
 import { getQuestionType } from "~/lib/games/question-types/base"
 import { createClientQuestionStrategy } from "~/lib/games/question-types/client_create"
 import { type NotWaitingForPlayersGameState } from "~/lib/games/types"
@@ -17,21 +16,14 @@ import MultiSelectPanel from "./MultiSelectPanel"
 
 export const MOBILE_VIEWPORT = "(max-width: 640px)"
 
-function useViews(props: {
-  gameInfo: NotWaitingForPlayersGameState
-  questionStrategy: ClientQuestionStrategy
-}) {
+function useViews(props: { questionStrategy: ClientQuestionStrategy }) {
   return useMemo(() => {
+    const descriptionPanel = props.questionStrategy.descriptionPanel()
     const resultsPanel = props.questionStrategy.resultsPanel()
     const QuestionViewImpl = {
       key: "description",
       className: "bg-card p-4",
-      component: (
-        <QuestionDescription
-          questionStrategy={props.questionStrategy}
-          gameMode={props.gameInfo.mode}
-        />
-      ),
+      component: descriptionPanel.content,
     }
     const CodeRunningViewImpl = {
       key: "run-code",
@@ -73,7 +65,7 @@ function useViews(props: {
       QuestionAndTestCasesImpl,
       CodeRunningViewImpl,
     }
-  }, [props.gameInfo.mode, props.questionStrategy])
+  }, [props.questionStrategy])
 }
 
 export function InProgressGame(props: { gameInfo: NotWaitingForPlayersGameState }) {
@@ -81,7 +73,6 @@ export function InProgressGame(props: { gameInfo: NotWaitingForPlayersGameState 
   const questionType = getQuestionType(props.gameInfo.question)
   const questionStrategy = createClientQuestionStrategy(questionType, props.gameInfo.question)
   const { MobileLayout, QuestionAndTestCasesImpl, CodeRunningViewImpl } = useViews({
-    gameInfo: props.gameInfo,
     questionStrategy,
   })
   const defaultDesktopLayout = createDefaultLayout({

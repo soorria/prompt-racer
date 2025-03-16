@@ -19,16 +19,9 @@ export class PictureQuestionStrategy
     this.question = question
   }
 
-  get difficulty() {
-    return this.question.difficulty
-  }
-
-  readonly title = "this.question.pictureQuestion.title"
-
-  readonly description = "this.question.pictureQuestion.description"
-
-  get preview() {
-    return <div>Picture question</div>
+  descriptionPanel() {
+    throw new Error("Not implemented")
+    return { content: <></> }
   }
 
   resultsPanel() {
