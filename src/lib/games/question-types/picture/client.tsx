@@ -20,9 +20,8 @@ export class PictureQuestionStrategy
   }
 
   descriptionPanel() {
-    return {
-      content: <>Nothing yet sorry!</>,
-    }
+    throw new Error("Not implemented")
+    return { content: <></> }
   }
 
   resultsPanel() {
