@@ -1,6 +1,6 @@
 import { api } from "~/lib/trpc/react"
-import { Skeleton } from "../ui/skeleton"
-import { useGameManager } from "./GameManagerProvider"
+import { Skeleton } from "../../ui/skeleton"
+import { useGameManager } from "../GameManagerProvider"
 
 export function ProgrammingSubmissionStatus() {
   const { gameSessionInfo, submitCodeMutation } = useGameManager()

@@ -12,12 +12,6 @@ import { useGameManager } from "./GameManagerProvider"
 
 type MessageType = Doc<"playerGameSessionChatHistoryItems">
 
-export const ChatHistoryPanelImpl = {
-  key: "chat",
-  className: "bg-card",
-  component: <ChatHistoryPanel />,
-}
-
 function ChatPanelMessage({
   message,
   index,

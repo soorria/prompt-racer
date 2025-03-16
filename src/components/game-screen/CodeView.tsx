@@ -9,12 +9,6 @@ import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { useGameManager } from "./GameManagerProvider"
 
-export const CodeViewImpl = {
-  key: "code",
-  className: "bg-dracula p-2 sm:p-4 flex flex-col",
-  component: <CodeView />,
-}
-
 export default function CodeView() {
   const context = useGameManager()
   const formRef = useRef<HTMLFormElement>(null)

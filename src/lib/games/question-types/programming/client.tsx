@@ -2,9 +2,9 @@ import { invariant } from "@epic-web/invariant"
 
 import type { FullQuestion } from "../../types"
 import type { ClientQuestionStrategy } from "../base"
-import ProgrammingCodeRunningFooter from "~/components/game-screen/ProgrammingCodeRunningFooter"
-import { ProgrammingQuestionDescription } from "~/components/game-screen/ProgrammingQuestionDescription"
-import { ProgrammingQuestionResults } from "~/components/game-screen/ProgrammingQuestionResults"
+import ProgrammingCodeRunningFooter from "~/components/game-screen/programming/ProgrammingCodeRunningFooter"
+import { ProgrammingQuestionDescription } from "~/components/game-screen/programming/ProgrammingQuestionDescription"
+import { ProgrammingQuestionResults } from "~/components/game-screen/programming/ProgrammingQuestionResults"
 import { BaseQuestionStrategy } from "../base"
 import { ProgrammingQuestionConfig } from "./config"
 
