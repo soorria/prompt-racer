@@ -278,6 +278,7 @@ export async function getSessionInfoForPlayer(tx: DBOrTransaction, userId: strin
     with: {
       submissionState: {
         with: {
+          pictureResult: true,
           programmingResults: {
             columns: {
               is_correct: true,
@@ -287,6 +288,7 @@ export async function getSessionInfoForPlayer(tx: DBOrTransaction, userId: strin
       },
       testState: {
         with: {
+          pictureResult: true,
           programmingResults: true,
         },
       },
