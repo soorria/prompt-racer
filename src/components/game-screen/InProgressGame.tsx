@@ -16,10 +16,7 @@ import MultiSelectPanel from "./MultiSelectPanel"
 
 export const MOBILE_VIEWPORT = "(max-width: 640px)"
 
-function useViews(props: {
-  gameInfo: NotWaitingForPlayersGameState
-  questionStrategy: ClientQuestionStrategy
-}) {
+function useViews(props: { questionStrategy: ClientQuestionStrategy }) {
   return useMemo(() => {
     const descriptionPanel = props.questionStrategy.descriptionPanel()
     const resultsPanel = props.questionStrategy.resultsPanel()
@@ -76,7 +73,6 @@ export function InProgressGame(props: { gameInfo: NotWaitingForPlayersGameState 
   const questionType = getQuestionType(props.gameInfo.question)
   const questionStrategy = createClientQuestionStrategy(questionType, props.gameInfo.question)
   const { MobileLayout, QuestionAndTestCasesImpl, CodeRunningViewImpl } = useViews({
-    gameInfo: props.gameInfo,
     questionStrategy,
   })
   const defaultDesktopLayout = createDefaultLayout({
