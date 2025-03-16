@@ -1,9 +1,8 @@
 import { invariant } from "@epic-web/invariant"
 
-import type { FullQuestion, SubmissionState } from "../../types"
+import type { FullQuestion } from "../../types"
 import type { ClientQuestionStrategy } from "../base"
 import { PictureQuestionResults } from "~/components/game-screen/PictureQuestionResults"
-import { type QuestionTestState } from "../../types"
 import { BaseQuestionStrategy } from "../base"
 import { PictureQuestionConfig } from "./config"
 
@@ -33,15 +32,10 @@ export class PictureQuestionStrategy
     return <div>Picture question</div>
   }
 
-  results(testState: QuestionTestState | null) {
-    return <PictureQuestionResults question={this.question} testState={testState} />
-  }
-
-  submissionMetrics(submissionState: SubmissionState) {
-    if (submissionState.type === "picture") {
-      throw new Error("Picture submission metrics not implemented")
-      return <></>
+  resultsPanel() {
+    return {
+      content: <PictureQuestionResults question={this.question} />,
+      footer: <></>,
     }
-    throw new Error("Picture submission state not found")
   }
 }

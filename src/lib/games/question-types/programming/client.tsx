@@ -1,10 +1,10 @@
 import { invariant } from "@epic-web/invariant"
 import { TestTubeDiagonal } from "lucide-react"
 
-import type { FullQuestion, QuestionTestState, SubmissionState } from "../../types"
+import type { FullQuestion } from "../../types"
 import type { ClientQuestionStrategy } from "../base"
+import ProgrammingCodeRunningFooter from "~/components/game-screen/ProgrammingCodeRunningFooter"
 import { ProgrammingQuestionResults } from "~/components/game-screen/ProgrammingQuestionResults"
-import { ProgrammingSubmissionStatus } from "~/components/game-screen/ProgrammingSubmissionStatus"
 import { BaseQuestionStrategy } from "../base"
 import { ProgrammingQuestionConfig } from "./config"
 
@@ -59,14 +59,10 @@ export class ProgrammingQuestionStrategy
     )
   }
 
-  results(testState: QuestionTestState | null) {
-    return <ProgrammingQuestionResults question={this.question} testState={testState} />
-  }
-
-  submissionMetrics(submissionState: SubmissionState) {
-    if (submissionState.type === "programming") {
-      return <ProgrammingSubmissionStatus submissionState={submissionState} />
+  resultsPanel() {
+    return {
+      content: <ProgrammingQuestionResults question={this.question} />,
+      footer: <ProgrammingCodeRunningFooter />,
     }
-    throw new Error("Programming submission state not found")
   }
 }

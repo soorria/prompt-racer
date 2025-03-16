@@ -1,19 +1,27 @@
-import type { ProgrammingSubmissionState } from "~/lib/games/types"
+import { api } from "~/lib/trpc/react"
 import { Skeleton } from "../ui/skeleton"
+import { useGameManager } from "./GameManagerProvider"
 
-export function ProgrammingSubmissionStatus(props: {
-  submissionState: ProgrammingSubmissionState
-}) {
-  const hasMetricsToShow = true
+export function ProgrammingSubmissionStatus() {
+  const { gameSessionInfo, submitCodeMutation } = useGameManager()
+  const submisisonMetricsQuery = api.games.getProgrammingSubmissionMetrics.useQuery({
+    game_id: gameSessionInfo.game_id,
+  })
+  const submissionMetrics = submisisonMetricsQuery.data
+  const isComputingSubmission =
+    submitCodeMutation.isPending && submitCodeMutation.variables.submission_type === "submission"
+  const hasMetricsToShow =
+    !isComputingSubmission && !submisisonMetricsQuery.isRefetching && submissionMetrics
+
   return (
     <p className="text-right text-xs opacity-50">
-      {props.submissionState.submission_state_id ? (
+      {submissionMetrics?.submission_state_id ? (
         <>
           <span>Last submssion</span>
           <br />
           <span className="inline-flex items-center gap-1 font-medium">
             {hasMetricsToShow ? (
-              `${props.submissionState.metrics.numPassingSubmissionsTestCases}/${props.submissionState.metrics.numTestCases} `
+              `${submissionMetrics.metrics.numPassingSubmissionsTestCases}/${submissionMetrics.metrics.numTestCases} `
             ) : (
               <Skeleton className="h-2 w-10 rounded-full" />
             )}
@@ -24,7 +32,7 @@ export function ProgrammingSubmissionStatus(props: {
               <div
                 className="h-full bg-primary"
                 style={{
-                  width: `${(props.submissionState.metrics.numPassingSubmissionsTestCases / props.submissionState.metrics.numTestCases) * 100}%`,
+                  width: `${(submissionMetrics.metrics.numPassingSubmissionsTestCases / submissionMetrics.metrics.numTestCases) * 100}%`,
                 }}
               />
             </div>

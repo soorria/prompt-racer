@@ -21,9 +21,9 @@ import {
   getGamesWithStatus,
   getInGameState,
   getLatestActiveGameForUser,
+  getProgrammingSubmissionMetrics,
   getQuestionById,
   getSessionInfoForPlayer,
-  getSubmissionMetrics,
   getUserGameHistory,
 } from "~/lib/games/queries"
 import { getQuestionTestCasesOrderBy } from "~/lib/games/utils"
@@ -33,6 +33,7 @@ import { randomElement } from "~/lib/utils/random"
 import { getUserProfile, requireUserProfile } from "../auth/profile"
 import { pushGameEvent } from "./events/server"
 import { cancelInngestGameWorkflow, finalizeGame, touchGameState } from "./internal-actions"
+import { getQuestionType } from "./question-types/base"
 import { type ServerQuestionStrategy } from "./question-types/server_base"
 import { createServerQuestionStrategy } from "./question-types/server_create"
 
@@ -65,7 +66,7 @@ export const gameRouter = createTRPCRouter({
       return gameState
     }),
 
-  getSubmissionMetrics: protectedProcedure
+  getProgrammingSubmissionMetrics: protectedProcedure
     .input(
       z.object({
         game_id: z.string(),
@@ -76,10 +77,14 @@ export const gameRouter = createTRPCRouter({
       if (!sessionInfo) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Game not found" })
       }
-      if (sessionInfo.submission_state_id) {
-        return getSubmissionMetrics(ctx.db, sessionInfo.submission_state_id)
+      const questionType = getQuestionType(sessionInfo.game.question)
+      if (questionType !== "programming") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Game is not a programming game" })
       }
-      return null
+      if (!sessionInfo.submission_state_id) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No submission state found" })
+      }
+      return getProgrammingSubmissionMetrics(ctx.db, sessionInfo.submission_state_id)
     }),
 
   submitCode: protectedProcedure
