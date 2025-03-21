@@ -28,12 +28,12 @@ export default async function Home() {
             {/* Left column: Content */}
             <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
               <h1 className="text-4xl font-bold tracking-tight text-white sm:mb-0 sm:text-5xl">
-                AI Powered
-                <br /> Coding Battles
+                AI Image Battles
+                <br /> Prompt Showdown
               </h1>
-              <p className="mt-6 hidden text-lg leading-8 text-gray-300 sm:block">
-                Put your AI prompting skills to the test in a <br className="lg:hidden" />
-                game of speed and intelligence.
+              <p className="mt-6 hidden text-pretty text-lg leading-8 text-gray-300 sm:block">
+                Race to craft the perfect prompt and generate the winning image first. Where
+                creativity meets speed in the ultimate AI challenge.
               </p>
             </div>
 
@@ -65,7 +65,7 @@ export default async function Home() {
           {/* Animation (second on mobile, right column on desktop) */}
           <div className="order-2 mt-8 flex flex-col items-center justify-center gap-y-9 lg:order-none lg:mt-0">
             <HeroAnimation />
-            <GameModeAnimation questionType="programming" />
+            <GameModeAnimation questionType="picture" />
           </div>
 
           {/* Mobile-only buttons at bottom */}
