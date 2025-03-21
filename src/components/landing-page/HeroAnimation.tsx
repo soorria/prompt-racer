@@ -90,7 +90,7 @@ function extractChunks(code: string, chunkSize = 5): string[] {
 }
 
 const CHUNK_DELAY_MS = 50
-const IMAGE_STEP_DELAY_MS = 300 // Slower animation for image steps to make them more visible
+const IMAGE_STEP_DELAY_MS = 300
 const STEP_BUFFERS = {
   waitingForLLM: 10,
   waitBeforeSubmit: 10,
