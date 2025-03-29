@@ -20,7 +20,7 @@ refractor.register(python as Syntax)
 
 type CodeDisplayProps = {
   code: string
-  language: "python"
+  language: "python" | "html"
   showLineNumbers?: boolean
   isGeneratingCode?: boolean
   preProps?: ComponentProps<"pre">
