@@ -68,7 +68,7 @@ export type ProgrammingSubmissionState = {
   metrics: { numPassingSubmissionsTestCases: number; numTestCases: number }
 }
 
-type PictureSubmissionState = {
+export type PictureSubmissionState = {
   type: "picture"
   submission_state_id: string
   metrics: { match_percentage: number }

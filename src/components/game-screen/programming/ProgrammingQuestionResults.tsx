@@ -4,8 +4,10 @@ import { CheckCircle2, Loader2, MinusCircleIcon, XCircle } from "lucide-react"
 
 import type { PlayerGameSession } from "~/lib/games/types"
 import { type ProgrammingQuestionWithTestCases } from "~/lib/games/types"
+import { useGameManager } from "../GameManagerProvider"
+import { ProgrammingSubmissionStatus } from "./ProgrammingSubmissionStatus"
 
-export function ProgrammingQuestionResults(props: {
+function ProgrammingQuestionResultCases(props: {
   question: ProgrammingQuestionWithTestCases
   testState: PlayerGameSession["testState"] | undefined
 }) {
@@ -86,6 +88,24 @@ export function ProgrammingQuestionResults(props: {
           </div>
         )
       })}
+    </div>
+  )
+}
+
+export function ProgrammingQuestionResults(props: { question: ProgrammingQuestionWithTestCases }) {
+  const { gameSessionInfo } = useGameManager()
+  return (
+    <div className="relative flex flex-col">
+      <div className="flex-1">
+        <div className="mb-4 flex items-center pb-2">
+          <h3 className="flex-1 text-left text-lg font-bold">Results</h3>
+          <ProgrammingSubmissionStatus />
+        </div>
+        <ProgrammingQuestionResultCases
+          question={props.question}
+          testState={gameSessionInfo.testState}
+        />
+      </div>
     </div>
   )
 }

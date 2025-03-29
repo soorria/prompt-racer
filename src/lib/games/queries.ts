@@ -2,14 +2,15 @@ import "server-only"
 
 import type { SQL } from "drizzle-orm"
 
+import type {
+  InGameState,
+  NotWaitingForPlayersGameState,
+  WaitingForPlayersGameState,
+} from "./types"
 import { requireAuthUser } from "../auth/user"
 import { cmp, orderBy, schema } from "../db"
 import { type DBOrTransaction, type Doc } from "../db/types"
-import {
-  type InGameState,
-  type NotWaitingForPlayersGameState,
-  type WaitingForPlayersGameState,
-} from "./types"
+import { type ProgrammingSubmissionState } from "./types"
 import { getQuestionTestCasesOrderBy } from "./utils"
 
 export async function getUserGameHistory(
@@ -125,7 +126,10 @@ export async function getGamesWithStatus<Status extends Doc<"gameStates">["statu
   return results
 }
 
-export async function getSubmissionMetrics(tx: DBOrTransaction, submission_state_id: string) {
+export async function getProgrammingSubmissionMetrics(
+  tx: DBOrTransaction,
+  submission_state_id: string,
+): Promise<ProgrammingSubmissionState> {
   const submissionStateResults =
     await tx.query.playerProgrammingGameSubmissionStateResults.findMany({
       where: cmp.eq(
@@ -134,9 +138,13 @@ export async function getSubmissionMetrics(tx: DBOrTransaction, submission_state
       ),
     })
   return {
-    numPassingSubmissionsTestCases: submissionStateResults.filter((result) => result.is_correct)
-      .length,
-    numTestCases: submissionStateResults.length,
+    type: "programming",
+    submission_state_id,
+    metrics: {
+      numPassingSubmissionsTestCases: submissionStateResults.filter((result) => result.is_correct)
+        .length,
+      numTestCases: submissionStateResults.length,
+    },
   }
 }
 
@@ -276,6 +284,11 @@ export async function getSessionInfoForPlayer(tx: DBOrTransaction, userId: strin
       cmp.eq(schema.playerGameSessions.game_id, gameId),
     ),
     with: {
+      game: {
+        with: {
+          question: true,
+        },
+      },
       submissionState: {
         with: {
           pictureResult: true,

@@ -1,7 +1,6 @@
 import { invariant } from "@epic-web/invariant"
 
-import type { GameMode, QuestionDifficultyLevels, QuestionType } from "../constants"
-import type { QuestionTestState, SubmissionState } from "../types"
+import type { GameMode, QuestionType } from "../constants"
 import { entries } from "~/lib/utils/object"
 import { randomElement } from "~/lib/utils/random"
 import { GAME_MODE_DETAILS } from "../constants"
@@ -11,12 +10,13 @@ export abstract class BaseQuestionStrategy {
 }
 
 export interface ClientQuestionStrategy extends BaseQuestionStrategy {
-  readonly difficulty: QuestionDifficultyLevels
-  readonly title: string
-  readonly description: string
-  readonly preview: JSX.Element
-  results: (testState: QuestionTestState | null) => JSX.Element
-  submissionMetrics: (submissionState: SubmissionState) => JSX.Element
+  descriptionPanel: () => {
+    content: JSX.Element
+  }
+  resultsPanel: () => {
+    content: JSX.Element
+    footer: JSX.Element
+  }
 }
 
 export abstract class QuestionTypeConfig {
