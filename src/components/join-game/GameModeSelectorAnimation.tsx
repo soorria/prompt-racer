@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { Play } from "lucide-react"
 import { usePostHog } from "posthog-js/react"
 
-import type { GameModeDetailsItem, GameModeIds, QuestionType } from "~/lib/games/constants"
+import type { GameModeDetailsItem, GameModeId, QuestionType } from "~/lib/games/constants"
 import { getQuestionConfig } from "~/lib/games/question-types/config_create"
 import { api } from "~/lib/trpc/react"
 import { cn } from "~/lib/utils"
@@ -121,12 +121,18 @@ const GameModeSelectorAnimation = ({ questionType }: { questionType: QuestionTyp
   const [isCompact, setIsCompact] = useState(false)
   const [showPlayButton, setShowPlayButton] = useState(true)
   const [isSelecting, setIsSelecting] = useState(false)
-  const [selectedMode, setSelectedMode] = useState<GameModeIds | null>(null)
+  const [selectedMode, setSelectedMode] = useState<GameModeId | null>(null)
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
 
   const joinGame = api.games.join.useMutation({
     onMutate() {
       posthog.capture("Joined game")
+    },
+    onError: () => {
+      setIsSelecting(false)
+      setHighlightedIndex(-1)
+      setShowPlayButton(true)
+      setIsCompact(false)
     },
     onSuccess: async ({ game_id, mode }) => {
       setIsSelecting(false)
@@ -165,7 +171,7 @@ const GameModeSelectorAnimation = ({ questionType }: { questionType: QuestionTyp
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
             className={cn("grid grid-cols-1 gap-7", {
-              "sm:grid-cols-4": !showPlayButton,
+              "sm:grid-cols-3": !showPlayButton,
               "sm:grid-cols-2": showPlayButton,
             })}
             key={isCompact ? "compact" : "expanded"}

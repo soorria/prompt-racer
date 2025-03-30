@@ -4,9 +4,9 @@ import { count } from "drizzle-orm"
 
 import type { DBOrTransaction } from "~/lib/db/types"
 import { cmp, schema } from "~/lib/db"
-import { type QuestionDifficultyLevels } from "../../constants"
+import { type QuestionDifficultyLevel } from "../../constants"
 import { BaseQuestionStrategy } from "../base"
-import { type ServerQuestionStrategy } from "../server_base"
+import { type QuestionWithTypeDetails, type ServerQuestionStrategy } from "../server_base"
 import { ProgrammingQuestionConfig } from "./config"
 
 export class ServerProgrammingStrategy
@@ -19,7 +19,7 @@ export class ServerProgrammingStrategy
   async getOrGenerateQuestion(
     tx: DBOrTransaction,
     options: {
-      difficulty?: QuestionDifficultyLevels
+      difficulty?: QuestionDifficultyLevel
     },
   ) {
     let condition: SQL<unknown> | undefined = cmp.isNotNull(
@@ -50,5 +50,9 @@ export class ServerProgrammingStrategy
     invariant(question, "No question found")
 
     return question
+  }
+
+  getStarterCode(question: QuestionWithTypeDetails) {
+    return question.programmingQuestion?.starterCode ?? ""
   }
 }

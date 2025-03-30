@@ -1,13 +1,16 @@
-import type { SQL } from "drizzle-orm"
-import { invariant } from "@epic-web/invariant"
-import { count } from "drizzle-orm"
+import "server-only"
 
+import { invariant } from "@epic-web/invariant"
+
+import type { QuestionDifficultyLevel } from "../../constants"
 import type { DBOrTransaction } from "~/lib/db/types"
-import { cmp, schema } from "~/lib/db"
-import { type QuestionDifficultyLevels } from "../../constants"
+import { schema } from "~/lib/db"
+import { randomElement } from "~/lib/utils/random"
+import { QUESTION_DIFFICULTY_LEVELS } from "../../constants"
 import { BaseQuestionStrategy } from "../base"
-import { type ServerQuestionStrategy } from "../server_base"
+import { type QuestionWithTypeDetails, type ServerQuestionStrategy } from "../server_base"
 import { PictureQuestionConfig } from "./config"
+import { generatePictureQuestion } from "./question-generation"
 
 export class ServerPictureStrategy extends BaseQuestionStrategy implements ServerQuestionStrategy {
   constructor() {
@@ -17,36 +20,47 @@ export class ServerPictureStrategy extends BaseQuestionStrategy implements Serve
   async getOrGenerateQuestion(
     tx: DBOrTransaction,
     options: {
-      difficulty?: QuestionDifficultyLevels
+      difficulty?: QuestionDifficultyLevel
     },
   ) {
-    let condition: SQL<unknown> | undefined = cmp.isNotNull(
-      schema.questions.programming_question_id,
-    )
-    if (options.difficulty) {
-      condition = cmp.and(condition, cmp.eq(schema.questions.difficulty, options.difficulty))
-    }
-    condition = cmp.and(condition, cmp.isNotNull(schema.questions.picture_question_id))
+    const difficulty = options.difficulty ?? randomElement(QUESTION_DIFFICULTY_LEVELS)
 
-    const countQuery = tx.select({ count: count() }).from(schema.questions).where(condition)
-
-    const [numQuestions] = await countQuery
-
-    invariant(numQuestions?.count, "No questions found")
-
-    const randomIndex = Math.floor(Math.random() * numQuestions.count)
-
-    const question = await tx.query.questions.findFirst({
-      where: condition,
-      offset: randomIndex,
-      with: {
-        programmingQuestion: true,
-        pictureQuestion: true,
-      },
+    const pictureQuestion = await generatePictureQuestion({
+      difficulty,
     })
 
-    invariant(question, "No question found")
+    const [insertedPictureQuestion] = await tx
+      .insert(schema.pictureQuestions)
+      .values(pictureQuestion)
+      .returning({
+        id: schema.pictureQuestions.id,
+      })
 
-    return question
+    invariant(insertedPictureQuestion, "Failed to insert picture question")
+
+    const [insertedQuestion] = await tx
+      .insert(schema.questions)
+      .values({
+        difficulty,
+        picture_question_id: insertedPictureQuestion.id,
+      })
+      .returning()
+
+    invariant(insertedQuestion, "Failed to insert question")
+
+    return {
+      ...insertedQuestion,
+      programmingQuestion: null,
+      pictureQuestion: {
+        ...insertedPictureQuestion,
+        description: pictureQuestion.description,
+        starterCode: pictureQuestion.starterCode,
+        solution_image_url: pictureQuestion.solution_image_url,
+      },
+    }
+  }
+
+  getStarterCode(question: QuestionWithTypeDetails) {
+    return question.pictureQuestion?.starterCode ?? ""
   }
 }

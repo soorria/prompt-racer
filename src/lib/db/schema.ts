@@ -121,6 +121,10 @@ export const questionDifficultyEnum = pgEnum("question_difficulty", ["easy", "me
 
 export const pictureQuestions = pgTable("picture_question", {
   id: customTypes.primaryKey(),
+
+  starterCode: text("starter_code").notNull(),
+  description: text("description").notNull(),
+  solution_image_url: text("solution_image_url").notNull(),
 }).enableRLS()
 
 export const programmingQuestions = pgTable("programming_question", {

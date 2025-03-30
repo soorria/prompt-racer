@@ -5,7 +5,7 @@ import { count } from "drizzle-orm"
 import { type Inngest } from "inngest"
 import { z } from "zod"
 
-import type { QuestionDifficultyLevels } from "~/lib/games/constants"
+import type { QuestionDifficultyLevel } from "~/lib/games/constants"
 import { runPythonCodeAgainstTestCases } from "~/lib/code-execution/python"
 import { cmp, schema } from "~/lib/db"
 import { type DBOrTransaction, type Doc, type DocInsert } from "~/lib/db/types"
@@ -34,8 +34,12 @@ import { getUserProfile, requireUserProfile } from "../auth/profile"
 import { pushGameEvent } from "./events/server"
 import { cancelInngestGameWorkflow, finalizeGame, touchGameState } from "./internal-actions"
 import { getQuestionType } from "./question-types/base"
-import { type ServerQuestionStrategy } from "./question-types/server_base"
+import {
+  type QuestionWithTypeDetails,
+  type ServerQuestionStrategy,
+} from "./question-types/server_base"
 import { createServerQuestionStrategy } from "./question-types/server_create"
+import { getQuestionTypeFromQuestion } from "./question-types/utils"
 
 export const gameRouter = createTRPCRouter({
   getPlayerGameSession: protectedProcedure
@@ -332,7 +336,7 @@ export const gameRouter = createTRPCRouter({
         await tx.insert(schema.playerGameSessions).values({
           user_id: ctx.user.id,
           game_id: game.id,
-          code: question.programmingQuestion!.starterCode,
+          code: questionStrategy.getStarterCode(question),
           model: "openai::gpt-4o-mini",
         })
 
@@ -469,11 +473,8 @@ export const gameRouter = createTRPCRouter({
             with: {
               question: {
                 with: {
-                  programmingQuestion: {
-                    columns: {
-                      starterCode: true,
-                    },
-                  },
+                  programmingQuestion: true,
+                  pictureQuestion: true,
                 },
               },
             },
@@ -494,10 +495,14 @@ export const gameRouter = createTRPCRouter({
         throw new TRPCError({ code: "BAD_REQUEST", message: "Game is not in progress" })
       }
 
+      const questionStrategy = createServerQuestionStrategy(
+        getQuestionTypeFromQuestion(game.question),
+      )
+
       await ctx.db
         .update(schema.playerGameSessions)
         .set({
-          code: game.question.programmingQuestion!.starterCode,
+          code: questionStrategy.getStarterCode(game.question),
         })
         .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
     }),
@@ -530,13 +535,11 @@ async function getOrCreateGameToJoin(
   inngest: Inngest,
   questionStrategy: ServerQuestionStrategy,
   options: {
-    difficulty?: QuestionDifficultyLevels
+    difficulty?: QuestionDifficultyLevel
   },
 ): Promise<{
   game: Doc<"gameStates">
-  question: Doc<"questions"> & {
-    programmingQuestion?: Doc<"programmingQuestions"> | null
-  }
+  question: QuestionWithTypeDetails
 }> {
   let waitingForPlayersGames = await getGamesWithStatus(tx, "waitingForPlayers")
   if (options.difficulty) {
@@ -564,7 +567,7 @@ async function createGame(
   inngest: Inngest,
   questionStrategy: ServerQuestionStrategy,
   options: {
-    difficulty?: QuestionDifficultyLevels
+    difficulty?: QuestionDifficultyLevel
   },
 ) {
   const question = await questionStrategy.getOrGenerateQuestion(tx, options)
