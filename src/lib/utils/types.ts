@@ -8,3 +8,6 @@ export type Unsafe_AnyFunctionParameters = any[]
 export type Unsafe_AnyFunction = (...args: Unsafe_AnyFunctionParameters) => unknown
 
 export type MaybeArray<T> = T | T[]
+
+export type NonEmptyArray<T> = [T, ...T[]]
+export type NonEmptyReadonlyArray<T> = readonly [T, ...T[]]

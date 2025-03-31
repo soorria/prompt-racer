@@ -6,4 +6,4 @@ export const DRACULA_COLORS = [
   "#BD93F9",
   "#FF5555",
   "#F1FA8C",
-]
+] as const

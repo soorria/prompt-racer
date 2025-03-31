@@ -22,13 +22,13 @@ export const GAME_MODES = [
   "fewest-characters-to-llm",
 ] as const
 
-export type QuestionDifficultyLevels = (typeof questionDifficultyEnum)["enumValues"][number]
+export type QuestionDifficultyLevel = (typeof questionDifficultyEnum)["enumValues"][number]
 // this isnt a strict satisfies need to think how to do it strictly
 export const QUESTION_DIFFICULTY_LEVELS = [
   "easy",
   "medium",
   "hard",
-] as const satisfies QuestionDifficultyLevels[]
+] as const satisfies QuestionDifficultyLevel[]
 
 export type GameStatus = (typeof gameStatusEnum)["enumValues"][number]
 export const GAME_STATUS = [
@@ -41,7 +41,7 @@ export const LLM_PROMPTING_TIMEOUT = ms("10s")
 export const CODE_SUBMISSION_TIMEOUT = ms("10s")
 export const FINALIZING_SUBMISSION_BUFFER_TIME = ms("2s")
 
-export type GameModeIds = Doc<"gameStates">["mode"]
+export type GameModeId = Doc<"gameStates">["mode"]
 export type GameModeDetailsItem = {
   title: string
   description: string
@@ -51,7 +51,7 @@ export type GameModeDetailsItem = {
   icon: LucideIcon
   color: string
 }
-export const GAME_MODE_DETAILS: Record<GameModeIds, GameModeDetailsItem> = {
+export const GAME_MODE_DETAILS: Record<GameModeId, GameModeDetailsItem> = {
   "fastest-player": {
     title: "Speed Demon",
     description: "Race against others to solve the challenge first. Fast thinking wins!",

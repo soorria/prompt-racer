@@ -1,3 +1,5 @@
+import "server-only"
+
 import type { QuestionType } from "../constants"
 import { ServerPictureStrategy } from "./picture/server"
 import { ServerProgrammingStrategy } from "./programming/server"

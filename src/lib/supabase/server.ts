@@ -1,6 +1,9 @@
+import "server-only"
+
 import { cookies } from "next/headers"
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { createServerClient as _createServerClient } from "@supabase/ssr"
+import { createClient } from "@supabase/supabase-js"
 
 import { env } from "~/env"
 
@@ -23,4 +26,8 @@ export function createServerClient() {
       },
     },
   })
+}
+
+export function createAdminSupabaseClient() {
+  return createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
 }

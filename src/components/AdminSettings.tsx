@@ -2,7 +2,7 @@ import React from "react"
 import { useRouter } from "next/navigation"
 import { usePostHog } from "posthog-js/react"
 
-import type { QuestionDifficultyLevels, QuestionType } from "~/lib/games/constants"
+import type { QuestionDifficultyLevel, QuestionType } from "~/lib/games/constants"
 import {
   Select,
   SelectContent,
@@ -18,7 +18,7 @@ type Props = { gameId?: string }
 type ForceGameStatusChange = "waitingForPlayers" | "inProgress" | "finished"
 
 function GameJoiner({ joinGame }: { joinGame: ReturnType<typeof api.games.join.useMutation> }) {
-  const [difficulty, setDifficulty] = React.useState<QuestionDifficultyLevels>("easy")
+  const [difficulty, setDifficulty] = React.useState<QuestionDifficultyLevel>("easy")
   const [questionType, setQuestionType] = React.useState<QuestionType>("programming")
 
   return (
@@ -38,7 +38,7 @@ function GameJoiner({ joinGame }: { joinGame: ReturnType<typeof api.games.join.u
         </Select>
 
         <Select
-          onValueChange={(a: QuestionDifficultyLevels) => setDifficulty(a)}
+          onValueChange={(a: QuestionDifficultyLevel) => setDifficulty(a)}
           defaultValue="easy"
         >
           <SelectTrigger className="w-full flex-1">
