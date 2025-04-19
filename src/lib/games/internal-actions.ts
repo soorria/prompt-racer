@@ -12,6 +12,7 @@ import { captureUserEvent } from "../posthog/server"
 import { LLM_PROMPTING_TIMEOUT } from "./constants"
 import { getPlayerPositionsForGameMode } from "./game-modes"
 import { getGameById } from "./queries"
+import { getQuestionType } from "./question-types/base"
 import { chatHistoryItemTypeIs } from "./utils"
 
 export async function advanceGameToStatus(
@@ -130,7 +131,11 @@ export async function sendMessageInGame(gameId: string, instructions: string) {
       cmp.eq(schema.playerGameSessions.game_id, gameId),
     ),
     with: {
-      game: true,
+      game: {
+        with: {
+          question: true,
+        },
+      },
     },
   })
 
@@ -197,6 +202,7 @@ export async function sendMessageInGame(gameId: string, instructions: string) {
     .where(cmp.eq(schema.playerGameSessions.id, playerGameSession.id))
 
   const result = await streamUpdatedCode({
+    questionType: getQuestionType(playerGameSession.game.question),
     existingCode: playerGameSession.code,
     instructions,
     modelId: playerGameSession.model,
