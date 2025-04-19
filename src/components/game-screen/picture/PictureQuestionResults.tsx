@@ -1,12 +1,42 @@
+import DOMPurify from "isomorphic-dompurify"
+
 import { Skeleton } from "~/components/ui/skeleton"
 import { PICTURE_QUESTION_DIFFICULTY_CONFIGS } from "~/lib/games/question-types/picture/constants"
 import { useGameManager } from "../GameManagerProvider"
 
 const HTMLPreview = ({ html, size }: { html: string; size: number }) => {
+  const sanitizedHtml = DOMPurify.sanitize(html, {
+    FORBID_TAGS: [
+      "script",
+      "iframe",
+      "frame",
+      "object",
+      "embed",
+      "img",
+      "video",
+      "audio",
+      "source",
+      "picture",
+      "track",
+    ],
+    FORBID_ATTR: [
+      "onerror",
+      "onload",
+      "onclick",
+      "onmouseover",
+      "onmouseout",
+      "href",
+      "src",
+      "srcset",
+      "data-src",
+    ],
+    FORCE_BODY: true,
+  })
+
   return (
     <iframe
-      key={html}
-      srcDoc={html}
+      key={sanitizedHtml}
+      srcDoc={sanitizedHtml}
       style={{
         width: size,
         height: size,
