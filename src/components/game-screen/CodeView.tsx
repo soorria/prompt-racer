@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import { Send } from "lucide-react"
 
 import { MAX_SEND_MESSAGE_CHARACTER_LIMIT } from "~/lib/games/constants"
+import { getQuestionType } from "~/lib/games/question-types/base"
 import CodeRenderer from "../CodeRenderer"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -25,7 +26,9 @@ export default function CodeView() {
     <>
       <CodeRenderer
         code={context.gameSessionInfo.code}
-        language="python"
+        language={
+          getQuestionType(context.gameSessionInfo.game.question) === "picture" ? "html" : "python"
+        }
         preProps={{ className: "py-0 sm:py-2 mb-4" }}
         codeProps={{ className: "pr-0 p-2 sm:p-0" }}
         showLineNumbers={!context.isMobile}

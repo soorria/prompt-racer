@@ -17,6 +17,16 @@ const config = {
     ppr: true,
   },
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "mpwnskdajkinivskolsr.supabase.co",
+        pathname: "/storage/v1/object/public/picture-question-images/**",
+      },
+    ],
+  },
+
   async rewrites() {
     return [
       {
